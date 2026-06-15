@@ -1,7 +1,7 @@
-# Backend & dev-only files — not part of the static Vercel deploy
+# Backend & dev-only files — excluded from the static Vercel deploy.
+# NOTE: package.json is intentionally KEPT so Vercel has a project manifest
+# (a missing package.json makes the static build crash with an fsPath error).
 server.js
-package.json
-package-lock.json
 node_modules
 data
 scrape
