@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rallys Equities — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g3:#12B87C;--au:#C8A84B;--nv:#05101E;--nv2:#081828;--tx:#F6F2EA;--mt:rgba(246,242,234,.56);--gb:rgba(200,168,75,.2)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--nv);color:var(--tx);min-height:100vh;padding:40px 5vw}
+h1{font-family:'Cormorant Garamond',serif;font-size:34px;margin-bottom:4px}
+h1 em{font-style:italic;color:var(--g3)}
+.sub{font-size:12px;color:var(--mt);margin-bottom:26px}
+.bar{display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap}
+input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:10px 14px;color:var(--tx);font-size:13px;outline:none;min-width:280px;font-family:inherit}
+input:focus{border-color:rgba(18,184,124,.5)}
+button{background:linear-gradient(135deg,#0A6B4B,var(--g3));border:none;color:#fff;padding:10px 22px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+h2{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--au);margin:30px 0 12px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--nv2);border:1px solid var(--gb);border-radius:12px;overflow:hidden}
+th{padding:10px 12px;text-align:left;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mt);border-bottom:1px solid var(--gb);background:rgba(10,107,75,.08)}
+td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;color:var(--mt)}
+td b{color:var(--tx)}
+tr:last-child td{border-bottom:none}
+.ref{color:var(--au);font-weight:700}
+a{color:var(--g3)}
+.err{color:#E84545;font-size:12px;margin-bottom:14px;display:none}
+.msg{max-width:380px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<h1>Rallys Equities — <em>Admin</em></h1>
+<div class="sub">Form submissions &amp; account-opening applications. Paste the admin token printed in the server console.</div>
+<div class="bar">
+  <input id="tok" type="password" placeholder="Admin token">
+  <button onclick="load()">Load Submissions</button>
+</div>
+<div class="err" id="err"></div>
+
+<h2>Account Applications</h2>
+<table><thead><tr><th>Ref</th><th>Date</th><th>Applicant</th><th>Contact</th><th>Account</th><th>Financial</th><th>Documents</th></tr></thead><tbody id="apps"><tr><td colspan="7">—</td></tr></tbody></table>
+
+<h2>Contact Messages</h2>
+<table><thead><tr><th>Date</th><th>Name</th><th>Email / Phone</th><th>Subject</th><th>Message</th></tr></thead><tbody id="contacts"><tr><td colspan="5">—</td></tr></tbody></table>
+
+<script>
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function load(){
+  const tok=document.getElementById('tok').value.trim();
+  const err=document.getElementById('err');err.style.display='none';
+  const h={Authorization:'Bearer '+tok};
+  try{
+    const [aR,cR]=await Promise.all([fetch('/api/admin/applications',{headers:h}),fetch('/api/admin/contacts',{headers:h})]);
+    if(!aR.ok||!cR.ok)throw new Error('Unauthorized — check the token.');
+    const apps=await aR.json(),contacts=await cR.json();
+    document.getElementById('apps').innerHTML=apps.length?apps.map(a=>{
+      const p=a.payload,files=Object.entries(a.files).map(([k,v])=>`<a href="/api/admin/file/${a.reference}/${v}?t=${Date.now()}" onclick="this.href='/api/admin/file/${a.reference}/${v}'" target="_blank">${k}</a>`).join('<br>')||'—';
+      return `<tr><td class="ref">${esc(a.reference)}</td><td>${esc(a.created_at.slice(0,16).replace('T',' '))}</td>
+      <td><b>${esc(p.firstName)} ${esc(p.lastName)}</b><br>CNIC ${esc(p.cnic)}<br>${esc(p.gender)} · DOB ${esc(p.dob)}<br>${esc(p.city)} / ${esc(p.province)}</td>
+      <td>${esc(p.mobile)}<br>${esc(p.email)}<br>${esc(p.address)}</td>
+      <td><b>${esc(p.accountType)}</b><br>Risk: ${esc(p.riskTolerance)}<br>Lang: ${esc(p.language)}<br>${esc(p.services)}</td>
+      <td>${esc(p.employment)} ${esc(p.employer)}<br>${esc(p.income)}<br>${esc(p.sourceOfFunds)}<br>${esc(p.bank)} ${esc(p.iban)}<br>${esc(p.experience)} · ${esc(p.objective)}</td>
+      <td>${files}</td></tr>`;
+    }).join(''):'<tr><td colspan="7">No applications yet.</td></tr>';
+    document.getElementById('contacts').innerHTML=contacts.length?contacts.map(c=>`<tr><td>${esc(c.created_at.slice(0,16).replace('T',' '))}</td><td><b>${esc(c.name)}</b></td><td>${esc(c.email)}<br>${esc(c.phone)}</td><td>${esc(c.subject)}</td><td class="msg">${esc(c.message)}</td></tr>`).join(''):'<tr><td colspan="5">No messages yet.</td></tr>';
+  }catch(e){err.textContent=e.message;err.style.display='block';}
+}
+// note: file links need the token too — fetch and open as blob
+document.addEventListener('click',async ev=>{
+  const a=ev.target.closest('a[href^="/api/admin/file/"]');
+  if(!a)return;
+  ev.preventDefault();
+  const tok=document.getElementById('tok').value.trim();
+  const r=await fetch(a.getAttribute('href').split('?')[0],{headers:{Authorization:'Bearer '+tok}});
+  if(!r.ok)return alert('Unauthorized');
+  const blob=await r.blob();
+  window.open(URL.createObjectURL(blob),'_blank');
+});
+</script>
+</body>
+</html>

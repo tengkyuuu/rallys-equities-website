@@ -1,0 +1,13 @@
+# Backend & dev-only files — not part of the static Vercel deploy
+server.js
+package.json
+package-lock.json
+node_modules
+data
+scrape
+.claude
+start-server.cmd
+.env
+.env.example
+artifact_reference.html
+*.md

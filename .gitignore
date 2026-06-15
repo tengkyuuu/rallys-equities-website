@@ -1,0 +1,11 @@
+node_modules/
+data/
+.env
+
+# Local tooling & verification artifacts
+scrape/
+.claude/
+.vercel/
+*.log
+.DS_Store
+Thumbs.db
