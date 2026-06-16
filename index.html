@@ -478,6 +478,16 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .dleg-row{display:flex;align-items:center;gap:12px;font-size:13px}
 .dleg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 .dleg-pct{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:var(--au)}
+/* Calculator educational content (verbatim from the live site) */
+.calc-info{padding-top:30px;padding-bottom:64px}
+.calc-info .ci-wrap{max-width:840px;margin:0 auto}
+.calc-info h3{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:700;color:var(--au);margin:30px 0 11px;letter-spacing:.005em}
+.calc-info h3:first-child{margin-top:0}
+.calc-info p{font-size:14px;color:var(--mt);line-height:1.9;margin-bottom:13px;font-weight:300}
+.calc-info ul{list-style:none;margin:2px 0 16px;padding:0}
+.calc-info li{position:relative;padding-left:24px;margin-bottom:8px;font-size:13.5px;color:var(--mt);line-height:1.7}
+.calc-info li::before{content:'';position:absolute;left:5px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--g3);box-shadow:0 0 8px rgba(18,184,124,.6)}
+.ci-formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--tx);background:linear-gradient(90deg,rgba(200,168,75,.1),rgba(200,168,75,.02));border-left:3px solid var(--au);border-radius:0 12px 12px 0;padding:15px 22px;margin:4px 0 18px}
 /* Calculator result charts */
 .calc-chart{margin-top:16px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}
 .cc-legend{display:flex;gap:18px;font-size:10px;color:var(--mt);margin-bottom:10px;flex-wrap:wrap}
@@ -1999,9 +2009,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">CAGR Calculator</div>
       <div class="calc-sub">Compound Annual Growth Rate (CAGR) represents the average yearly growth rate of your investment over a specific period — it smooths out the returns and shows the average annual growth rate.</div>
       <div class="calc-formula">CAGR = (Ending Value ÷ Beginning Value)^(1/N) − 1</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Investment (PKR)</label><input type="number" class="finput" id="cagr-b" placeholder="100000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Final Maturity Value (PKR)</label><input type="number" class="finput" id="cagr-e" placeholder="250000"></div>
-      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="cagr-y" placeholder="5"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-b" value="100,000" placeholder="100,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Final Maturity Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-e" value="250,000" placeholder="250,000" oninput="fmtNum(this)"></div>
+      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="cagr-y" placeholder="5" value="5"></div>
       <button class="calc-btn" onclick="calcCAGR()">Calculate</button>
       <div class="calc-out" id="cagr-out"></div>
     </div>
@@ -2020,9 +2030,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">SIP Calculator</div>
       <div class="calc-sub">Helps investors estimate the potential returns on their mutual fund investments using the compound interest formula. Actual returns vary due to market conditions; exit loads and expense ratios are not included.</div>
       <div class="calc-formula">FV = P × [(1 + i)ⁿ − 1] × (1 + i) ÷ i</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Investment Amount (PKR)</label><input type="number" class="finput" id="sip-p" placeholder="10000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Rate of Return — Yearly (%)</label><input type="number" class="finput" id="sip-r" placeholder="12"></div>
-      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="sip-y" placeholder="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Investment Amount (PKR)</label><input type="text" inputmode="numeric" class="finput" id="sip-p" value="10,000" placeholder="10,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Rate of Return — Yearly (%)</label><input type="number" class="finput" id="sip-r" placeholder="12" value="12"></div>
+      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="sip-y" placeholder="10" value="10"></div>
       <button class="calc-btn" onclick="calcSIP()">Calculate SIP</button>
       <div class="calc-out" id="sip-out"></div>
     </div>
@@ -2040,10 +2050,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 <div class="calc-card" id="calc-inv">
       <div class="calc-title">Investment Calculator</div>
       <div class="calc-sub">Plan your wealth growth easily — combine an initial lump sum with monthly contributions at your expected return.</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Initial Investment (PKR)</label><input type="number" class="finput" id="inv-p" placeholder="500000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Contribution (PKR)</label><input type="number" class="finput" id="inv-m" placeholder="10000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Return (%)</label><input type="number" class="finput" id="inv-r" placeholder="12" min="1" max="100"></div>
-      <div class="fg"><label class="flbl">Period (Years)</label><input type="number" class="finput" id="inv-y" placeholder="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Initial Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-p" value="500,000" placeholder="500,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Contribution (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-m" value="10,000" placeholder="10,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Return (%)</label><input type="number" class="finput" id="inv-r" placeholder="12" min="1" max="100" value="12"></div>
+      <div class="fg"><label class="flbl">Period (Years)</label><input type="number" class="finput" id="inv-y" placeholder="10" value="10"></div>
       <button class="calc-btn" onclick="calcINV()">Calculate</button>
       <div class="calc-out" id="inv-out"></div>
     </div>
@@ -2062,10 +2072,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Depreciation Calculator</div>
       <div class="calc-sub">See how inflation erodes the purchasing power of your cash over time. Why it matters: the inflation rate determines how much value your money loses each year.</div>
       <div class="calc-formula">Inflation Rate (%) = ((B − A) × 100) ÷ A</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash Value (PKR)</label><input type="number" class="finput" id="dep-c" placeholder="1000000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Start Year</label><input type="number" class="finput" id="dep-sy" placeholder="2026"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Number of Years</label><input type="number" class="finput" id="dep-y" placeholder="10"></div>
-      <div class="fg"><label class="flbl">Inflation % per Year</label><input type="number" class="finput" id="dep-i" placeholder="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="dep-c" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Start Year</label><input type="number" class="finput" id="dep-sy" placeholder="2026" value="2026"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Number of Years</label><input type="number" class="finput" id="dep-y" placeholder="10" value="10"></div>
+      <div class="fg"><label class="flbl">Inflation % per Year</label><input type="number" class="finput" id="dep-i" placeholder="10" value="10"></div>
       <button class="calc-btn" onclick="calcDEP()">Calculate</button>
       <div class="calc-out" id="dep-out"></div>
     </div>
@@ -2084,11 +2094,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">X Rate Calculator</div>
       <div class="calc-sub">Compute ex-dividend, ex-bonus and ex-rights share prices after book closure. Enter percentages as numbers (e.g. 20 for 20%).</div>
       <div class="calc-formula">XD = CR − (FV × D%) &nbsp;·&nbsp; XB = CR ÷ (1 + B%) &nbsp;·&nbsp; XR = (CR + FV × R%) ÷ (1 + R%)</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Closing Rate (CR) — current share price before book closure</label><input type="number" class="finput" id="xr-cr" placeholder="150"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Face Value (FV)</label><input type="number" class="finput" id="xr-fv" placeholder="10"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Dividend % (D %)</label><input type="number" class="finput" id="xr-d" placeholder="20"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Bonus % (B %)</label><input type="number" class="finput" id="xr-b" placeholder="10"></div>
-      <div class="fg"><label class="flbl">Right Issue % (R %)</label><input type="number" class="finput" id="xr-r" placeholder="0"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Closing Rate (CR) — current share price before book closure</label><input type="text" inputmode="numeric" class="finput" id="xr-cr" value="150" placeholder="150" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Face Value (FV)</label><input type="text" inputmode="numeric" class="finput" id="xr-fv" value="10" placeholder="10" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Dividend % (D %)</label><input type="number" class="finput" id="xr-d" placeholder="20" value="20"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Bonus % (B %)</label><input type="number" class="finput" id="xr-b" placeholder="10" value="10"></div>
+      <div class="fg"><label class="flbl">Right Issue % (R %)</label><input type="number" class="finput" id="xr-r" placeholder="0" value="0"></div>
       <button class="calc-btn" onclick="calcXR()">Calculate</button>
       <div class="calc-out" id="xr-out"></div>
     </div>
@@ -2107,11 +2117,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">DCF Calculator</div>
       <div class="calc-sub">Estimate the intrinsic value of a company by projecting future free cash flows and discounting them to present value. A higher margin of safety indicates greater protection against market volatility or estimation errors.</div>
       <div class="calc-formula">Margin of Safety (%) = (Intrinsic Value − Current Price) ÷ Intrinsic Value × 100</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow Per Share (Rs)</label><input type="number" class="finput" id="dcf-cf" placeholder="15"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Current Share Price</label><input type="number" class="finput" id="dcf-p" placeholder="150"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Growth Rate (%)</label><input type="number" class="finput" id="dcf-g" placeholder="8"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Discounted Rate (Growth Stage) (%)</label><input type="number" class="finput" id="dcf-rg" placeholder="15"></div>
-      <div class="fg"><label class="flbl">Discounted Rate (Terminal Stage) (%)</label><input type="number" class="finput" id="dcf-rt" placeholder="18"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow Per Share (Rs)</label><input type="text" inputmode="numeric" class="finput" id="dcf-cf" value="15" placeholder="15" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Current Share Price</label><input type="text" inputmode="numeric" class="finput" id="dcf-p" value="150" placeholder="150" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Growth Rate (%)</label><input type="number" class="finput" id="dcf-g" placeholder="8" value="8"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Discounted Rate (Growth Stage) (%)</label><input type="number" class="finput" id="dcf-rg" placeholder="15" value="15"></div>
+      <div class="fg"><label class="flbl">Discounted Rate (Terminal Stage) (%)</label><input type="number" class="finput" id="dcf-rt" placeholder="18" value="18"></div>
       <button class="calc-btn" onclick="calcDCF()">Calculate</button>
       <div class="calc-out" id="dcf-out"></div>
     </div>
@@ -2130,11 +2140,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Projected FCF &amp; Cash Calculator</div>
       <div class="calc-sub">The estimated cash a business is expected to generate after capital expenditures — projected from 6-year averages with your growth assumption, including per-share values. FCF = Operating Cash Flow − Capital Expenditures.</div>
       <div class="calc-formula">Projected FCF = Current FCF × (1 + Growth Rate)ⁿ</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Equity (Rs)</label><input type="number" class="finput" id="fcf-eq" placeholder="50000000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Shares Outstanding</label><input type="number" class="finput" id="fcf-sh" placeholder="1000000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow 6Y Avg (Rs)</label><input type="number" class="finput" id="fcf-c" placeholder="2000000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash 6Y Avg (Rs)</label><input type="number" class="finput" id="fcf-ca" placeholder="1500000"></div>
-      <div class="fg"><label class="flbl">Growth Assumption (%)</label><input type="number" class="finput" id="fcf-g" placeholder="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Equity (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-eq" value="50,000,000" placeholder="50,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Shares Outstanding</label><input type="text" inputmode="numeric" class="finput" id="fcf-sh" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-c" value="2,000,000" placeholder="2,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-ca" value="1,500,000" placeholder="1,500,000" oninput="fmtNum(this)"></div>
+      <div class="fg"><label class="flbl">Growth Assumption (%)</label><input type="number" class="finput" id="fcf-g" placeholder="10" value="10"></div>
       <button class="calc-btn" onclick="calcFCF()">Calculate</button>
       <div class="calc-out" id="fcf-out"></div>
     </div>
@@ -2153,9 +2163,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Drawdown Calculator</div>
       <div class="calc-sub">Drawdown is the decline in the value of an investment from its peak to its lowest point before a new peak is achieved. Use it to measure portfolio risk, compare volatility, and determine recovery requirements.</div>
       <div class="calc-formula">Drawdown (%) = (Peak Value − Trough Value) ÷ Peak Value × 100</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Starting Balance</label><input type="number" class="finput" id="dd-sb" placeholder="1000000"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Period</label><input type="number" class="finput" id="dd-pd" placeholder="5"></div>
-      <div class="fg"><label class="flbl">Loss per period (%)</label><input type="number" class="finput" id="dd-l" placeholder="5"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Starting Balance</label><input type="text" inputmode="numeric" class="finput" id="dd-sb" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Period</label><input type="number" class="finput" id="dd-pd" placeholder="5" value="5"></div>
+      <div class="fg"><label class="flbl">Loss per period (%)</label><input type="number" class="finput" id="dd-l" placeholder="5" value="5"></div>
       <button class="calc-btn" onclick="calcDD()">Calculate</button>
       <div class="calc-out" id="dd-out"></div>
     </div>
@@ -2526,6 +2536,8 @@ function showPage(id){
   if(id==='account')populateReview();
   closeMnav();
   setTimeout(drawChart,80);
+  const CFN={cagr:'calcCAGR',sip:'calcSIP',invest:'calcINV',depr:'calcDEP',xrate:'calcXR',dcf:'calcDCF',fcf:'calcFCF',drawdown:'calcDD'};
+  if(CFN[id]&&typeof window[CFN[id]]==='function')setTimeout(()=>{try{window[CFN[id]]();}catch(e){}},90); // show Summary immediately, like the live site
 }
 
 /* ══ MOBILE MENU ══ */
@@ -2679,7 +2691,16 @@ async function submitContact(){
 
 /* ══ CALCULATORS ══ */
 const pk=n=>'PKR '+n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
-const num=id=>parseFloat(document.getElementById(id).value);
+const num=id=>parseFloat((document.getElementById(id).value||'').toString().replace(/,/g,''));
+/* Live-thousands formatting for money inputs */
+function fmtNum(el){
+  const caret=el.selectionStart,len=el.value.length;
+  let v=el.value.replace(/[^\d.]/g,'');
+  const parts=v.split('.');
+  if(parts[0]!=='')parts[0]=Number(parts[0]).toLocaleString('en-US');
+  el.value=parts.length>1?parts[0]+'.'+parts.slice(1).join('').slice(0,2):parts[0];
+  const diff=el.value.length-len;try{el.setSelectionRange(Math.max(0,caret+diff),Math.max(0,caret+diff));}catch(e){}
+}
 function out(id,rows){
   const el=document.getElementById(id);
   el.innerHTML=rows.map(([k,v])=>`<div class="calc-row"><span class="calc-k">${k}</span><span class="calc-v">${v}</span></div>`).join('');
@@ -2884,7 +2905,46 @@ function hlCity(city){
   if(el){el.style.borderColor='rgba(18,184,124,.7)';el.scrollIntoView({behavior:'smooth',block:'nearest'});}
 }
 
+/* ══ CALCULATOR EDUCATIONAL CONTENT (verbatim from the live site) ══ */
+const CALC_INFO={
+ cagr:[{h:'What is CAGR?'},"Compound Annual Growth Rate (CAGR) represents the average yearly growth rate of your investment over a specific period. It helps investors understand how much their investment has grown each year, assuming the profits were reinvested annually. CAGR provides a more accurate picture of investment performance compared to raw or absolute returns.",
+  {h:'CAGR vs. Absolute Returns'},"Many investors often measure returns in absolute terms, which only show the total percentage gain over the entire investment period. For example, if you invested PKR 20,000 in 2015 and it grew to PKR 35,000 by 2020, your absolute return would be 75%. While that looks impressive, it doesn't tell you how much your investment grew each year on average.","This is where CAGR becomes important. It smooths out the returns and shows the average annual growth rate, giving you a clearer understanding of your investment's performance year by year.",
+  {h:'How to Calculate CAGR'},"The formula for calculating Compound Annual Growth Rate (CAGR) is:",{f:"CAGR = (Ending Value / Beginning Value) ^ (1 / N) − 1"},"Here:",{ul:["Ending Value = Final value of the investment","Beginning Value = Initial investment amount","N = Number of years"]},"CAGR helps you determine the consistent annual growth rate of an investment over time.",
+  {h:'Benefits of Using an Online CAGR Calculator'},"An online CAGR calculator makes it simple to analyze and compare investment growth. Here are some of the main benefits:","Unlike absolute returns, CAGR takes into account the duration of the investment. This makes it a more reliable measure of true growth over a specific time frame, whether you're analyzing mutual funds, stocks, or your own business performance.","CAGR allows you to compare the performance of different investment products on a like-for-like basis. Whether you're reviewing mutual funds, stocks, or business growth, CAGR helps identify which option delivered the best annualized returns.","Using Rallys Equities' CAGR Calculator, you can quickly measure and compare the performance of your investments and make smarter financial decisions."],
+ sip:[{h:'What is a SIP Calculator?'},"A SIP (Systematic Investment Plan) Calculator is an online tool that helps investors estimate the potential returns on their mutual fund investments made through SIPs. SIP investing allows individuals to contribute a fixed amount regularly, helping build long-term wealth with financial discipline. The calculator provides an estimate of how much your investments could grow over time based on your input values.","While SIP calculators offer a clear projection, it's important to remember that actual returns may vary due to market fluctuations and other fund-related factors. These calculators also do not account for additional costs like exit loads or expense ratios, which may affect the final value. Overall, they serve as a smart planning tool to help you set realistic financial goals.",
+  {h:'How Does a SIP Calculator Work?'},"The SIP Calculator works using the compound interest formula, which shows how your money grows when returns are reinvested periodically. You simply enter the monthly investment amount, investment duration, and expected annual return rate — and the calculator estimates your total corpus at the end of the period.","The SIP Calculator formula is as follows:",{f:"FV = P × [(1 + i)ⁿ − 1] × (1 + i) / i"},"Where:",{ul:["FV = Future Value (the amount you'll receive at the end of the investment period)","P = SIP Amount (your regular investment per installment)","i = Periodic Interest Rate (annual return ÷ 12)","n = Total Number of Installments (investment duration in months)"]},"With Rallys Equities' SIP Calculator, you can easily visualize how small, consistent investments grow into a significant corpus over time — helping you plan smarter for your financial goals."],
+ depr:[{h:'What is Inflation?'},"Inflation measures the rise in the general price level of selected goods and services over a period of time. It reflects the decline in purchasing power of a currency, usually expressed as a percentage. Inflation is an important economic indicator, helping investors and policymakers understand changes in the cost of living.",
+  {h:'Why Inflation Rate Matters'},"Inflation impacts the value of money. As prices rise, the currency loses value, meaning it takes more money to buy the same goods and services as before. This affects everyday living expenses and can slow down economic growth, making it a key metric for financial planning and investment decisions.",
+  {h:'How to Calculate the Inflation Rate'},"Inflation rate shows the percentage increase in prices over a specific period. If the inflation rate reaches 100%, it indicates that prices have doubled. For rates above 100%, the Bureau of Labor Statistics (BLS) typically uses a new base year to keep calculations clear. When using the Consumer Price Index (CPI) above 100, subtract 100 to determine the actual percentage increase over the period.","The formula for calculating inflation is:",{f:"Inflation Rate (%) = ((B − A) × 100) / A"},"Where:",{ul:["A = Starting value of the price","B = Ending value of the price"]},"Using a Depreciation or Inflation Calculator, you can quickly determine how much the value of money or goods has changed over time, helping you make informed financial decisions."],
+ dcf:[{h:'What is a DCF Calculator?'},"A DCF (Discounted Cash Flow) Calculator helps investors estimate the intrinsic value of a company or investment. It evaluates how much an investment is worth today based on expected future cash flows, adjusted for the time value of money. Using DCF analysis, you can determine whether a stock is undervalued or overvalued compared to its current market price.",
+  {h:'How Does a DCF Calculator Work?'},"The DCF method projects a company's future free cash flows and discounts them to the present value using an appropriate discount rate. The total of these discounted values gives the Intrinsic Value — a fair estimate of what the investment is truly worth today.",
+  {h:'Understanding Margin of Safety'},"The Margin of Safety measures how much the current market price is below the intrinsic value. A higher margin of safety indicates greater protection against market volatility or estimation errors.",{f:"Margin of Safety (%) = ((Intrinsic Value − Current Price) / Intrinsic Value) × 100"},"Where:",{ul:["Intrinsic Value = The estimated fair value of the investment","Current Price = The current market price of the investment"]}],
+ fcf:[{h:'What is Projected Free Cash Flow (FCF)?'},"Projected Free Cash Flow (FCF) represents the estimated amount of cash that a business is expected to generate after accounting for capital expenditures. It is a key indicator of a company's financial health, used by investors to assess its ability to expand operations, pay dividends, or reduce debt.",
+  {h:'Why Projecting FCF Matters'},"Forecasting future cash flows helps investors determine a company's intrinsic value and overall performance potential. By projecting FCF, you can estimate how much cash will be available in the coming years — essential for valuation methods such as Discounted Cash Flow (DCF) analysis.",
+  {h:'Key Inputs'},{ul:["Current Free Cash Flow — The latest available FCF value","Growth Rate (%) — Expected annual increase in FCF","Projection Period (Years) — Number of years to forecast"]},
+  {h:'Uses of the Projected FCF & Cash Calculator'},{ul:["Estimate a company's financial performance over time","Assess investment potential through future cash projections","Support DCF valuation calculations with more accurate data","Compare the projected cash position under different growth scenarios"]},"Use the Rallys Equities Projected FCF & Cash Calculator to forecast potential cash flow and make informed investment or business planning decisions."],
+ drawdown:[{h:'What is Drawdown?'},"Drawdown refers to the decline in the value of an investment from its peak to its lowest point before a new peak is achieved. It measures the downside risk or potential loss an investor might experience during a specific period. Drawdown is commonly expressed as a percentage and is an important indicator of volatility and investment risk.","For example, if your portfolio value peaks at PKR 100,000 and later falls to PKR 80,000, the drawdown is 20%. This helps investors understand how much value their investment lost during a downturn.",
+  {h:'Why Drawdown Matters'},"Monitoring drawdown helps investors assess how resilient their portfolio is during market corrections. A smaller drawdown means the investment is less volatile and recovers faster from losses, while a larger drawdown indicates higher risk and potential stress for the investor.",
+  {h:'Drawdown Formula'},{f:"Drawdown (%) = ((Peak Value − Trough Value) / Peak Value) × 100"},"Where:",{ul:["Peak Value — The highest value of the investment before decline","Trough Value — The lowest value reached during the decline"]},
+  {h:'Uses of the Drawdown Calculator'},{ul:["Measure portfolio risk and assess historical performance","Compare different investments based on volatility","Determine recovery requirements after a market fall","Improve risk management and investment decision-making"]},"Use the Rallys Equities Drawdown Calculator to analyze the decline from peak to trough in your investments, understand your portfolio's resilience, and manage risk more effectively."]
+};
+function renderCalcInfo(){
+  for(const id in CALC_INFO){
+    const page=document.getElementById('page-'+id);if(!page||page.querySelector('.calc-info'))continue;
+    let h='<section class="sec calc-info"><div class="ci-wrap">';
+    CALC_INFO[id].forEach(b=>{
+      if(typeof b==='string')h+=`<p>${b}</p>`;
+      else if(b.h)h+=`<h3>${b.h}</h3>`;
+      else if(b.f)h+=`<div class="ci-formula">${b.f}</div>`;
+      else if(b.ul)h+=`<ul>${b.ul.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+    });
+    h+='</div></section>';
+    page.insertAdjacentHTML('beforeend',h);
+  }
+}
+
 /* ══ BOOT ══ */
+renderCalcInfo();
 buildTicker();
 renderPerfGrid();
 initReveal();
