@@ -2719,11 +2719,69 @@ function ddChart(outId,cid,bars,startBal){
     ctx.fillStyle=gr;if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,h-pad-bh,bw,bh,3);ctx.fill();}else{ctx.fillRect(x,h-pad-bh,bw,bh);}
   });
 }
+/* Compact axis number: 1.2M / 350K */
+function fmtShort(n){const a=Math.abs(n);if(a>=1e9)return(n/1e9).toFixed(1)+'B';if(a>=1e6)return(n/1e6).toFixed(1)+'M';if(a>=1e3)return Math.round(n/1e3)+'K';return Math.round(n).toString();}
+const gp=n=>Math.round(n).toLocaleString('en-PK'); // grouped integer
+
+/* Multi-series chart — grouped bars or lines, with axis + legend (matches the live calculators' "Summary") */
+function seriesChart(outId,cid,labels,series,opts){
+  opts=opts||{};
+  const host=document.getElementById(outId);
+  const legend=series.map(s=>`<span><span class="cc-dot" style="background:${s.color}"></span>${s.name}</span>`).join('');
+  host.insertAdjacentHTML('beforeend',`<div class="calc-chart"><div class="cc-legend">${legend}${opts.caption?`<span style="margin-left:auto;color:var(--mt2)">${opts.caption}</span>`:''}</div><canvas id="${cid}" height="200"></canvas></div>`);
+  const cv=document.getElementById(cid);cv.width=Math.max(280,cv.parentElement.clientWidth-28);
+  const ctx=cv.getContext('2d'),w=cv.width,h=cv.height,padL=46,padR=10,padT=10,padB=22;
+  const all=series.flatMap(s=>s.data);
+  const mx=Math.max(...all,0)||1,mn=Math.min(0,...all),n=labels.length;
+  const plotW=w-padL-padR,plotH=h-padT-padB;
+  const X=i=>padL+(n<=1?plotW/2:(i/(n-1))*plotW);
+  const Y=v=>padT+plotH-((v-mn)/((mx-mn)||1))*plotH;
+  ctx.font="9px 'Plus Jakarta Sans',sans-serif";
+  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.fillStyle='rgba(246,242,234,.42)';ctx.textAlign='right';
+  for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();ctx.fillText(fmtShort(v),padL-6,y+3);}
+  ctx.textAlign='center';const step=Math.max(1,Math.ceil(n/8));
+  if(opts.type==='line'){
+    labels.forEach((lb,i)=>{if(i%step===0||i===n-1)ctx.fillText(lb,X(i),h-7);});
+    series.forEach(s=>{
+      ctx.beginPath();s.data.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));
+      ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+      const li=s.data.length-1;ctx.beginPath();ctx.arc(X(li),Y(s.data[li]),3,0,6.283);ctx.fillStyle=s.color;ctx.fill();
+    });
+  }else{
+    const slot=plotW/n,groupW=Math.min(slot*0.72,48),bw=groupW/series.length;
+    labels.forEach((lb,i)=>{if(i%step===0||i===n-1)ctx.fillText(lb,padL+i*slot+slot/2,h-7);}); // labels first (muted), before bar gradients change fillStyle
+    labels.forEach((lb,i)=>{
+      series.forEach((s,si)=>{
+        const v=s.data[i],bh=((v-mn)/((mx-mn)||1))*plotH,x=padL+i*slot+(slot-groupW)/2+si*bw,yTop=padT+plotH-bh;
+        const gr=ctx.createLinearGradient(0,yTop,0,padT+plotH);gr.addColorStop(0,s.color);gr.addColorStop(1,s.color+'33');
+        ctx.fillStyle=gr;const bwi=Math.max(2,bw-2.5);
+        if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,yTop,bwi,bh,2);ctx.fill();}else ctx.fillRect(x,yTop,bwi,bh);
+      });
+    });
+  }
+}
+
+/* Year-by-year breakdown table (reuses the drawdown table styling) */
+function calcTable(outId,headers,rows){
+  const host=document.getElementById(outId);
+  const thead=`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`;
+  const tbody=`<tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  host.insertAdjacentHTML('beforeend',`<div class="calc-chart" style="padding:0;overflow:auto;max-height:300px"><table class="dd-table">${thead}${tbody}</table></div>`);
+}
+
 function calcCAGR(){
   const b=num('cagr-b'),e=num('cagr-e'),y=num('cagr-y');
   if(!(b>0&&e>0&&y>0))return;
   const c=(Math.pow(e/b,1/y)-1)*100;
   out('cagr-out',[['Total Invested',pk(b)],['Final Value',pk(e)],['Gains',pk(e-b)],['CAGR Return',c.toFixed(2)+'%'],['Absolute Return',(((e/b)-1)*100).toFixed(2)+'%']]);
+  const yrs=[],inv=[],fin=[],rows=[];
+  for(let t=1;t<=y;t++){
+    const fvt=b*Math.pow(e/b,t/y);
+    yrs.push('Y'+t);inv.push(b);fin.push(fvt);
+    rows.push(['Year '+t,gp(b),gp(fvt-b),gp(fvt)]);
+  }
+  seriesChart('cagr-out','cagr-chart',yrs,[{name:'Invested',color:'#C8A84B',data:inv},{name:'Final Value',color:'#12B87C',data:fin}],{type:'bar',caption:y+' year'+(y>1?'s':'')});
+  calcTable('cagr-out',['Year','Invested','Gain','Final Value'],rows);
 }
 function calcSIP(){
   const p=num('sip-p'),r=num('sip-r'),y=num('sip-y');
@@ -2732,8 +2790,14 @@ function calcSIP(){
   const fv=p*((Math.pow(1+i,n)-1)*(1+i)/i);
   const dep=p*n;
   out('sip-out',[['Total Amount Deposited',pk(dep)],['Your Future Value',pk(fv)],['Total Earnings',pk(fv-dep)]]);
-  const vs=[],iv=[];for(let m=0;m<=n;m++){vs.push(m?p*((Math.pow(1+i,m)-1)*(1+i)/i):0);iv.push(p*m);}
-  growthChart('sip-out','sip-chart',vs,iv,y+' year'+(y>1?'s':''));
+  const yrs=[],inv=[],fin=[],rows=[];
+  for(let t=1;t<=y;t++){
+    const months=t*12,invested=p*months,fvt=p*((Math.pow(1+i,months)-1)*(1+i)/i);
+    yrs.push('Y'+t);inv.push(invested);fin.push(fvt);
+    rows.push(['Year '+t,gp(invested),gp(fvt-invested),gp(fvt)]);
+  }
+  seriesChart('sip-out','sip-chart',yrs,[{name:'Invested',color:'#C8A84B',data:inv},{name:'Future Value',color:'#12B87C',data:fin}],{type:'bar',caption:y+' year'+(y>1?'s':'')});
+  calcTable('sip-out',['Year','Invested','Gain','Final Value'],rows);
 }
 function calcINV(){
   const p=num('inv-p')||0,m=num('inv-m')||0,r=num('inv-r'),y=num('inv-y');
@@ -2753,6 +2817,14 @@ function calcDEP(){
   const depVal=c/Math.pow(1+f,y);       // purchasing power of the cash after n years
   const infVal=c*Math.pow(1+f,y);       // cost of today's basket after n years
   out('dep-out',[['Initial Cash Value',pk(c)],['Years Covered',sy+' – '+(sy+y)],['Last Depreciated Value',pk(depVal)],['Last Inflation Value',pk(infVal)]]);
+  const yrs=[],dv=[],ivl=[],rows=[];
+  for(let t=1;t<=y;t++){
+    const d=c/Math.pow(1+f,t),iv=c*Math.pow(1+f,t);
+    yrs.push(''+(sy+t));dv.push(d);ivl.push(iv);
+    rows.push([sy+t,inf.toFixed(2)+'%',gp(d),gp(iv)]);
+  }
+  seriesChart('dep-out','dep-chart',yrs,[{name:'Depreciated Value',color:'#E84545',data:dv},{name:'Inflation Value',color:'#12B87C',data:ivl}],{type:'line',caption:y+' years'});
+  calcTable('dep-out',['Year','Inflation %','Depreciated Value','Inflation Value'],rows);
 }
 function calcXR(){
   const cr=num('xr-cr'),fv=num('xr-fv'),d=(num('xr-d')||0)/100,b=(num('xr-b')||0)/100,r=(num('xr-r')||0)/100;
@@ -2763,6 +2835,7 @@ function calcXR(){
   const xbr=(cr-(fv*d)+(fv*r))/(1+b+r);
   const f=n=>'PKR '+n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
   out('xr-out',[['XD Rate',f(xd)],['XB Rate',f(xb)],['XR Rate',f(xr)],['XBR Rate',f(xbr)]]);
+  seriesChart('xr-out','xr-chart',['CR','XD','XB','XR','XBR'],[{name:'Price (PKR)',color:'#12B87C',data:[cr,xd,xb,xr,xbr]}],{type:'bar',caption:'Rate comparison'});
 }
 function calcDCF(){
   const cf=num('dcf-cf'),price=num('dcf-p'),g=num('dcf-g')/100,rg=num('dcf-rg')/100,rt=num('dcf-rt')/100;
