@@ -498,7 +498,7 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
    LUXURY LAYER — Liquid-glass depth, gold gradients, refined motion
    (palette & fonts unchanged; layered over the base styles above)
    ════════════════════════════════════════════════════════════════ */
-:root{--au-grad:linear-gradient(100deg,#C8A84B 0%,#E2C070 28%,#F4E6BC 50%,#E2C070 72%,#C8A84B 100%);--lux-ease:cubic-bezier(.22,.61,.36,1)}
+:root{--au-grad:linear-gradient(100deg,#C8A84B 0%,#E2C070 28%,#F4E6BC 50%,#E2C070 72%,#C8A84B 100%);--lux-ease:cubic-bezier(.22,.61,.36,1);--chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42)}
 
 /* Layered ambient background — fixed emerald + gold light pools for depth */
 body{background:
@@ -704,6 +704,84 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
   #preloader *,#preloader::before{animation:none!important}
 }
 
+/* ════ THEME TOGGLE BUTTON ════ */
+.theme-toggle{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:1px solid var(--gb);color:var(--mt);transition:color .25s,border-color .25s}
+.theme-toggle:hover{color:var(--au);border-color:var(--au)}
+.theme-toggle .ic-moon{display:none}
+body.light .theme-toggle .ic-sun{display:none}
+body.light .theme-toggle .ic-moon{display:block}
+
+/* ════════════════════════════════════════════════════════════════
+   LIGHT MODE — full ivory theme, toggled via body.light.
+   Content / cards / nav go light; hero, page-heroes, CTA, footer and the
+   market/donut cards stay dark "media banners" (with light text re-asserted).
+   ════════════════════════════════════════════════════════════════ */
+body{transition:background-color .45s ease,color .35s ease}
+body.light{
+  --nv:#F4F1E8;--nv2:#FBF9F2;--nv3:#FFFFFF;
+  --tx:#12243A;--mt:rgba(18,36,58,.72);--mt2:rgba(18,36,58,.46);
+  --gl:#FFFFFF;--gb:rgba(18,36,58,.12);
+  --au:#9A7B1F;--au2:#B8922A;--au3:rgba(154,123,31,.12);--g3:#0A6B4B;
+  --chart-grid:rgba(18,36,58,.1);--chart-axis:rgba(18,36,58,.55)}
+/* dark media banners stay dark, with light text re-asserted */
+/* only the live-data widgets stay dark "screens"; everything else goes light */
+body.light .pcard,body.light .gov-donut,body.light .map-box{
+  --tx:#F6F2EA;--mt:rgba(246,242,234,.56);--mt2:rgba(246,242,234,.3);
+  --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:rgba(200,168,75,.2);--gl:rgba(255,255,255,.04);
+  --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx)}
+body.light .gov-donut{background:linear-gradient(160deg,rgba(13,32,62,.97),rgba(8,22,38,.97))}
+/* light hero + page-hero banners (fade the dark photos, light gradient) */
+body.light .hero-bg{background:radial-gradient(ellipse 55% 65% at 76% 50%,rgba(10,107,75,.08),transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,rgba(200,168,75,.1),transparent 55%),linear-gradient(165deg,#FBF9F2 0%,#F4F1E8 60%,#EDE7D9 100%)}
+body.light .hero-photo{opacity:.05}
+body.light .phero{background:radial-gradient(ellipse 60% 90% at 50% 0%,rgba(10,107,75,.08),transparent 65%),linear-gradient(180deg,#FBF9F2,#F4F1E8)}
+body.light .phero::before{opacity:.06}
+body.light .bbig-o{border-color:rgba(18,36,58,.25)!important;color:var(--tx)}
+body.light .sh em,body.light .phero h1 em,body.light .cta-inner h2 em{text-shadow:none}
+/* light nav + mobile menu */
+body.light .nav{background:rgba(247,244,236,.92);border-bottom-color:rgba(18,36,58,.1)}
+body.light .mnav{background:rgba(247,244,236,.99)}
+body.light .ticker{background:rgba(245,242,233,.96);border-bottom-color:rgba(18,36,58,.1)}
+body.light .ti{border-right-color:rgba(18,36,58,.08)}
+/* nav dropdown flyouts */
+body.light .dd-inner{background:rgba(249,246,239,.99);border-color:rgba(18,36,58,.12);box-shadow:0 20px 50px rgba(18,36,58,.18)}
+/* Karachi skyline band → light scene */
+body.light .skyline svg>rect{fill:#EFE9DC}
+body.light .skyline svg g{fill:rgba(18,36,58,.06)!important;stroke:rgba(18,36,58,.12)!important}
+body.light .skyline svg circle[r="14"]{fill:#EFE9DC}
+body.light .lt-main{background:linear-gradient(100deg,#8C6E18,#B8922A,#8C6E18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.light .btn-ghost{border-color:rgba(18,36,58,.22)!important;color:var(--tx)}
+/* white cards */
+body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item{
+  background:#fff!important;border:1px solid rgba(18,36,58,.1)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 16px 36px -20px rgba(18,36,58,.22),0 2px 6px -2px rgba(18,36,58,.06)!important}
+body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover{
+  background:#fff!important;border-color:rgba(154,123,31,.5)!important;transform:translateY(-6px);
+  box-shadow:0 26px 50px -22px rgba(18,36,58,.3),0 0 22px -10px rgba(10,107,75,.25)!important}
+body.light .svc-card::after{background:radial-gradient(circle,rgba(10,107,75,.1),transparent 70%)}
+body.light .svc-icon{background:linear-gradient(145deg,rgba(10,107,75,.12),rgba(154,123,31,.16));border:1px solid rgba(10,107,75,.22);box-shadow:none}
+/* inputs */
+body.light .finput{background:#fff;border:1px solid rgba(18,36,58,.18);color:var(--tx)}
+body.light .finput::placeholder{color:rgba(18,36,58,.4)}
+body.light .finput:focus{border-color:var(--au);box-shadow:0 0 0 3px rgba(154,123,31,.14)}
+/* section tag, gold accent words, formula, tables on light */
+body.light .stag{background:rgba(10,107,75,.09);border-color:rgba(10,107,75,.32);color:#0A6B4B;box-shadow:none}
+body.light .sh span,body.light .phero h1 span,body.light .cta-inner h2 span,body.light .hero h1 span,body.light .snum{background:linear-gradient(100deg,#6B5310,#8A6A14,#A07D1A,#8A6A14,#6B5310);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+/* stats band: the luxury layer hard-codes a dark gradient — lighten it in light mode */
+body.light .stats-band{background:linear-gradient(180deg,#FBF9F2,#F1ECDF);-webkit-backdrop-filter:none;backdrop-filter:none}
+body.light .sc2{border-right-color:rgba(18,36,58,.1)}
+/* deepen gold accents (links, calc titles) for contrast on white */
+body.light{--au:#8A6A14;--au2:#A07D1A}
+body.light .pcard,body.light .gov-donut{--au:#C8A84B;--au2:#E2C070}
+body.light .snum{filter:none}
+body.light .calc-chart{background:rgba(18,36,58,.025);border-color:rgba(18,36,58,.1)}
+body.light .dd-table th{color:var(--mt2);border-bottom-color:rgba(18,36,58,.14);background:rgba(18,36,58,.03)}
+body.light .dd-table td{border-bottom-color:rgba(18,36,58,.07)}
+body.light .dd-table tbody tr:hover{background:rgba(10,107,75,.05)}
+body.light .ci-formula{background:linear-gradient(90deg,rgba(154,123,31,.14),rgba(154,123,31,.03));color:#12243A}
+body.light .calc-info p,body.light .calc-info li{color:var(--mt)}
+body.light .imgwrap{box-shadow:0 20px 46px -22px rgba(18,36,58,.3)}
+body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
+
 @media(max-width:900px){
   .lux-divider::before,.lux-divider::after{width:22vw}
   .why-row,.svc-hero-row,.gov-donut{grid-template-columns:1fr}
@@ -804,6 +882,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
     </ul>
     <div class="nav-right">
       <div class="live-badge"><div class="dot"></div><span id="mktStatus">PSX Live</span></div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark mode" onclick="toggleTheme()">
+        <svg class="ic-moon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg class="ic-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
       <button class="btn btn-ghost" onclick="showPage('account')">Log In</button>
       <button class="btn btn-primary" onclick="showPage('account')">Open Account</button>
       <button class="ham" id="hamBtn" aria-label="Menu" onclick="toggleMnav()"><span></span><span></span><span></span></button>
@@ -982,7 +1064,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 </section>
 
 <!-- KARACHI SKYLINE -->
-<div style="background:var(--nv2);border-top:1px solid rgba(200,168,75,.08);border-bottom:1px solid rgba(200,168,75,.08);overflow:hidden;line-height:0">
+<div class="skyline" style="background:var(--nv2);border-top:1px solid rgba(200,168,75,.08);border-bottom:1px solid rgba(200,168,75,.08);overflow:hidden;line-height:0">
   <svg viewBox="0 0 1400 140" width="100%" style="display:block" preserveAspectRatio="xMidYMax meet">
     <rect width="1400" height="140" fill="#081828"/>
     <g fill="rgba(18,184,124,.09)" stroke="rgba(18,184,124,.18)" stroke-width="0.5">
@@ -2009,9 +2091,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">CAGR Calculator</div>
       <div class="calc-sub">Compound Annual Growth Rate (CAGR) represents the average yearly growth rate of your investment over a specific period — it smooths out the returns and shows the average annual growth rate.</div>
       <div class="calc-formula">CAGR = (Ending Value ÷ Beginning Value)^(1/N) − 1</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-b" value="100,000" placeholder="100,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Final Maturity Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-e" value="250,000" placeholder="250,000" oninput="fmtNum(this)"></div>
-      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="cagr-y" placeholder="5" value="5"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-b" placeholder="100,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Final Maturity Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="cagr-e" placeholder="250,000" oninput="fmtNum(this)"></div>
+      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="cagr-y" placeholder="5"></div>
       <button class="calc-btn" onclick="calcCAGR()">Calculate</button>
       <div class="calc-out" id="cagr-out"></div>
     </div>
@@ -2030,9 +2112,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">SIP Calculator</div>
       <div class="calc-sub">Helps investors estimate the potential returns on their mutual fund investments using the compound interest formula. Actual returns vary due to market conditions; exit loads and expense ratios are not included.</div>
       <div class="calc-formula">FV = P × [(1 + i)ⁿ − 1] × (1 + i) ÷ i</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Investment Amount (PKR)</label><input type="text" inputmode="numeric" class="finput" id="sip-p" value="10,000" placeholder="10,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Rate of Return — Yearly (%)</label><input type="number" class="finput" id="sip-r" placeholder="12" value="12"></div>
-      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="sip-y" placeholder="10" value="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Investment Amount (PKR)</label><input type="text" inputmode="numeric" class="finput" id="sip-p" placeholder="10,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Rate of Return — Yearly (%)</label><input type="number" class="finput" id="sip-r" placeholder="12"></div>
+      <div class="fg"><label class="flbl">Investment Duration (Years)</label><input type="number" class="finput" id="sip-y" placeholder="10"></div>
       <button class="calc-btn" onclick="calcSIP()">Calculate SIP</button>
       <div class="calc-out" id="sip-out"></div>
     </div>
@@ -2050,10 +2132,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 <div class="calc-card" id="calc-inv">
       <div class="calc-title">Investment Calculator</div>
       <div class="calc-sub">Plan your wealth growth easily — combine an initial lump sum with monthly contributions at your expected return.</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Initial Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-p" value="500,000" placeholder="500,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Contribution (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-m" value="10,000" placeholder="10,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Return (%)</label><input type="number" class="finput" id="inv-r" placeholder="12" min="1" max="100" value="12"></div>
-      <div class="fg"><label class="flbl">Period (Years)</label><input type="number" class="finput" id="inv-y" placeholder="10" value="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Initial Investment (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-p" placeholder="500,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Monthly Contribution (PKR)</label><input type="text" inputmode="numeric" class="finput" id="inv-m" placeholder="10,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Expected Return (%)</label><input type="number" class="finput" id="inv-r" placeholder="12" min="1" max="100"></div>
+      <div class="fg"><label class="flbl">Period (Years)</label><input type="number" class="finput" id="inv-y" placeholder="10"></div>
       <button class="calc-btn" onclick="calcINV()">Calculate</button>
       <div class="calc-out" id="inv-out"></div>
     </div>
@@ -2072,10 +2154,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Depreciation Calculator</div>
       <div class="calc-sub">See how inflation erodes the purchasing power of your cash over time. Why it matters: the inflation rate determines how much value your money loses each year.</div>
       <div class="calc-formula">Inflation Rate (%) = ((B − A) × 100) ÷ A</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="dep-c" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Start Year</label><input type="number" class="finput" id="dep-sy" placeholder="2026" value="2026"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Number of Years</label><input type="number" class="finput" id="dep-y" placeholder="10" value="10"></div>
-      <div class="fg"><label class="flbl">Inflation % per Year</label><input type="number" class="finput" id="dep-i" placeholder="10" value="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash Value (PKR)</label><input type="text" inputmode="numeric" class="finput" id="dep-c" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Start Year</label><input type="number" class="finput" id="dep-sy" placeholder="2026"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Number of Years</label><input type="number" class="finput" id="dep-y" placeholder="10"></div>
+      <div class="fg"><label class="flbl">Inflation % per Year</label><input type="number" class="finput" id="dep-i" placeholder="10"></div>
       <button class="calc-btn" onclick="calcDEP()">Calculate</button>
       <div class="calc-out" id="dep-out"></div>
     </div>
@@ -2094,11 +2176,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">X Rate Calculator</div>
       <div class="calc-sub">Compute ex-dividend, ex-bonus and ex-rights share prices after book closure. Enter percentages as numbers (e.g. 20 for 20%).</div>
       <div class="calc-formula">XD = CR − (FV × D%) &nbsp;·&nbsp; XB = CR ÷ (1 + B%) &nbsp;·&nbsp; XR = (CR + FV × R%) ÷ (1 + R%)</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Closing Rate (CR) — current share price before book closure</label><input type="text" inputmode="numeric" class="finput" id="xr-cr" value="150" placeholder="150" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Face Value (FV)</label><input type="text" inputmode="numeric" class="finput" id="xr-fv" value="10" placeholder="10" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Dividend % (D %)</label><input type="number" class="finput" id="xr-d" placeholder="20" value="20"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Bonus % (B %)</label><input type="number" class="finput" id="xr-b" placeholder="10" value="10"></div>
-      <div class="fg"><label class="flbl">Right Issue % (R %)</label><input type="number" class="finput" id="xr-r" placeholder="0" value="0"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Closing Rate (CR) — current share price before book closure</label><input type="text" inputmode="numeric" class="finput" id="xr-cr" placeholder="150" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Face Value (FV)</label><input type="text" inputmode="numeric" class="finput" id="xr-fv" placeholder="10" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Dividend % (D %)</label><input type="number" class="finput" id="xr-d" placeholder="20"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Bonus % (B %)</label><input type="number" class="finput" id="xr-b" placeholder="10"></div>
+      <div class="fg"><label class="flbl">Right Issue % (R %)</label><input type="number" class="finput" id="xr-r" placeholder="0"></div>
       <button class="calc-btn" onclick="calcXR()">Calculate</button>
       <div class="calc-out" id="xr-out"></div>
     </div>
@@ -2117,11 +2199,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">DCF Calculator</div>
       <div class="calc-sub">Estimate the intrinsic value of a company by projecting future free cash flows and discounting them to present value. A higher margin of safety indicates greater protection against market volatility or estimation errors.</div>
       <div class="calc-formula">Margin of Safety (%) = (Intrinsic Value − Current Price) ÷ Intrinsic Value × 100</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow Per Share (Rs)</label><input type="text" inputmode="numeric" class="finput" id="dcf-cf" value="15" placeholder="15" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Current Share Price</label><input type="text" inputmode="numeric" class="finput" id="dcf-p" value="150" placeholder="150" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Growth Rate (%)</label><input type="number" class="finput" id="dcf-g" placeholder="8" value="8"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Discounted Rate (Growth Stage) (%)</label><input type="number" class="finput" id="dcf-rg" placeholder="15" value="15"></div>
-      <div class="fg"><label class="flbl">Discounted Rate (Terminal Stage) (%)</label><input type="number" class="finput" id="dcf-rt" placeholder="18" value="18"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow Per Share (Rs)</label><input type="text" inputmode="numeric" class="finput" id="dcf-cf" placeholder="15" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Current Share Price</label><input type="text" inputmode="numeric" class="finput" id="dcf-p" placeholder="150" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Growth Rate (%)</label><input type="number" class="finput" id="dcf-g" placeholder="8"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Discounted Rate (Growth Stage) (%)</label><input type="number" class="finput" id="dcf-rg" placeholder="15"></div>
+      <div class="fg"><label class="flbl">Discounted Rate (Terminal Stage) (%)</label><input type="number" class="finput" id="dcf-rt" placeholder="18"></div>
       <button class="calc-btn" onclick="calcDCF()">Calculate</button>
       <div class="calc-out" id="dcf-out"></div>
     </div>
@@ -2140,11 +2222,11 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Projected FCF &amp; Cash Calculator</div>
       <div class="calc-sub">The estimated cash a business is expected to generate after capital expenditures — projected from 6-year averages with your growth assumption, including per-share values. FCF = Operating Cash Flow − Capital Expenditures.</div>
       <div class="calc-formula">Projected FCF = Current FCF × (1 + Growth Rate)ⁿ</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Equity (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-eq" value="50,000,000" placeholder="50,000,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Shares Outstanding</label><input type="text" inputmode="numeric" class="finput" id="fcf-sh" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-c" value="2,000,000" placeholder="2,000,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-ca" value="1,500,000" placeholder="1,500,000" oninput="fmtNum(this)"></div>
-      <div class="fg"><label class="flbl">Growth Assumption (%)</label><input type="number" class="finput" id="fcf-g" placeholder="10" value="10"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Total Equity (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-eq" placeholder="50,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Shares Outstanding</label><input type="text" inputmode="numeric" class="finput" id="fcf-sh" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Free Cash Flow 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-c" placeholder="2,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Cash 6Y Avg (Rs)</label><input type="text" inputmode="numeric" class="finput" id="fcf-ca" placeholder="1,500,000" oninput="fmtNum(this)"></div>
+      <div class="fg"><label class="flbl">Growth Assumption (%)</label><input type="number" class="finput" id="fcf-g" placeholder="10"></div>
       <button class="calc-btn" onclick="calcFCF()">Calculate</button>
       <div class="calc-out" id="fcf-out"></div>
     </div>
@@ -2163,9 +2245,9 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
       <div class="calc-title">Drawdown Calculator</div>
       <div class="calc-sub">Drawdown is the decline in the value of an investment from its peak to its lowest point before a new peak is achieved. Use it to measure portfolio risk, compare volatility, and determine recovery requirements.</div>
       <div class="calc-formula">Drawdown (%) = (Peak Value − Trough Value) ÷ Peak Value × 100</div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Starting Balance</label><input type="text" inputmode="numeric" class="finput" id="dd-sb" value="1,000,000" placeholder="1,000,000" oninput="fmtNum(this)"></div>
-      <div class="fg" style="margin-bottom:10px"><label class="flbl">Period</label><input type="number" class="finput" id="dd-pd" placeholder="5" value="5"></div>
-      <div class="fg"><label class="flbl">Loss per period (%)</label><input type="number" class="finput" id="dd-l" placeholder="5" value="5"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Starting Balance</label><input type="text" inputmode="numeric" class="finput" id="dd-sb" placeholder="1,000,000" oninput="fmtNum(this)"></div>
+      <div class="fg" style="margin-bottom:10px"><label class="flbl">Period</label><input type="number" class="finput" id="dd-pd" placeholder="5"></div>
+      <div class="fg"><label class="flbl">Loss per period (%)</label><input type="number" class="finput" id="dd-l" placeholder="5"></div>
       <button class="calc-btn" onclick="calcDD()">Calculate</button>
       <div class="calc-out" id="dd-out"></div>
     </div>
@@ -2536,8 +2618,6 @@ function showPage(id){
   if(id==='account')populateReview();
   closeMnav();
   setTimeout(drawChart,80);
-  const CFN={cagr:'calcCAGR',sip:'calcSIP',invest:'calcINV',depr:'calcDEP',xrate:'calcXR',dcf:'calcDCF',fcf:'calcFCF',drawdown:'calcDD'};
-  if(CFN[id]&&typeof window[CFN[id]]==='function')setTimeout(()=>{try{window[CFN[id]]();}catch(e){}},90); // show Summary immediately, like the live site
 }
 
 /* ══ MOBILE MENU ══ */
@@ -2714,7 +2794,7 @@ function growthChart(outId,cid,valueSeries,investedSeries,xLabel){
   const ctx=cv.getContext('2d'),w=cv.width,h=cv.height,pad=8;
   const mx=Math.max(...valueSeries),mn=0,n=valueSeries.length;
   const X=i=>pad+(i/(n-1))*(w-2*pad),Y=v=>h-pad-((v-mn)/(mx-mn||1))*(h-2*pad-8);
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;
+  ctx.strokeStyle=getComputedStyle(cv).getPropertyValue('--chart-grid').trim()||'rgba(255,255,255,.07)';ctx.lineWidth=1;
   for(let g2=1;g2<4;g2++){const y=pad+(h-2*pad)*g2/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}
   ctx.beginPath();valueSeries.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));
   const gr=ctx.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(18,184,124,.32)');gr.addColorStop(1,'rgba(18,184,124,0)');
@@ -2732,7 +2812,7 @@ function ddChart(outId,cid,bars,startBal){
   const cv=document.getElementById(cid);cv.width=cv.parentElement.clientWidth-28;
   const ctx=cv.getContext('2d'),w=cv.width,h=cv.height,pad=8;
   const mx=startBal,bw=Math.min(34,(w-2*pad)/bars.length-4);
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;
+  ctx.strokeStyle=getComputedStyle(cv).getPropertyValue('--chart-grid').trim()||'rgba(255,255,255,.07)';ctx.lineWidth=1;
   for(let g2=1;g2<4;g2++){const y=pad+(h-2*pad)*g2/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}
   bars.forEach((v,i)=>{
     const x=pad+(i+.5)/bars.length*(w-2*pad)-bw/2,bh=(v/mx)*(h-2*pad-6);
@@ -2758,7 +2838,7 @@ function seriesChart(outId,cid,labels,series,opts){
   const X=i=>padL+(n<=1?plotW/2:(i/(n-1))*plotW);
   const Y=v=>padT+plotH-((v-mn)/((mx-mn)||1))*plotH;
   ctx.font="9px 'Plus Jakarta Sans',sans-serif";
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.fillStyle='rgba(246,242,234,.42)';ctx.textAlign='right';
+  const _cs=getComputedStyle(cv);ctx.strokeStyle=_cs.getPropertyValue('--chart-grid').trim()||'rgba(255,255,255,.07)';ctx.fillStyle=_cs.getPropertyValue('--chart-axis').trim()||'rgba(246,242,234,.42)';ctx.textAlign='right';
   for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();ctx.fillText(fmtShort(v),padL-6,y+3);}
   ctx.textAlign='center';const step=Math.max(1,Math.ceil(n/8));
   if(opts.type==='line'){
@@ -2942,6 +3022,14 @@ function renderCalcInfo(){
     page.insertAdjacentHTML('beforeend',h);
   }
 }
+
+/* ══ LIGHT / DARK MODE TOGGLE ══ */
+function toggleTheme(){
+  const light=document.body.classList.toggle('light');
+  try{localStorage.setItem('re-theme',light?'light':'dark');}catch(e){}
+  setTimeout(()=>{try{drawChart();}catch(e){}},60); // redraw hero chart for the new palette
+}
+try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('light');}catch(e){}
 
 /* ══ BOOT ══ */
 renderCalcInfo();
