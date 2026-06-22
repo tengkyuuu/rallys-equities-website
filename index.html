@@ -12,39 +12,39 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --g:#0A6B4B;--g2:#0D8F63;--g3:#12B87C;
-  --au:#C8A84B;--au2:#E2C070;--au3:rgba(200,168,75,.13);
+  --au:#C8A84B;--au2:#E2C070;--au3:color-mix(in srgb, var(--au) 13%, transparent);
   --nv:#05101E;--nv2:#081828;--nv3:#0C2040;
-  --gl:rgba(255,255,255,.04);--gb:rgba(200,168,75,.2);
-  --tx:#F6F2EA;--mt:rgba(246,242,234,.56);--mt2:rgba(246,242,234,.3);
+  --gl:rgba(255,255,255,.04);--gb:color-mix(in srgb, var(--au) 20%, transparent);
+  --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
   --up:#2ECC8A;--dn:#E84545;
 }
 html{scroll-behavior:smooth}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--nv);color:var(--tx);overflow-x:hidden;line-height:1.65}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--nv)}::-webkit-scrollbar-thumb{background:rgba(200,168,75,.4);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--nv)}::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--au) 40%, transparent);border-radius:2px}
 a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sans-serif}
 
 /* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(5,16,30,.96);backdrop-filter:blur(28px);border-bottom:1px solid var(--gb)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:color-mix(in srgb, var(--nv) 96%, transparent);backdrop-filter:blur(28px);border-bottom:1px solid var(--gb)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 52px}
 .logo{display:flex;align-items:center;gap:11px;cursor:pointer}
-.lm{width:40px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--g),var(--g2));border:1px solid rgba(200,168,75,.4);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--au);flex-shrink:0}
+.lm{width:40px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--g),var(--g2));border:1px solid color-mix(in srgb, var(--au) 40%, transparent);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--au);flex-shrink:0}
 .lt-main{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--au);letter-spacing:.04em;display:block}
 .lt-sub{font-size:9px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;display:block;line-height:1.2}
 .nav-links{display:flex;gap:28px;list-style:none}
 .nav-links a{color:var(--mt);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;padding-bottom:2px;border-bottom:1px solid transparent;text-decoration:none}
-.nav-links a:hover,.nav-links a.active{color:var(--au);border-bottom-color:rgba(200,168,75,.4)}
+.nav-links a:hover,.nav-links a.active{color:var(--au);border-bottom-color:color-mix(in srgb, var(--au) 40%, transparent)}
 .nav-right{display:flex;align-items:center;gap:10px}
-.live-badge{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;background:rgba(46,204,138,.09);border:1px solid rgba(46,204,138,.28);font-size:10px;color:var(--up);font-weight:700;letter-spacing:.07em}
+.live-badge{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;background:color-mix(in srgb, var(--up) 9%, transparent);border:1px solid color-mix(in srgb, var(--up) 28%, transparent);font-size:10px;color:var(--up);font-weight:700;letter-spacing:.07em}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--up);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
 .btn{padding:8px 18px;border-radius:7px;font-size:11px;font-weight:600;transition:all .2s;letter-spacing:.03em;font-family:'Plus Jakarta Sans',sans-serif}
-.btn-ghost{background:transparent;border:1px solid rgba(246,242,234,.15);color:var(--tx)}
+.btn-ghost{background:transparent;border:1px solid color-mix(in srgb, var(--tx) 15%, transparent);color:var(--tx)}
 .btn-ghost:hover{border-color:var(--au);color:var(--au)}
-.btn-primary{background:linear-gradient(135deg,var(--g),var(--g2));border:none;color:#fff;box-shadow:0 4px 16px rgba(10,107,75,.35)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(10,107,75,.5)}
+.btn-primary{background:linear-gradient(135deg,var(--g),var(--g2));border:none;color:#fff;box-shadow:0 4px 16px color-mix(in srgb, var(--g) 35%, transparent)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px color-mix(in srgb, var(--g) 50%, transparent)}
 
 /* TICKER */
-.ticker{background:rgba(5,16,30,.97);border-bottom:1px solid rgba(200,168,75,.1);padding:5px 0;overflow:hidden;position:fixed;top:69px;left:0;right:0;z-index:199}
+.ticker{background:color-mix(in srgb, var(--nv) 97%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent);padding:5px 0;overflow:hidden;position:fixed;top:69px;left:0;right:0;z-index:199}
 .ticker-wrap{display:flex;white-space:nowrap;animation:tscroll 55s linear infinite;width:max-content}
 .ticker-wrap:hover{animation-play-state:paused}
 .ti{display:inline-flex;align-items:center;gap:7px;padding:0 22px;border-right:1px solid rgba(255,255,255,.05);font-size:11px}
@@ -59,7 +59,7 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 
 /* SECTIONS */
 .sec{padding:80px 52px}.sec-sm{padding:52px 52px}.sec-alt{background:var(--nv2)}
-.stag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g3);margin-bottom:12px;padding:3px 13px;border:1px solid rgba(18,184,124,.25);border-radius:100px;background:rgba(18,184,124,.07)}
+.stag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g3);margin-bottom:12px;padding:3px 13px;border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);border-radius:100px;background:color-mix(in srgb, var(--g3) 7%, transparent)}
 .sh{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:700;line-height:1.08;margin-bottom:14px}
 .sh em{font-style:italic;color:var(--g3)}.sh span{color:var(--au)}
 .sub{font-size:14px;color:var(--mt);line-height:1.78;font-weight:300;max-width:520px}
@@ -67,10 +67,10 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 
 /* HERO */
 .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:calc(100vh - 99px);padding:60px 52px 70px;gap:52px;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 55% 65% at 76% 50%,rgba(10,107,75,.16) 0%,transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,rgba(200,168,75,.07) 0%,transparent 55%),linear-gradient(165deg,var(--nv) 0%,var(--nv2) 60%,#041018 100%)}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 55% 65% at 76% 50%,color-mix(in srgb, var(--g) 16%, transparent) 0%,transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,color-mix(in srgb, var(--au) 7%, transparent) 0%,transparent 55%),linear-gradient(165deg,var(--nv) 0%,var(--nv2) 60%,#041018 100%)}
 .hero-grid{display:none}
 .hero-l{position:relative;z-index:1}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(200,168,75,.38);background:var(--au3);padding:5px 15px;border-radius:100px;font-size:9px;font-weight:700;color:var(--au);letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid color-mix(in srgb, var(--au) 38%, transparent);background:var(--au3);padding:5px 15px;border-radius:100px;font-size:9px;font-weight:700;color:var(--au);letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
 .hero-urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:14px;color:var(--mt);direction:rtl;display:block;margin-bottom:8px;line-height:2.1}
 .hero h1{font-family:'Cormorant Garamond',serif;font-size:62px;line-height:1.04;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
 .hero h1 em{font-style:italic;color:var(--g3)}.hero h1 span{color:var(--au)}
@@ -78,17 +78,17 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .hero-p{font-size:14px;color:var(--mt);line-height:1.78;max-width:450px;margin-bottom:28px;font-weight:300}
 .hero-acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .bbig{font-size:13px;font-weight:700;border-radius:9px;padding:12px 28px;transition:all .25s;letter-spacing:.04em;font-family:'Plus Jakarta Sans',sans-serif;border:none}
-.bbig-g{background:linear-gradient(135deg,var(--g),var(--g3));color:#fff;box-shadow:0 6px 24px rgba(10,107,75,.4)}
-.bbig-g:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(10,107,75,.52)}
-.bbig-o{background:transparent;border:1px solid rgba(246,242,234,.22)!important;color:var(--tx);display:flex;align-items:center;gap:7px}
+.bbig-g{background:linear-gradient(135deg,var(--g),var(--g3));color:#fff;box-shadow:0 6px 24px color-mix(in srgb, var(--g) 40%, transparent)}
+.bbig-g:hover{transform:translateY(-2px);box-shadow:0 10px 32px color-mix(in srgb, var(--g) 52%, transparent)}
+.bbig-o{background:transparent;border:1px solid color-mix(in srgb, var(--tx) 22%, transparent)!important;color:var(--tx);display:flex;align-items:center;gap:7px}
 .bbig-o:hover{border-color:var(--au)!important;color:var(--au)}
 .trust-row{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
-.tc{font-size:10px;color:var(--mt2)}.tsep{width:1px;height:11px;background:rgba(246,242,234,.1)}
+.tc{font-size:10px;color:var(--mt2)}.tsep{width:1px;height:11px;background:color-mix(in srgb, var(--tx) 10%, transparent)}
 
 /* PSX CARD */
 .hero-r{position:relative;z-index:1}
-.pcard{background:rgba(5,16,30,.85);border:1px solid var(--gb);border-radius:18px;backdrop-filter:blur(28px);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
-.pstatus{display:flex;align-items:center;justify-content:space-between;padding:9px 17px;background:rgba(10,107,75,.08);border-bottom:1px solid rgba(255,255,255,.06);font-size:10px}
+.pcard{background:color-mix(in srgb, var(--nv) 85%, transparent);border:1px solid var(--gb);border-radius:18px;backdrop-filter:blur(28px);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.pstatus{display:flex;align-items:center;justify-content:space-between;padding:9px 17px;background:color-mix(in srgb, var(--g) 8%, transparent);border-bottom:1px solid rgba(255,255,255,.06);font-size:10px}
 .psdot{width:6px;height:6px;border-radius:50%;background:var(--up);animation:blink 1.5s infinite}
 .pslbl{font-weight:700;letter-spacing:.06em;margin-left:5px;color:var(--up)}
 .pstime{color:var(--mt2);font-variant-numeric:tabular-nums}
@@ -103,29 +103,29 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .clbl{display:flex;justify-content:space-between;padding:2px 15px 6px;font-size:9px;color:var(--mt2)}
 .shdr{display:grid;grid-template-columns:1fr 76px 62px 60px;padding:4px 15px;font-size:9px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
 .srow{display:grid;grid-template-columns:1fr 76px 62px 60px;align-items:center;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;transition:background .15s}
-.srow:hover{background:rgba(10,107,75,.08)}.srow:last-child{border-bottom:none}
+.srow:hover{background:color-mix(in srgb, var(--g) 8%, transparent)}.srow:last-child{border-bottom:none}
 .sname{font-weight:600}.ssub{font-size:9px;color:var(--mt2);margin-top:1px}
 .sprice{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
 .schg{text-align:right;font-size:10px;font-weight:600}
 .pill{display:inline-block;padding:2px 7px;border-radius:100px;font-size:9px;font-weight:700}
-.pill-u{background:rgba(46,204,138,.12);color:var(--up);border:1px solid rgba(46,204,138,.2)}
-.pill-d{background:rgba(232,69,69,.11);color:var(--dn);border:1px solid rgba(232,69,69,.18)}
+.pill-u{background:color-mix(in srgb, var(--up) 12%, transparent);color:var(--up);border:1px solid color-mix(in srgb, var(--up) 20%, transparent)}
+.pill-d{background:color-mix(in srgb, var(--dn) 11%, transparent);color:var(--dn);border:1px solid color-mix(in srgb, var(--dn) 18%, transparent)}
 .idxrow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06)}
-.ixc{padding:10px 13px;background:rgba(5,16,30,.88)}
+.ixc{padding:10px 13px;background:color-mix(in srgb, var(--nv) 88%, transparent)}
 .ixn{font-size:9px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
 .ixv{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
 .ixch{font-size:9px;margin-top:1px;font-weight:600}
 
 /* STATS */
-.stats-band{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(200,168,75,.12);border-bottom:1px solid rgba(200,168,75,.12);background:var(--nv2)}
-.sc2{padding:42px 36px;border-right:1px solid rgba(200,168,75,.1);text-align:center}.sc2:last-child{border-right:none}
+.stats-band{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid color-mix(in srgb, var(--au) 12%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 12%, transparent);background:var(--nv2)}
+.sc2{padding:42px 36px;border-right:1px solid color-mix(in srgb, var(--au) 10%, transparent);text-align:center}.sc2:last-child{border-right:none}
 .snum{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--au);line-height:1}
 .slbl{font-size:10px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
 .surdu2{font-family:'Noto Nastaliq Urdu',serif;font-size:11px;color:var(--mt2);direction:rtl;margin-top:3px;line-height:2}
 
 /* FEAT BAND */
-.feat-band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(200,168,75,.1);border-top:1px solid rgba(200,168,75,.1);border-bottom:1px solid rgba(200,168,75,.1)}
-.fc{background:var(--nv);padding:34px 26px;text-align:center;transition:background .3s}.fc:hover{background:rgba(10,107,75,.07)}
+.feat-band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:color-mix(in srgb, var(--au) 10%, transparent);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent)}
+.fc{background:var(--nv);padding:34px 26px;text-align:center;transition:background .3s}.fc:hover{background:color-mix(in srgb, var(--g) 7%, transparent)}
 .fi{margin:0 auto 14px;width:58px;height:58px}
 .ft{font-size:13px;font-weight:700;margin-bottom:5px}.fd{font-size:11px;color:var(--mt);line-height:1.65}
 
@@ -133,27 +133,27 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
 .svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
 .svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent);opacity:0;transition:opacity .3s}
-.svc-card:hover{border-color:rgba(18,184,124,.4);transform:translateY(-4px)}.svc-card:hover::before{opacity:1}
-.svc-icon{width:50px;height:50px;border-radius:12px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;background:rgba(10,107,75,.18);border:1px solid rgba(10,107,75,.3)}
+.svc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}.svc-card:hover::before{opacity:1}
+.svc-icon{width:50px;height:50px;border-radius:12px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--g) 18%, transparent);border:1px solid color-mix(in srgb, var(--g) 30%, transparent)}
 .svc-title{font-size:16px;font-weight:700;margin-bottom:9px}
 .svc-desc{font-size:12px;color:var(--mt);line-height:1.72}
 .svc-link{display:inline-flex;align-items:center;gap:5px;color:var(--g3);font-size:11px;font-weight:600;margin-top:15px;transition:gap .2s}.svc-link:hover{gap:9px}
 
 /* SERVICES PAGE */
-.sdg{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-bottom:72px;padding-bottom:72px;border-bottom:1px solid rgba(200,168,75,.1)}
+.sdg{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-bottom:72px;padding-bottom:72px;border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent)}
 .sdg:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
 .sdg.rev{direction:rtl}.sdg.rev>*{direction:ltr}
-.sdi{border-radius:18px;border:1px solid var(--gb);overflow:hidden;background:rgba(10,107,75,.07)}
+.sdi{border-radius:18px;border:1px solid var(--gb);overflow:hidden;background:color-mix(in srgb, var(--g) 7%, transparent)}
 .sfl{display:flex;flex-direction:column;gap:14px;margin-top:24px}
 .sf{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;border:1px solid transparent;transition:all .3s}
-.sf:hover{background:rgba(10,107,75,.07);border-color:rgba(18,184,124,.2)}
-.sfi{width:32px;height:32px;border-radius:8px;background:rgba(10,107,75,.2);border:1px solid rgba(18,184,124,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sf:hover{background:color-mix(in srgb, var(--g) 7%, transparent);border-color:color-mix(in srgb, var(--g3) 20%, transparent)}
+.sfi{width:32px;height:32px;border-radius:8px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sft h4{font-size:13px;font-weight:700;margin-bottom:3px}.sft p{font-size:11px;color:var(--mt);line-height:1.65}
 
 /* PRICING */
 .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
 .prc{border:1px solid var(--gb);border-radius:18px;padding:28px 22px;background:var(--gl);transition:all .3s;position:relative;overflow:hidden}
-.prc.feat{border-color:rgba(18,184,124,.4);background:rgba(10,107,75,.08)}
+.prc.feat{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
 .prc.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent)}
 .prc-badge{position:absolute;top:16px;right:16px;background:var(--g);color:#fff;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px}
 .prc-name{font-size:13px;font-weight:700;color:var(--au);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
@@ -166,13 +166,13 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 /* LOCATION */
 .loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:48px}
 .loc-card{border:1px solid var(--gb);border-radius:18px;overflow:hidden;background:var(--gl);transition:all .3s}
-.loc-card:hover{border-color:rgba(18,184,124,.4);transform:translateY(-4px)}
+.loc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}
 .loc-map{height:200px;background:var(--nv3);position:relative;overflow:hidden}
 .loc-info{padding:24px}
 .loc-city{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--au);margin-bottom:4px}
 .loc-type{font-size:10px;font-weight:700;color:var(--g3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
 .loc-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;font-size:12px;color:var(--mt);line-height:1.6}
-.loc-icon{width:28px;height:28px;border-radius:7px;background:rgba(10,107,75,.18);border:1px solid rgba(18,184,124,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.loc-icon{width:28px;height:28px;border-radius:7px;background:color-mix(in srgb, var(--g) 18%, transparent);border:1px solid color-mix(in srgb, var(--g3) 20%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .hrs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)}
 .hrs-item{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
 .hrs-day{font-size:10px;color:var(--mt2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
@@ -180,8 +180,8 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .map-box{border-radius:18px;overflow:hidden;border:1px solid var(--gb);height:420px;background:var(--nv3);position:relative;margin-top:48px}
 .ctc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
 .ctc-card{border:1px solid var(--gb);border-radius:16px;padding:26px;background:var(--gl);text-align:center;transition:all .3s}
-.ctc-card:hover{border-color:rgba(18,184,124,.4);transform:translateY(-3px)}
-.ctc-icon{width:52px;height:52px;border-radius:13px;background:rgba(10,107,75,.2);border:1px solid rgba(18,184,124,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.ctc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-3px)}
+.ctc-icon{width:52px;height:52px;border-radius:13px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
 .ctc-title{font-size:13px;font-weight:700;margin-bottom:6px}
 .ctc-val{font-size:12px;color:var(--g3);margin-bottom:4px;font-weight:500}
 .ctc-sub{font-size:11px;color:var(--mt)}
@@ -191,17 +191,17 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .ao-side{background:var(--nv2);border-right:1px solid var(--gb);padding:36px 28px;position:sticky;top:99px;height:calc(100vh - 99px);overflow-y:auto}
 .ao-steps-list{display:flex;flex-direction:column;gap:4px;margin-top:24px}
 .ao-step{display:flex;align-items:flex-start;gap:12px;padding:13px;border-radius:12px;transition:all .3s}
-.ao-step.active{background:rgba(10,107,75,.15);border:1px solid rgba(18,184,124,.25)}
+.ao-step.active{background:color-mix(in srgb, var(--g) 15%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent)}
 .ao-step.done{opacity:.75}
 .ao-step-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s;border:1px solid rgba(255,255,255,.15);color:var(--mt)}
 .ao-step.active .ao-step-n{background:var(--g);color:#fff;border-color:var(--g)}
-.ao-step.done .ao-step-n{background:rgba(46,204,138,.15);color:var(--up);border-color:rgba(46,204,138,.3)}
+.ao-step.done .ao-step-n{background:color-mix(in srgb, var(--up) 15%, transparent);color:var(--up);border-color:color-mix(in srgb, var(--up) 30%, transparent)}
 .ao-step-title{font-size:12px;font-weight:700;margin-bottom:2px}
 .ao-step-sub{font-size:10px;color:var(--mt)}
 .ao-connector{width:1px;height:18px;background:rgba(255,255,255,.1);margin-left:22px}
 .ao-trust{display:flex;flex-direction:column;gap:8px;margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.07)}
 .ao-tb{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--mt)}
-.ao-tbi{width:26px;height:26px;border-radius:6px;background:rgba(10,107,75,.2);border:1px solid rgba(18,184,124,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ao-tbi{width:26px;height:26px;border-radius:6px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 20%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ao-main{padding:36px 44px;background:var(--nv)}
 .ao-fh{margin-bottom:28px}
 .ao-fh h2{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;margin-bottom:6px}
@@ -214,20 +214,20 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .flbl{font-size:11px;font-weight:600;color:var(--tx);letter-spacing:.04em}
 .flbl .req{color:var(--dn);font-size:10px}
 .finput{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%}
-.finput:focus{border-color:rgba(18,184,124,.5);background:rgba(10,107,75,.08);box-shadow:0 0 0 3px rgba(18,184,124,.08)}
+.finput:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent);box-shadow:0 0 0 3px color-mix(in srgb, var(--g3) 8%, transparent)}
 .finput::placeholder{color:var(--mt2)}
-.fselect{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='rgba(246,242,234,.4)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-.fselect:focus{border-color:rgba(18,184,124,.5);background-color:rgba(10,107,75,.08)}
+.fselect{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='color-mix(in srgb, var(--tx) 40%, transparent)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.fselect:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background-color:color-mix(in srgb, var(--g) 8%, transparent)}
 .fselect option{background:#0c2040;color:var(--tx)}
 .ftarea{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;resize:vertical;min-height:80px;line-height:1.6}
-.ftarea:focus{border-color:rgba(18,184,124,.5);background:rgba(10,107,75,.08)}
+.ftarea:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
 .fhint{font-size:10px;color:var(--mt2);line-height:1.5}
 .ferr{font-size:10px;color:var(--dn);display:none}
-.finput.err,.fselect.err{border-color:rgba(232,69,69,.4)}
+.finput.err,.fselect.err{border-color:color-mix(in srgb, var(--dn) 40%, transparent)}
 .finput.err+.ferr,.fselect.err+.ferr{display:block}
-.upload-box{border:1px dashed rgba(200,168,75,.35);border-radius:12px;padding:26px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(200,168,75,.03)}
-.upload-box:hover{border-color:rgba(18,184,124,.5);background:rgba(10,107,75,.06)}
-.upload-icon{margin:0 auto 10px;width:40px;height:40px;border-radius:10px;background:rgba(10,107,75,.2);border:1px solid rgba(18,184,124,.25);display:flex;align-items:center;justify-content:center}
+.upload-box{border:1px dashed color-mix(in srgb, var(--au) 35%, transparent);border-radius:12px;padding:26px;text-align:center;cursor:pointer;transition:all .3s;background:color-mix(in srgb, var(--au) 3%, transparent)}
+.upload-box:hover{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 6%, transparent)}
+.upload-icon{margin:0 auto 10px;width:40px;height:40px;border-radius:10px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center}
 .upload-title{font-size:12px;font-weight:600;margin-bottom:3px}
 .upload-sub{font-size:10px;color:var(--mt)}
 .upload-input{display:none}
@@ -238,8 +238,8 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .fnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.07)}
 .fprev{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--mt);padding:11px 22px;border-radius:9px;font-size:13px;font-weight:600;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
 .fprev:hover{border-color:var(--au);color:var(--au)}
-.fnext{background:linear-gradient(135deg,var(--g),var(--g3));border:none;color:#fff;padding:11px 28px;border-radius:9px;font-size:13px;font-weight:700;box-shadow:0 4px 18px rgba(10,107,75,.35);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
-.fnext:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(10,107,75,.5)}
+.fnext{background:linear-gradient(135deg,var(--g),var(--g3));border:none;color:#fff;padding:11px 28px;border-radius:9px;font-size:13px;font-weight:700;box-shadow:0 4px 18px color-mix(in srgb, var(--g) 35%, transparent);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.fnext:hover{transform:translateY(-1px);box-shadow:0 8px 24px color-mix(in srgb, var(--g) 50%, transparent)}
 .prog-bar{height:3px;background:rgba(255,255,255,.08);border-radius:100px;margin-bottom:26px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--g3));border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1)}
 .rv-sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 20px;margin-bottom:16px}
@@ -249,11 +249,11 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .rv-k{color:var(--mt)}.rv-v{font-weight:600;color:var(--tx)}
 .success-scr{text-align:center;padding:44px 28px;display:none}
 .success-scr.show{display:block}
-.success-icon{width:80px;height:80px;border-radius:50%;background:rgba(46,204,138,.15);border:2px solid rgba(46,204,138,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+.success-icon{width:80px;height:80px;border-radius:50%;background:color-mix(in srgb, var(--up) 15%, transparent);border:2px solid color-mix(in srgb, var(--up) 40%, transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
 .success-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;margin-bottom:10px}
 .success-title em{font-style:italic;color:var(--g3)}
 .success-sub{font-size:14px;color:var(--mt);max-width:480px;margin:0 auto 24px;line-height:1.75}
-.success-ref{background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.2);border-radius:10px;padding:14px 20px;display:inline-block;margin-bottom:24px}
+.success-ref{background:color-mix(in srgb, var(--au) 8%, transparent);border:1px solid color-mix(in srgb, var(--au) 20%, transparent);border-radius:10px;padding:14px 20px;display:inline-block;margin-bottom:24px}
 .success-ref-lbl{font-size:10px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
 .success-ref-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--au);letter-spacing:.06em}
 .nxt-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;text-align:left}
@@ -265,12 +265,12 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 /* TESTIMONIALS */
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
 .testi{border:1px solid var(--gb);border-radius:18px;padding:26px;background:var(--gl);transition:border-color .3s}
-.testi:hover{border-color:rgba(200,168,75,.42)}
+.testi:hover{border-color:color-mix(in srgb, var(--au) 42%, transparent)}
 .testi-stars{color:var(--au);font-size:13px;letter-spacing:2px;margin-bottom:12px}
 .testi-q{font-size:13px;color:var(--mt);line-height:1.75;font-style:italic;margin-bottom:10px}
 .testi-qu{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:var(--mt2);direction:rtl;line-height:2.2;margin-bottom:12px}
 .testi-auth{display:flex;align-items:center;gap:10px}
-.testi-av{width:38px;height:38px;border-radius:50%;background:rgba(10,107,75,.28);border:1px solid rgba(18,184,124,.3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--g3)}
+.testi-av{width:38px;height:38px;border-radius:50%;background:color-mix(in srgb, var(--g) 28%, transparent);border:1px solid color-mix(in srgb, var(--g3) 30%, transparent);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--g3)}
 .testi-name{font-size:12px;font-weight:700}.testi-role{font-size:10px;color:var(--mt2)}
 
 /* HOW IT WORKS */
@@ -283,16 +283,16 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 
 /* REGULATORY */
 .reg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
-.reg-card{border:1px solid rgba(200,168,75,.16);border-radius:14px;padding:24px 16px;text-align:center;background:rgba(200,168,75,.03);transition:all .3s}
-.reg-card:hover{border-color:rgba(200,168,75,.4);background:var(--au3)}
+.reg-card{border:1px solid color-mix(in srgb, var(--au) 16%, transparent);border-radius:14px;padding:24px 16px;text-align:center;background:color-mix(in srgb, var(--au) 3%, transparent);transition:all .3s}
+.reg-card:hover{border-color:color-mix(in srgb, var(--au) 40%, transparent);background:var(--au3)}
 .reg-name{font-size:12px;font-weight:700;color:var(--au);margin-bottom:5px;letter-spacing:.04em;margin-top:12px}
 .reg-desc{font-size:11px;color:var(--mt2);line-height:1.6}
-.reg-strip{background:rgba(200,168,75,.05);border-top:1px solid rgba(200,168,75,.1);border-bottom:1px solid rgba(200,168,75,.1);padding:20px 52px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+.reg-strip{background:color-mix(in srgb, var(--au) 5%, transparent);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent);padding:20px 52px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
 .reg-strip-item{display:flex;align-items:center;gap:8px;opacity:.55;transition:opacity .2s}.reg-strip-item:hover{opacity:1}
 .rst{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--au)}
 
 /* CTA */
-.cta-block{margin:0 52px 80px;border-radius:20px;position:relative;overflow:hidden;border:1px solid rgba(10,107,75,.3);background:linear-gradient(135deg,rgba(10,107,75,.12) 0%,rgba(200,168,75,.04) 100%)}
+.cta-block{margin:0 52px 80px;border-radius:20px;position:relative;overflow:hidden;border:1px solid color-mix(in srgb, var(--g) 30%, transparent);background:linear-gradient(135deg,color-mix(in srgb, var(--g) 12%, transparent) 0%,color-mix(in srgb, var(--au) 4%, transparent) 100%)}
 .cta-block::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,var(--g3),var(--au),transparent)}
 .cta-inner{padding:72px;text-align:center;position:relative;z-index:1}
 .cta-inner h2{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;margin-bottom:10px;line-height:1.1}
@@ -309,14 +309,14 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .mkt-idxv{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
 .mkt-idxc2{font-size:12px;font-weight:600;margin-top:3px}
 .mkt-table-wrap{margin-top:22px;background:var(--gl);border:1px solid var(--gb);border-radius:16px;overflow:hidden}
-.mkt-table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(10,107,75,.07)}
+.mkt-table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:color-mix(in srgb, var(--g) 7%, transparent)}
 .mkt-table-title{font-size:13px;font-weight:700}
 .mkt-table table{width:100%;border-collapse:collapse;table-layout:fixed}
 .mkt-table thead th{padding:9px 16px;text-align:right;font-size:9px;font-weight:700;color:var(--mt2);letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
 .mkt-table thead th:first-child{text-align:left}
 .mkt-table tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
 .mkt-table tbody tr:last-child{border-bottom:none}
-.mkt-table tbody tr:hover{background:rgba(10,107,75,.09)}
+.mkt-table tbody tr:hover{background:color-mix(in srgb, var(--g) 9%, transparent)}
 .mkt-table td{padding:10px 16px;text-align:right;font-variant-numeric:tabular-nums;font-size:12px}
 .mkt-table td:first-child{text-align:left}
 .cur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
@@ -326,7 +326,7 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .cur-ch{font-size:11px;margin-top:2px;font-weight:600}
 
 /* FOOTER */
-footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52px 52px 36px}
+footer{background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);padding:52px 52px 36px}
 .footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:52px;margin-bottom:40px}
 .fb p{font-size:12px;color:var(--mt);line-height:1.75;margin-top:12px;max-width:265px}
 .fb-urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:var(--mt2);direction:rtl;margin-top:5px;display:block;line-height:2}
@@ -343,8 +343,8 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 
 /* ABOUT */
 .about-vals{display:flex;flex-direction:column;gap:14px}
-.aval{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:12px;background:rgba(10,107,75,.07);border:1px solid rgba(18,184,124,.15)}
-.aval-icon{width:34px;height:34px;border-radius:9px;background:rgba(10,107,75,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aval{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:12px;background:color-mix(in srgb, var(--g) 7%, transparent);border:1px solid color-mix(in srgb, var(--g3) 15%, transparent)}
+.aval-icon{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb, var(--g) 25%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .aval h4{font-size:13px;font-weight:700;margin-bottom:3px}.aval p{font-size:11px;color:var(--mt)}
 
 /* NAV DROPDOWNS */
@@ -353,17 +353,17 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .nav-links .ddt::after{content:' ▾';font-size:8px;opacity:.7}
 .dd{position:absolute;top:100%;left:-14px;padding-top:12px;display:none;z-index:300}
 .nav-links>li:hover .dd{display:block}
-.dd-inner{background:rgba(5,16,30,.98);border:1px solid var(--gb);border-radius:12px;padding:8px 0;min-width:230px;backdrop-filter:blur(28px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.dd-inner{background:color-mix(in srgb, var(--nv) 98%, transparent);border:1px solid var(--gb);border-radius:12px;padding:8px 0;min-width:230px;backdrop-filter:blur(28px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
 .dd-inner a{display:block;padding:9px 18px;font-size:11px;color:var(--mt);letter-spacing:.04em;text-transform:none;border-bottom:none!important;transition:all .15s;white-space:nowrap}
-.dd-inner a:hover{color:var(--au);background:rgba(10,107,75,.12)}
+.dd-inner a:hover{color:var(--au);background:color-mix(in srgb, var(--g) 12%, transparent)}
 
 /* MOBILE NAV */
-.ham{display:none;background:transparent;border:1px solid rgba(246,242,234,.18);border-radius:8px;width:38px;height:38px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}
+.ham{display:none;background:transparent;border:1px solid color-mix(in srgb, var(--tx) 18%, transparent);border-radius:8px;width:38px;height:38px;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}
 .ham span{display:block;width:16px;height:1.5px;background:var(--tx);transition:all .25s;border-radius:2px}
 .ham.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
 .ham.open span:nth-child(2){opacity:0}
 .ham.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
-.mnav{position:fixed;top:69px;left:0;right:0;bottom:0;z-index:250;background:rgba(5,16,30,.99);backdrop-filter:blur(20px);overflow-y:auto;padding:24px 22px 60px;display:none}
+.mnav{position:fixed;top:69px;left:0;right:0;bottom:0;z-index:250;background:color-mix(in srgb, var(--nv) 99%, transparent);backdrop-filter:blur(20px);overflow-y:auto;padding:24px 22px 60px;display:none}
 .mnav.open{display:block}
 .mnav-group{border-bottom:1px solid rgba(255,255,255,.06);padding:14px 0}
 .mnav-group>span{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--au);display:block;margin-bottom:8px}
@@ -372,7 +372,7 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .mnav .bbig{width:100%;margin-top:18px;justify-content:center;display:flex}
 
 /* PAGE HERO */
-.phero{padding:54px 52px 58px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid rgba(200,168,75,.12);background:radial-gradient(ellipse 60% 90% at 50% 0%,rgba(10,107,75,.16),transparent 65%),radial-gradient(ellipse 40% 60% at 80% 20%,rgba(200,168,75,.06),transparent 55%),linear-gradient(180deg,var(--nv2),var(--nv))}
+.phero{padding:54px 52px 58px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid color-mix(in srgb, var(--au) 12%, transparent);background:radial-gradient(ellipse 60% 90% at 50% 0%,color-mix(in srgb, var(--g) 16%, transparent),transparent 65%),radial-gradient(ellipse 40% 60% at 80% 20%,color-mix(in srgb, var(--au) 6%, transparent),transparent 55%),linear-gradient(180deg,var(--nv2),var(--nv))}
 .phero::after{display:none}
 .phero>*{position:relative;z-index:1}
 .phero h1{font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:700;line-height:1.06;margin:12px 0 6px;letter-spacing:-.01em}
@@ -383,21 +383,21 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 /* CALCULATORS */
 .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:48px}
 .calc-card{border:1px solid var(--gb);border-radius:18px;padding:26px;background:var(--gl);transition:border-color .3s}
-.calc-card:hover{border-color:rgba(18,184,124,.35)}
+.calc-card:hover{border-color:color-mix(in srgb, var(--g3) 35%, transparent)}
 .calc-title{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:700;margin-bottom:4px;color:var(--au);letter-spacing:.01em}
 .calc-sub{font-size:11px;color:var(--mt);line-height:1.6;margin-bottom:14px}
-.calc-formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--au2);margin-bottom:16px;padding:9px 14px;border-left:2px solid rgba(200,168,75,.45);background:rgba(200,168,75,.05);border-radius:0 9px 9px 0}
+.calc-formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--au2);margin-bottom:16px;padding:9px 14px;border-left:2px solid color-mix(in srgb, var(--au) 45%, transparent);background:color-mix(in srgb, var(--au) 5%, transparent);border-radius:0 9px 9px 0}
 .dd-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:11px;font-variant-numeric:tabular-nums}
 .dd-table th{text-align:right;padding:6px 8px;color:var(--mt2);font-size:9px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.08)}
 .dd-table th:first-child,.dd-table td:first-child{text-align:left}
 .dd-table td{text-align:right;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--mt)}
-.calc-out{margin-top:16px;background:rgba(10,107,75,.1);border:1px solid rgba(18,184,124,.2);border-radius:10px;padding:14px 16px;display:none}
+.calc-out{margin-top:16px;background:color-mix(in srgb, var(--g) 10%, transparent);border:1px solid color-mix(in srgb, var(--g3) 20%, transparent);border-radius:10px;padding:14px 16px;display:none}
 .calc-out.show{display:block}
 .calc-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05)}
 .calc-row:last-child{border-bottom:none}
 .calc-k{color:var(--mt)}.calc-v{font-weight:700;font-variant-numeric:tabular-nums;color:var(--g3)}
 .calc-btn{margin-top:14px;width:100%;background:linear-gradient(135deg,var(--g),var(--g3));border:none;color:#fff;padding:11px;border-radius:9px;font-size:12px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
-.calc-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(10,107,75,.4)}
+.calc-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px color-mix(in srgb, var(--g) 40%, transparent)}
 
 /* FAQ ACCORDION */
 .faq-list{margin-top:40px;display:flex;flex-direction:column;gap:12px;max-width:820px}
@@ -406,20 +406,20 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .faq-item summary::-webkit-details-marker{display:none}
 .faq-item summary::after{content:'+';color:var(--au);font-size:18px;font-weight:400;flex-shrink:0}
 .faq-item[open] summary::after{content:'−'}
-.faq-item[open]{border-color:rgba(18,184,124,.35)}
+.faq-item[open]{border-color:color-mix(in srgb, var(--g3) 35%, transparent)}
 .faq-a{padding:0 22px 18px;font-size:12px;color:var(--mt);line-height:1.75}
 
 /* POLICY CHIPS */
 .pol-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:32px}
 .pol-chip{display:flex;align-items:center;gap:11px;padding:13px 16px;border:1px solid var(--gb);border-radius:11px;background:var(--gl);font-size:12px;transition:all .2s}
-.pol-chip:hover{border-color:rgba(18,184,124,.4);background:rgba(10,107,75,.07)}
-.pol-chip .pn{width:24px;height:24px;border-radius:6px;background:rgba(10,107,75,.2);border:1px solid rgba(18,184,124,.25);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--g3);flex-shrink:0}
+.pol-chip:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 7%, transparent)}
+.pol-chip .pn{width:24px;height:24px;border-radius:6px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--g3);flex-shrink:0}
 
 /* WHATSAPP BUBBLE */
 .wa-fab{position:fixed;bottom:26px;right:26px;z-index:400;display:flex;align-items:center;gap:10px;text-decoration:none}
-.wa-label{background:rgba(5,16,30,.95);border:1px solid var(--gb);color:var(--tx);font-size:11px;padding:8px 14px;border-radius:100px;backdrop-filter:blur(20px)}
+.wa-label{background:color-mix(in srgb, var(--nv) 95%, transparent);border:1px solid var(--gb);color:var(--tx);font-size:11px;padding:8px 14px;border-radius:100px;backdrop-filter:blur(20px)}
 .wa-label b{color:var(--up)}
-.wa-btn{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1FAF59,#2ECC8A);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(46,204,138,.45);transition:transform .2s}
+.wa-btn{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1FAF59,#2ECC8A);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px color-mix(in srgb, var(--up) 45%, transparent);transition:transform .2s}
 .wa-fab:hover .wa-btn{transform:scale(1.08)}
 
 /* ══ GRAPHICS & ANIMATION LAYER (live-site assets) ══ */
@@ -434,7 +434,7 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .imgwrap::before{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(to right,rgba(255,255,255,0) 0%,rgba(255,255,255,.22) 100%);transform:skewX(-25deg);z-index:2;pointer-events:none}
 .imgwrap:hover::before{animation:shine .85s ease}
 @keyframes shine{100%{left:130%}}
-.imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,16,30,.42));pointer-events:none}
+.imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,color-mix(in srgb, var(--nv) 42%, transparent));pointer-events:none}
 .imgwrap.light{background:#fff}.imgwrap.light::after{display:none}
 /* Floating bob — fxvibe float_image widget */
 .float-bob{animation:floatBob 5.5s ease-in-out infinite}
@@ -447,14 +447,14 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 /* Home hero photo underlay */
 .hero-photo{position:absolute;inset:0;z-index:0;background:url('assets/img/page-title.jpg') center/cover no-repeat;opacity:.32;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 72%,transparent 100%)}
 /* Real logo */
-.lm-img{width:44px;height:44px;border-radius:9px;background:#F6F2EA;border:1px solid rgba(200,168,75,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px}
+.lm-img{width:44px;height:44px;border-radius:9px;background:#F6F2EA;border:1px solid color-mix(in srgb, var(--au) 40%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px}
 .lm-img img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 /* Stock logos in ticker / tables */
 .slogo{width:24px;height:24px;border-radius:50%;background:#fff;object-fit:contain;padding:2px;flex-shrink:0;border:1px solid rgba(255,255,255,.14)}
 .ti .slogo{width:16px;height:16px;padding:1.5px}
 .mkt-sym{display:flex;align-items:center;gap:9px}
 /* Regulator brand chips */
-.brand-chip{display:inline-flex;align-items:center;gap:9px;background:#F6F2EA;border-radius:10px;padding:8px 16px;border:1px solid rgba(200,168,75,.35)}
+.brand-chip{display:inline-flex;align-items:center;gap:9px;background:#F6F2EA;border-radius:10px;padding:8px 16px;border:1px solid color-mix(in srgb, var(--au) 35%, transparent)}
 .brand-chip img{height:30px;width:auto;object-fit:contain;display:block}
 .brand-chip .rst{color:#1A2433;font-size:11px;font-weight:700;letter-spacing:.05em}
 /* Why-choose split row */
@@ -464,7 +464,7 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 /* PSX performers logo wall (original "Power Your Portfolio" section) */
 .perf-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:36px auto 0;max-width:980px}
 .perf-chip{width:142px;display:flex;flex-direction:column;align-items:center;gap:9px;padding:18px 10px 14px;background:var(--gl);border:1px solid var(--gb);border-radius:14px;cursor:pointer;transition:transform .25s,border-color .25s,background .25s,box-shadow .25s}
-.perf-chip:hover{transform:translateY(-6px);border-color:rgba(18,184,124,.55);background:rgba(10,107,75,.12);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.perf-chip:hover{transform:translateY(-6px);border-color:color-mix(in srgb, var(--g3) 55%, transparent);background:color-mix(in srgb, var(--g) 12%, transparent);box-shadow:0 14px 30px rgba(0,0,0,.35)}
 .perf-chip img{width:46px;height:46px;border-radius:50%;background:#fff;object-fit:contain;padding:4px}
 .perf-chip .pfs{font-size:11px;font-weight:700;color:var(--au);letter-spacing:.07em}
 .perf-chip .pfn{font-size:9px;color:var(--mt2);text-align:center;line-height:1.3;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -486,8 +486,8 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 .calc-info p{font-size:14px;color:var(--mt);line-height:1.9;margin-bottom:13px;font-weight:300}
 .calc-info ul{list-style:none;margin:2px 0 16px;padding:0}
 .calc-info li{position:relative;padding-left:24px;margin-bottom:8px;font-size:13.5px;color:var(--mt);line-height:1.7}
-.calc-info li::before{content:'';position:absolute;left:5px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--g3);box-shadow:0 0 8px rgba(18,184,124,.6)}
-.ci-formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--tx);background:linear-gradient(90deg,rgba(200,168,75,.1),rgba(200,168,75,.02));border-left:3px solid var(--au);border-radius:0 12px 12px 0;padding:15px 22px;margin:4px 0 18px}
+.calc-info li::before{content:'';position:absolute;left:5px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--g3);box-shadow:0 0 8px color-mix(in srgb, var(--g3) 60%, transparent)}
+.ci-formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--tx);background:linear-gradient(90deg,color-mix(in srgb, var(--au) 10%, transparent),color-mix(in srgb, var(--au) 2%, transparent));border-left:3px solid var(--au);border-radius:0 12px 12px 0;padding:15px 22px;margin:4px 0 18px}
 /* Calculator result charts */
 .calc-chart{margin-top:16px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}
 .cc-legend{display:flex;gap:18px;font-size:10px;color:var(--mt);margin-bottom:10px;flex-wrap:wrap}
@@ -502,9 +502,9 @@ footer{background:var(--nv2);border-top:1px solid rgba(200,168,75,.1);padding:52
 
 /* Layered ambient background — fixed emerald + gold light pools for depth */
 body{background:
-  radial-gradient(ellipse 52% 42% at 14% 10%,rgba(18,184,124,.055),transparent 60%),
-  radial-gradient(ellipse 48% 44% at 88% 90%,rgba(200,168,75,.05),transparent 62%),
-  radial-gradient(ellipse 60% 50% at 50% 120%,rgba(13,143,99,.05),transparent 60%),
+  radial-gradient(ellipse 52% 42% at 14% 10%,color-mix(in srgb, var(--g3) 5.5%, transparent),transparent 60%),
+  radial-gradient(ellipse 48% 44% at 88% 90%,color-mix(in srgb, var(--au) 5%, transparent),transparent 62%),
+  radial-gradient(ellipse 60% 50% at 50% 120%,color-mix(in srgb, var(--g2) 5%, transparent),transparent 60%),
   var(--nv);
   background-attachment:fixed}
 /* Fine film grain for tactile, premium surface */
@@ -516,19 +516,19 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
   background:var(--au-grad);background-size:220% auto;-webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;animation:goldShine 7s linear infinite}
 @keyframes goldShine{to{background-position:-220% center}}
-.snum{filter:drop-shadow(0 0 16px rgba(200,168,75,.22))}
-.sh em,.phero h1 em,.cta-inner h2 em{text-shadow:0 0 26px rgba(18,184,124,.28)}
+.snum{filter:drop-shadow(0 0 16px color-mix(in srgb, var(--au) 22%, transparent))}
+.sh em,.phero h1 em,.cta-inner h2 em{text-shadow:0 0 26px color-mix(in srgb, var(--g3) 28%, transparent)}
 
 /* Refined section tag — glass pill with gradient hairline + glow dot */
-.stag{position:relative;background:linear-gradient(180deg,rgba(18,184,124,.12),rgba(18,184,124,.04));
-  border-color:rgba(18,184,124,.35);box-shadow:0 0 0 1px rgba(18,184,124,.06),0 6px 18px -8px rgba(18,184,124,.4);
+.stag{position:relative;background:linear-gradient(180deg,color-mix(in srgb, var(--g3) 12%, transparent),color-mix(in srgb, var(--g3) 4%, transparent));
+  border-color:color-mix(in srgb, var(--g3) 35%, transparent);box-shadow:0 0 0 1px color-mix(in srgb, var(--g3) 6%, transparent),0 6px 18px -8px color-mix(in srgb, var(--g3) 40%, transparent);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 
 /* ── GLASS CARDS — frosted depth + gradient gold border + hover glow ── */
 .svc-card,.testi,.calc-card,.reg-card,.ctc-card,.loc-card,.faq-item{
   background:
-    linear-gradient(158deg,rgba(13,32,62,.5),rgba(8,22,38,.32)) padding-box,
-    linear-gradient(150deg,rgba(200,168,75,.4),rgba(18,184,124,.14) 42%,rgba(200,168,75,.05) 80%) border-box;
+    linear-gradient(158deg,color-mix(in srgb, var(--nv3) 50%, transparent),color-mix(in srgb, var(--nv2) 32%, transparent)) padding-box,
+    linear-gradient(150deg,color-mix(in srgb, var(--au) 40%, transparent),color-mix(in srgb, var(--g3) 14%, transparent) 42%,color-mix(in srgb, var(--au) 5%, transparent) 80%) border-box;
   border:1px solid transparent!important;
   -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
   box-shadow:0 20px 46px -20px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.045);
@@ -536,33 +536,33 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 .svc-card:hover,.testi:hover,.reg-card:hover,.ctc-card:hover,.loc-card:hover{
   transform:translateY(-7px);
   background:
-    linear-gradient(158deg,rgba(16,40,76,.62),rgba(9,26,44,.4)) padding-box,
-    linear-gradient(150deg,rgba(226,192,112,.85),rgba(18,184,124,.4) 50%,rgba(200,168,75,.2)) border-box;
-  box-shadow:0 34px 64px -24px rgba(0,0,0,.72),0 0 34px -8px rgba(18,184,124,.3),inset 0 1px 0 rgba(255,255,255,.09)}
+    linear-gradient(158deg,color-mix(in srgb, var(--nv3) 62%, transparent),color-mix(in srgb, var(--nv2) 40%, transparent)) padding-box,
+    linear-gradient(150deg,color-mix(in srgb, var(--au2) 85%, transparent),color-mix(in srgb, var(--g3) 40%, transparent) 50%,color-mix(in srgb, var(--au) 20%, transparent)) border-box;
+  box-shadow:0 34px 64px -24px rgba(0,0,0,.72),0 0 34px -8px color-mix(in srgb, var(--g3) 30%, transparent),inset 0 1px 0 rgba(255,255,255,.09)}
 .svc-card::before{height:2px;background:linear-gradient(90deg,transparent,var(--au),var(--g3),transparent)}
 /* Soft radial glow that blooms behind the icon on hover */
 .svc-card::after{content:'';position:absolute;top:-40%;left:-20%;width:160px;height:160px;border-radius:50%;
-  background:radial-gradient(circle,rgba(18,184,124,.22),transparent 70%);opacity:0;transition:opacity .5s var(--lux-ease);pointer-events:none}
+  background:radial-gradient(circle,color-mix(in srgb, var(--g3) 22%, transparent),transparent 70%);opacity:0;transition:opacity .5s var(--lux-ease);pointer-events:none}
 .svc-card:hover::after{opacity:1}
 /* Service icon — gilded tile */
-.svc-icon{background:linear-gradient(145deg,rgba(10,107,75,.3),rgba(200,168,75,.12));
-  border:1px solid rgba(200,168,75,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6);
+.svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6);
   transition:transform .45s var(--lux-ease),box-shadow .45s var(--lux-ease)}
-.svc-card:hover .svc-icon{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 22px -4px rgba(18,184,124,.5)}
+.svc-card:hover .svc-icon{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 22px -4px color-mix(in srgb, var(--g3) 50%, transparent)}
 
 /* Hero market card — deeper glass, gold rim glow */
-.pcard{background:linear-gradient(160deg,rgba(8,24,42,.82),rgba(5,16,30,.72))!important;
-  border:1px solid rgba(200,168,75,.28)!important;
-  box-shadow:0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px rgba(200,168,75,.06),inset 0 1px 0 rgba(255,255,255,.06)!important}
+.pcard{background:linear-gradient(160deg,rgba(8,24,42,.82),color-mix(in srgb, var(--nv) 72%, transparent))!important;
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent)!important;
+  box-shadow:0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px color-mix(in srgb, var(--au) 6%, transparent),inset 0 1px 0 rgba(255,255,255,.06)!important}
 
 /* Stat band — glass plinth with gradient seams */
-.stats-band{background:linear-gradient(180deg,rgba(8,24,40,.7),rgba(5,16,30,.45));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.sc2{border-right-color:rgba(200,168,75,.14)}
+.stats-band{background:linear-gradient(180deg,color-mix(in srgb, var(--nv2) 70%, transparent),color-mix(in srgb, var(--nv) 45%, transparent));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sc2{border-right-color:color-mix(in srgb, var(--au) 14%, transparent)}
 .slbl{letter-spacing:.04em}
 
 /* Feature band — glow lift */
 .fc{transition:background .4s var(--lux-ease),box-shadow .4s var(--lux-ease)}
-.fc:hover{box-shadow:inset 0 0 40px -10px rgba(18,184,124,.18)}
+.fc:hover{box-shadow:inset 0 0 40px -10px color-mix(in srgb, var(--g3) 18%, transparent)}
 .fc .fi{transition:transform .45s var(--lux-ease)}
 .fc:hover .fi{transform:translateY(-3px) scale(1.05)}
 
@@ -575,41 +575,41 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 .bbig-g:hover::after,.btn-primary:hover::after{animation:btnSheen .95s var(--lux-ease)}
 @keyframes btnSheen{to{left:140%}}
 .bbig-o{position:relative;transition:color .35s,border-color .35s,box-shadow .35s}
-.bbig-o:hover{box-shadow:0 0 22px -6px rgba(200,168,75,.5),inset 0 0 22px -12px rgba(200,168,75,.4)}
+.bbig-o:hover{box-shadow:0 0 22px -6px color-mix(in srgb, var(--au) 50%, transparent),inset 0 0 22px -12px color-mix(in srgb, var(--au) 40%, transparent)}
 
 /* ── NAV — center-grow gold underline + logo glow ── */
 .nav-links a{border-bottom:1px solid transparent!important;position:relative}
 .nav-links a::after{content:'';position:absolute;left:50%;right:50%;bottom:-1px;height:1.5px;
   background:linear-gradient(90deg,var(--g3),var(--au));transition:left .3s var(--lux-ease),right .3s var(--lux-ease);border-radius:2px}
 .nav-links a:hover::after,.nav-links a.active::after{left:2px;right:2px}
-.lm-img{box-shadow:0 0 0 1px rgba(200,168,75,.3),0 8px 20px -8px rgba(200,168,75,.4);transition:box-shadow .4s var(--lux-ease)}
-.logo:hover .lm-img{box-shadow:0 0 0 1px rgba(200,168,75,.6),0 0 26px -4px rgba(200,168,75,.55)}
+.lm-img{box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 30%, transparent),0 8px 20px -8px color-mix(in srgb, var(--au) 40%, transparent);transition:box-shadow .4s var(--lux-ease)}
+.logo:hover .lm-img{box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 60%, transparent),0 0 26px -4px color-mix(in srgb, var(--au) 55%, transparent)}
 
 /* Brand chips — gentle lift */
 .brand-chip{transition:transform .4s var(--lux-ease),box-shadow .4s var(--lux-ease)}
-.brand-chip:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px rgba(0,0,0,.5),0 0 18px -6px rgba(200,168,75,.4)}
+.brand-chip:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px rgba(0,0,0,.5),0 0 18px -6px color-mix(in srgb, var(--au) 40%, transparent)}
 
 /* PSX performer chips — gold ring blooms around the logo */
 .perf-chip img{transition:box-shadow .4s var(--lux-ease),transform .4s var(--lux-ease)}
-.perf-chip:hover img{box-shadow:0 0 0 3px rgba(200,168,75,.35),0 0 20px -2px rgba(200,168,75,.5);transform:scale(1.07)}
+.perf-chip:hover img{box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 35%, transparent),0 0 20px -2px color-mix(in srgb, var(--au) 50%, transparent);transform:scale(1.07)}
 .perf-chip .pfs{transition:color .3s}
 .perf-chip:hover .pfs{color:var(--au2)}
 
 /* ── ORNAMENTAL GOLD DIVIDER ── */
 .lux-divider{display:flex;align-items:center;justify-content:center;gap:18px;padding:6px 52px;margin:4px 0}
 .lux-divider::before,.lux-divider::after{content:'';height:1px;width:min(200px,24vw);
-  background:linear-gradient(90deg,transparent,rgba(200,168,75,.55))}
-.lux-divider::after{background:linear-gradient(90deg,rgba(200,168,75,.55),transparent)}
+  background:linear-gradient(90deg,transparent,color-mix(in srgb, var(--au) 55%, transparent))}
+.lux-divider::after{background:linear-gradient(90deg,color-mix(in srgb, var(--au) 55%, transparent),transparent)}
 .lux-divider i{position:relative;width:7px;height:7px;rotate:45deg;flex-shrink:0;
-  background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 14px rgba(200,168,75,.7)}
+  background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 14px color-mix(in srgb, var(--au) 70%, transparent)}
 .lux-divider i::before,.lux-divider i::after{content:'';position:absolute;top:50%;width:5px;height:5px;rotate:0deg;
-  border-radius:50%;background:rgba(200,168,75,.6);transform:translateY(-50%)}
+  border-radius:50%;background:color-mix(in srgb, var(--au) 60%, transparent);transform:translateY(-50%)}
 .lux-divider i::before{left:-13px}.lux-divider i::after{right:-13px}
 
 /* CTA block — animated gilded sheen + emerald inner glow */
 .cta-block{box-shadow:0 40px 90px -40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05)}
 .cta-block::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(200,168,75,.1),transparent 60%),radial-gradient(ellipse 70% 90% at 50% 120%,rgba(18,184,124,.12),transparent 60%)}
+  background:radial-gradient(ellipse 60% 80% at 50% 0%,color-mix(in srgb, var(--au) 10%, transparent),transparent 60%),radial-gradient(ellipse 70% 90% at 50% 120%,color-mix(in srgb, var(--g3) 12%, transparent),transparent 60%)}
 
 /* Donut + image cards — richer rim */
 .gov-donut,.imgwrap{box-shadow:0 26px 56px -24px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.05)}
@@ -618,13 +618,13 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--au2),var(--au));border-radius:2px}
 
 /* WhatsApp bubble — soft halo */
-.wa-btn{box-shadow:0 8px 28px rgba(46,204,138,.45),0 0 0 6px rgba(46,204,138,.08)}
+.wa-btn{box-shadow:0 8px 28px color-mix(in srgb, var(--up) 45%, transparent),0 0 0 6px color-mix(in srgb, var(--up) 8%, transparent)}
 
 /* Hero — drifting emerald/gold glow orbs for living depth */
 .hero{position:relative}
 .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;z-index:0;pointer-events:none;filter:blur(46px)}
-.hero::before{width:360px;height:360px;top:-60px;right:6%;background:radial-gradient(circle,rgba(18,184,124,.2),transparent 70%);animation:orbA 16s var(--lux-ease) infinite alternate}
-.hero::after{width:300px;height:300px;bottom:-40px;left:4%;background:radial-gradient(circle,rgba(200,168,75,.16),transparent 70%);animation:orbB 19s var(--lux-ease) infinite alternate}
+.hero::before{width:360px;height:360px;top:-60px;right:6%;background:radial-gradient(circle,color-mix(in srgb, var(--g3) 20%, transparent),transparent 70%);animation:orbA 16s var(--lux-ease) infinite alternate}
+.hero::after{width:300px;height:300px;bottom:-40px;left:4%;background:radial-gradient(circle,color-mix(in srgb, var(--au) 16%, transparent),transparent 70%);animation:orbB 19s var(--lux-ease) infinite alternate}
 @keyframes orbA{to{transform:translate3d(-40px,46px,0) scale(1.12)}}
 @keyframes orbB{to{transform:translate3d(50px,-34px,0) scale(1.16)}}
 .hero-l,.hero-r{position:relative;z-index:2}
@@ -639,7 +639,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 #preloader.done{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.05)}
 /* slow conic sheen sweeping the backdrop */
 #preloader::before{content:'';position:absolute;width:160vmax;height:160vmax;pointer-events:none;
-  background:conic-gradient(from 0deg,transparent 0deg,rgba(200,168,75,.05) 50deg,transparent 130deg,transparent 230deg,rgba(18,184,124,.04) 290deg,transparent 360deg);
+  background:conic-gradient(from 0deg,transparent 0deg,color-mix(in srgb, var(--au) 5%, transparent) 50deg,transparent 130deg,transparent 230deg,color-mix(in srgb, var(--g3) 4%, transparent) 290deg,transparent 360deg);
   animation:plSheen 11s linear infinite}
 @keyframes plSheen{to{transform:rotate(360deg)}}
 
@@ -647,28 +647,28 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
   animation:plEnter .8s var(--lux-ease) both}
 /* twin counter-rotating gold rings */
 .pl-ring{position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 0deg,transparent 0%,rgba(200,168,75,.12) 22%,var(--au2) 48%,rgba(200,168,75,.12) 74%,transparent 100%);
+  background:conic-gradient(from 0deg,transparent 0%,color-mix(in srgb, var(--au) 12%, transparent) 22%,var(--au2) 48%,color-mix(in srgb, var(--au) 12%, transparent) 74%,transparent 100%);
   -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
   mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
   animation:plSpin 2.6s linear infinite}
 .pl-ring2{inset:11px;opacity:.5;
-  background:conic-gradient(from 180deg,transparent 0%,rgba(18,184,124,.5) 50%,transparent 100%);
+  background:conic-gradient(from 180deg,transparent 0%,color-mix(in srgb, var(--g3) 50%, transparent) 50%,transparent 100%);
   animation:plSpin 3.4s linear infinite reverse}
 @keyframes plSpin{to{transform:rotate(360deg)}}
 .pl-logo{position:relative;width:86px;height:86px;border-radius:21px;background:#F6F2EA;display:flex;align-items:center;justify-content:center;padding:11px;
-  box-shadow:0 0 0 1px rgba(200,168,75,.45),0 0 72px -10px rgba(200,168,75,.7);animation:plPulse 2.2s var(--lux-ease) infinite}
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 72px -10px color-mix(in srgb, var(--au) 70%, transparent);animation:plPulse 2.2s var(--lux-ease) infinite}
 .pl-logo img{width:100%;height:100%;object-fit:contain}
-@keyframes plPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 1px rgba(200,168,75,.45),0 0 60px -10px rgba(200,168,75,.55)}
-  50%{transform:scale(1.045);box-shadow:0 0 0 1px rgba(200,168,75,.7),0 0 92px -4px rgba(200,168,75,.85)}}
+@keyframes plPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 60px -10px color-mix(in srgb, var(--au) 55%, transparent)}
+  50%{transform:scale(1.045);box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 70%, transparent),0 0 92px -4px color-mix(in srgb, var(--au) 85%, transparent)}}
 
 .pl-name{font-family:'Cormorant Garamond',serif;font-size:34px;letter-spacing:.13em;font-weight:700;line-height:1;
   background:var(--au-grad);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
   animation:goldShine 3.6s linear infinite,plEnter .8s var(--lux-ease) .12s both}
 .pl-sub{display:flex;align-items:center;gap:13px;margin-top:-10px;font-size:9.5px;letter-spacing:.46em;text-transform:uppercase;
-  color:rgba(200,168,75,.62);font-weight:600;padding-left:.46em;animation:plEnter .8s var(--lux-ease) .2s both}
-.pl-sub i{width:5px;height:5px;rotate:45deg;background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 8px rgba(200,168,75,.6)}
+  color:color-mix(in srgb, var(--au) 62%, transparent);font-weight:600;padding-left:.46em;animation:plEnter .8s var(--lux-ease) .2s both}
+.pl-sub i{width:5px;height:5px;rotate:45deg;background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 8px color-mix(in srgb, var(--au) 60%, transparent)}
 .pl-sub i:first-child,.pl-sub i:last-child{flex-shrink:0}
-.pl-bar{position:relative;width:210px;height:2px;background:rgba(200,168,75,.14);border-radius:2px;overflow:hidden;margin-top:6px;
+.pl-bar{position:relative;width:210px;height:2px;background:color-mix(in srgb, var(--au) 14%, transparent);border-radius:2px;overflow:hidden;margin-top:6px;
   animation:plEnter .8s var(--lux-ease) .28s both}
 .pl-bar i{display:block;height:100%;width:42%;border-radius:2px;
   background:linear-gradient(90deg,transparent,var(--au2) 35%,#fff6df 50%,var(--au2) 65%,transparent);animation:plBar 1.25s var(--lux-ease) infinite}
@@ -676,7 +676,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 @keyframes plEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* Scroll progress bar */
-#scrollProg{position:fixed;top:0;left:0;height:3px;width:0;z-index:300;background:linear-gradient(90deg,var(--g3),var(--au2));box-shadow:0 0 12px rgba(200,168,75,.55)}
+#scrollProg{position:fixed;top:0;left:0;height:3px;width:0;z-index:300;background:linear-gradient(90deg,var(--g3),var(--au2));box-shadow:0 0 12px color-mix(in srgb, var(--au) 55%, transparent)}
 
 /* Hero particle canvas */
 #heroFx{position:absolute;inset:0;z-index:1;pointer-events:none}
@@ -690,10 +690,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 
 /* Back to top */
 #toTop{position:fixed;right:26px;bottom:92px;width:46px;height:46px;border-radius:50%;z-index:399;display:flex;align-items:center;justify-content:center;cursor:pointer;
-  background:linear-gradient(160deg,rgba(13,32,62,.72),rgba(8,22,38,.52));border:1px solid rgba(200,168,75,.4);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 72%, transparent),color-mix(in srgb, var(--nv2) 52%, transparent));border:1px solid color-mix(in srgb, var(--au) 40%, transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   box-shadow:0 10px 26px -10px rgba(0,0,0,.6);opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease),border-color .3s,box-shadow .3s}
 #toTop.show{opacity:1;visibility:visible;transform:none}
-#toTop:hover{border-color:var(--au);box-shadow:0 0 22px -4px rgba(200,168,75,.5);transform:translateY(-3px)}
+#toTop:hover{border-color:var(--au);box-shadow:0 0 22px -4px color-mix(in srgb, var(--au) 50%, transparent);transform:translateY(-3px)}
 
 @media(prefers-reduced-motion:reduce){
   body{background-attachment:scroll}
@@ -719,67 +719,67 @@ body.light .theme-toggle .ic-moon{display:block}
 body{transition:background-color .45s ease,color .35s ease}
 body.light{
   --nv:#F4F1E8;--nv2:#FBF9F2;--nv3:#FFFFFF;
-  --tx:#12243A;--mt:rgba(18,36,58,.72);--mt2:rgba(18,36,58,.46);
-  --gl:#FFFFFF;--gb:rgba(18,36,58,.12);
-  --au:#9A7B1F;--au2:#B8922A;--au3:rgba(154,123,31,.12);--g3:#0A6B4B;
+  --tx:#12243A;--mt:color-mix(in srgb, var(--tx) 72%, transparent);--mt2:color-mix(in srgb, var(--tx) 46%, transparent);
+  --gl:#FFFFFF;--gb:color-mix(in srgb, var(--tx) 12%, transparent);
+  --au:#9A7B1F;--au2:#B8922A;--au3:color-mix(in srgb, var(--au) 12%, transparent);--g3:#0A6B4B;
   --chart-grid:rgba(18,36,58,.1);--chart-axis:rgba(18,36,58,.55)}
 /* dark media banners stay dark, with light text re-asserted */
 /* only the live-data widgets stay dark "screens"; everything else goes light */
 body.light .pcard,body.light .gov-donut,body.light .map-box{
-  --tx:#F6F2EA;--mt:rgba(246,242,234,.56);--mt2:rgba(246,242,234,.3);
-  --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:rgba(200,168,75,.2);--gl:rgba(255,255,255,.04);
+  --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
+  --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:color-mix(in srgb, var(--au) 20%, transparent);--gl:rgba(255,255,255,.04);
   --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx)}
-body.light .gov-donut{background:linear-gradient(160deg,rgba(13,32,62,.97),rgba(8,22,38,.97))}
+body.light .gov-donut{background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 97%, transparent),color-mix(in srgb, var(--nv2) 97%, transparent))}
 /* light hero + page-hero banners (fade the dark photos, light gradient) */
-body.light .hero-bg{background:radial-gradient(ellipse 55% 65% at 76% 50%,rgba(10,107,75,.08),transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,rgba(200,168,75,.1),transparent 55%),linear-gradient(165deg,#FBF9F2 0%,#F4F1E8 60%,#EDE7D9 100%)}
+body.light .hero-bg{background:radial-gradient(ellipse 55% 65% at 76% 50%,color-mix(in srgb, var(--g) 8%, transparent),transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,color-mix(in srgb, var(--au) 10%, transparent),transparent 55%),linear-gradient(165deg,var(--nv2) 0%,var(--nv) 60%,var(--nv) 100%)}
 body.light .hero-photo{opacity:.05}
-body.light .phero{background:radial-gradient(ellipse 60% 90% at 50% 0%,rgba(10,107,75,.08),transparent 65%),linear-gradient(180deg,#FBF9F2,#F4F1E8)}
+body.light .phero{background:radial-gradient(ellipse 60% 90% at 50% 0%,color-mix(in srgb, var(--g) 8%, transparent),transparent 65%),linear-gradient(180deg,var(--nv2),var(--nv))}
 body.light .phero::before{opacity:.06}
-body.light .bbig-o{border-color:rgba(18,36,58,.25)!important;color:var(--tx)}
+body.light .bbig-o{border-color:color-mix(in srgb, var(--tx) 25%, transparent)!important;color:var(--tx)}
 body.light .sh em,body.light .phero h1 em,body.light .cta-inner h2 em{text-shadow:none}
 /* light nav + mobile menu */
-body.light .nav{background:rgba(247,244,236,.92);border-bottom-color:rgba(18,36,58,.1)}
-body.light .mnav{background:rgba(247,244,236,.99)}
-body.light .ticker{background:rgba(245,242,233,.96);border-bottom-color:rgba(18,36,58,.1)}
-body.light .ti{border-right-color:rgba(18,36,58,.08)}
+body.light .nav{background:color-mix(in srgb, var(--nv2) 92%, transparent);border-bottom-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+body.light .mnav{background:color-mix(in srgb, var(--nv2) 99%, transparent)}
+body.light .ticker{background:color-mix(in srgb, var(--nv2) 96%, transparent);border-bottom-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+body.light .ti{border-right-color:color-mix(in srgb, var(--tx) 8%, transparent)}
 /* nav dropdown flyouts */
-body.light .dd-inner{background:rgba(249,246,239,.99);border-color:rgba(18,36,58,.12);box-shadow:0 20px 50px rgba(18,36,58,.18)}
+body.light .dd-inner{background:color-mix(in srgb, var(--nv2) 99%, transparent);border-color:color-mix(in srgb, var(--tx) 12%, transparent);box-shadow:0 20px 50px color-mix(in srgb, var(--tx) 18%, transparent)}
 /* Karachi skyline band → light scene */
 body.light .skyline svg>rect{fill:#EFE9DC}
-body.light .skyline svg g{fill:rgba(18,36,58,.06)!important;stroke:rgba(18,36,58,.12)!important}
+body.light .skyline svg g{fill:color-mix(in srgb, var(--tx) 6%, transparent)!important;stroke:color-mix(in srgb, var(--tx) 12%, transparent)!important}
 body.light .skyline svg circle[r="14"]{fill:#EFE9DC}
 body.light .lt-main{background:linear-gradient(100deg,#8C6E18,#B8922A,#8C6E18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body.light .btn-ghost{border-color:rgba(18,36,58,.22)!important;color:var(--tx)}
+body.light .btn-ghost{border-color:color-mix(in srgb, var(--tx) 22%, transparent)!important;color:var(--tx)}
 /* white cards */
 body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item{
-  background:#fff!important;border:1px solid rgba(18,36,58,.1)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
-  box-shadow:0 16px 36px -20px rgba(18,36,58,.22),0 2px 6px -2px rgba(18,36,58,.06)!important}
+  background:var(--nv3)!important;border:1px solid color-mix(in srgb, var(--tx) 10%, transparent)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 16px 36px -20px color-mix(in srgb, var(--tx) 22%, transparent),0 2px 6px -2px color-mix(in srgb, var(--tx) 6%, transparent)!important}
 body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover{
-  background:#fff!important;border-color:rgba(154,123,31,.5)!important;transform:translateY(-6px);
-  box-shadow:0 26px 50px -22px rgba(18,36,58,.3),0 0 22px -10px rgba(10,107,75,.25)!important}
-body.light .svc-card::after{background:radial-gradient(circle,rgba(10,107,75,.1),transparent 70%)}
-body.light .svc-icon{background:linear-gradient(145deg,rgba(10,107,75,.12),rgba(154,123,31,.16));border:1px solid rgba(10,107,75,.22);box-shadow:none}
+  background:var(--nv3)!important;border-color:color-mix(in srgb, var(--au) 50%, transparent)!important;transform:translateY(-6px);
+  box-shadow:0 26px 50px -22px color-mix(in srgb, var(--tx) 30%, transparent),0 0 22px -10px color-mix(in srgb, var(--g) 25%, transparent)!important}
+body.light .svc-card::after{background:radial-gradient(circle,color-mix(in srgb, var(--g) 10%, transparent),transparent 70%)}
+body.light .svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 12%, transparent),color-mix(in srgb, var(--au) 16%, transparent));border:1px solid color-mix(in srgb, var(--g) 22%, transparent);box-shadow:none}
 /* inputs */
-body.light .finput{background:#fff;border:1px solid rgba(18,36,58,.18);color:var(--tx)}
-body.light .finput::placeholder{color:rgba(18,36,58,.4)}
-body.light .finput:focus{border-color:var(--au);box-shadow:0 0 0 3px rgba(154,123,31,.14)}
+body.light .finput{background:var(--nv3);border:1px solid color-mix(in srgb, var(--tx) 18%, transparent);color:var(--tx)}
+body.light .finput::placeholder{color:color-mix(in srgb, var(--tx) 40%, transparent)}
+body.light .finput:focus{border-color:var(--au);box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 14%, transparent)}
 /* section tag, gold accent words, formula, tables on light */
-body.light .stag{background:rgba(10,107,75,.09);border-color:rgba(10,107,75,.32);color:#0A6B4B;box-shadow:none}
+body.light .stag{background:color-mix(in srgb, var(--g) 9%, transparent);border-color:color-mix(in srgb, var(--g) 32%, transparent);color:#0A6B4B;box-shadow:none}
 body.light .sh span,body.light .phero h1 span,body.light .cta-inner h2 span,body.light .hero h1 span,body.light .snum{background:linear-gradient(100deg,#6B5310,#8A6A14,#A07D1A,#8A6A14,#6B5310);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 /* stats band: the luxury layer hard-codes a dark gradient — lighten it in light mode */
-body.light .stats-band{background:linear-gradient(180deg,#FBF9F2,#F1ECDF);-webkit-backdrop-filter:none;backdrop-filter:none}
-body.light .sc2{border-right-color:rgba(18,36,58,.1)}
+body.light .stats-band{background:linear-gradient(180deg,var(--nv2),var(--nv));-webkit-backdrop-filter:none;backdrop-filter:none}
+body.light .sc2{border-right-color:color-mix(in srgb, var(--tx) 10%, transparent)}
 /* deepen gold accents (links, calc titles) for contrast on white */
 body.light{--au:#8A6A14;--au2:#A07D1A}
 body.light .pcard,body.light .gov-donut{--au:#C8A84B;--au2:#E2C070}
 body.light .snum{filter:none}
-body.light .calc-chart{background:rgba(18,36,58,.025);border-color:rgba(18,36,58,.1)}
-body.light .dd-table th{color:var(--mt2);border-bottom-color:rgba(18,36,58,.14);background:rgba(18,36,58,.03)}
-body.light .dd-table td{border-bottom-color:rgba(18,36,58,.07)}
-body.light .dd-table tbody tr:hover{background:rgba(10,107,75,.05)}
-body.light .ci-formula{background:linear-gradient(90deg,rgba(154,123,31,.14),rgba(154,123,31,.03));color:#12243A}
+body.light .calc-chart{background:color-mix(in srgb, var(--tx) 2.5%, transparent);border-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+body.light .dd-table th{color:var(--mt2);border-bottom-color:color-mix(in srgb, var(--tx) 14%, transparent);background:color-mix(in srgb, var(--tx) 3%, transparent)}
+body.light .dd-table td{border-bottom-color:color-mix(in srgb, var(--tx) 7%, transparent)}
+body.light .dd-table tbody tr:hover{background:color-mix(in srgb, var(--g) 5%, transparent)}
+body.light .ci-formula{background:linear-gradient(90deg,color-mix(in srgb, var(--au) 14%, transparent),color-mix(in srgb, var(--au) 3%, transparent));color:#12243A}
 body.light .calc-info p,body.light .calc-info li{color:var(--mt)}
-body.light .imgwrap{box-shadow:0 20px 46px -22px rgba(18,36,58,.3)}
+body.light .imgwrap{box-shadow:0 20px 46px -22px color-mix(in srgb, var(--tx) 30%, transparent)}
 body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 
 @media(max-width:900px){
@@ -826,7 +826,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <nav class="nav">
   <div class="nav-inner">
     <div class="logo" onclick="showPage('home')">
-      <div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo"></div>
+      <div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo" data-edit-img="brand.logo"></div>
       <div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Pakistan Stock Exchange</span></div>
     </div>
     <ul class="nav-links">
@@ -1066,13 +1066,13 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   </div>
   <div class="testi-grid">
     <div class="testi"><div class="testi-stars">✓</div><div class="testi-q">"Invest with confidence through Rallys Equities — your trusted partner in smart investing. Licensed and regulated by SECP &amp; PSX with consistent governance."</div><div class="testi-qu">"اعتماد کے ساتھ سرمایہ کاری کریں۔"</div><div class="testi-auth"><div class="testi-av">01</div><div><div class="testi-name">Trusted by Investors</div><div class="testi-role">Across Pakistan</div></div></div></div>
-    <div class="testi" style="border-color:rgba(200,168,75,.35)"><div class="testi-stars">✓</div><div class="testi-q">"Competitive brokerage rates with advanced trading platforms on mobile and web — accuracy and accountability in every transaction we handle."</div><div class="testi-qu">"مسابقتی بروکریج ریٹس اور جدید پلیٹ فارمز۔"</div><div class="testi-auth"><div class="testi-av">02</div><div><div class="testi-name">Competitive Rates</div><div class="testi-role">Transparent Pricing</div></div></div></div>
+    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="testi-stars">✓</div><div class="testi-q">"Competitive brokerage rates with advanced trading platforms on mobile and web — accuracy and accountability in every transaction we handle."</div><div class="testi-qu">"مسابقتی بروکریج ریٹس اور جدید پلیٹ فارمز۔"</div><div class="testi-auth"><div class="testi-av">02</div><div><div class="testi-name">Competitive Rates</div><div class="testi-role">Transparent Pricing</div></div></div></div>
     <div class="testi"><div class="testi-stars">✓</div><div class="testi-q">"Dedicated relationship managers and market experts guide every client — blending 35+ years of legacy market expertise with modern brokerage standards."</div><div class="testi-qu">"ماہرین کی رہنمائی ہر قدم پر آپ کے ساتھ۔"</div><div class="testi-auth"><div class="testi-av">03</div><div><div class="testi-name">Dedicated Experts</div><div class="testi-role">Relationship Managers</div></div></div></div>
   </div>
 </section>
 
 <!-- KARACHI SKYLINE -->
-<div class="skyline" style="background:var(--nv2);border-top:1px solid rgba(200,168,75,.08);border-bottom:1px solid rgba(200,168,75,.08);overflow:hidden;line-height:0">
+<div class="skyline" style="background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 8%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 8%, transparent);overflow:hidden;line-height:0">
   <svg viewBox="0 0 1400 140" width="100%" style="display:block" preserveAspectRatio="xMidYMax meet">
     <rect width="1400" height="140" fill="#081828"/>
     <g fill="rgba(18,184,124,.09)" stroke="rgba(18,184,124,.18)" stroke-width="0.5">
@@ -1377,7 +1377,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   <div class="loc-grid">
     <!-- Lahore Head Office -->
     <div class="loc-card" id="loc-lahore">
-      <div class="loc-map" style="background:linear-gradient(135deg,rgba(10,107,75,.1),rgba(5,16,30,.9))">
+      <div class="loc-map" style="background:linear-gradient(135deg,color-mix(in srgb, var(--g) 10%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))">
         <svg viewBox="0 0 420 200" fill="none" width="100%">
           <rect width="420" height="200" fill="rgba(8,24,40,.95)"/>
           <g stroke="rgba(18,184,124,.1)" stroke-width=".5" fill="none"><line x1="0" y1="50" x2="420" y2="50"/><line x1="0" y1="100" x2="420" y2="100"/><line x1="0" y1="150" x2="420" y2="150"/><line x1="70" y1="0" x2="70" y2="200"/><line x1="140" y1="0" x2="140" y2="200"/><line x1="210" y1="0" x2="210" y2="200"/><line x1="280" y1="0" x2="280" y2="200"/><line x1="350" y1="0" x2="350" y2="200"/></g>
@@ -1416,7 +1416,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
     </div>
     <!-- Online Account Opening -->
     <div class="loc-card" id="loc-online">
-      <div class="loc-map" style="background:linear-gradient(135deg,rgba(10,107,75,.08),rgba(5,16,30,.9))">
+      <div class="loc-map" style="background:linear-gradient(135deg,color-mix(in srgb, var(--g) 8%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))">
         <svg viewBox="0 0 420 200" fill="none" width="100%">
           <rect width="420" height="200" fill="rgba(8,24,40,.95)"/>
           <g stroke="rgba(18,184,124,.08)" stroke-width=".5" fill="none"><line x1="0" y1="50" x2="420" y2="50"/><line x1="0" y1="100" x2="420" y2="100"/><line x1="0" y1="150" x2="420" y2="150"/><line x1="105" y1="0" x2="105" y2="200"/><line x1="210" y1="0" x2="210" y2="200"/><line x1="315" y1="0" x2="315" y2="200"/></g>
@@ -1468,7 +1468,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <div class="fg" style="margin-bottom:16px"><label class="flbl">Message <span class="req">*</span></label><textarea class="ftarea" id="cf-msg" placeholder="Message goes here"></textarea></div>
       <button class="fnext" style="width:100%" onclick="submitContact()">Send Message</button>
     </div>
-    <div style="display:none;border:1px solid rgba(46,204,138,.35);border-radius:18px;padding:36px;background:rgba(46,204,138,.07);margin-top:28px;text-align:center" id="cfDone">
+    <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:28px;text-align:center" id="cfDone">
       <div style="font-size:28px;margin-bottom:8px">✓</div>
       <div style="font-size:15px;font-weight:700;margin-bottom:6px">Message received!</div>
       <div style="font-size:12px;color:var(--mt)">Thank you for reaching out. Our team will get back to you at the email you provided. For urgent matters, call 042-36366667.</div>
@@ -1499,7 +1499,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <div style="font-size:11px;font-weight:700;color:var(--au);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px">Our Core Values</div>
       <div class="about-vals">
         <div class="aval"><div class="aval-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L10 6H14L11 8.5L12 13L8 10.5L4 13L5 8.5L2 6H6Z" stroke="var(--g3)" stroke-width="1.2" fill="rgba(18,184,124,.2)"/></svg></div><div><h4>Trust</h4><p>Consistent governance and investor confidence drive everything we do.</p></div></div>
-        <div class="aval" style="background:rgba(200,168,75,.05);border-color:rgba(200,168,75,.15)"><div class="aval-icon" style="background:rgba(200,168,75,.15)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="var(--au)" stroke-width="1.3"/><path d="M2 14C2 11 5 9 8 9C11 9 14 11 14 14" stroke="var(--au)" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></div><div><h4>Transparency</h4><p>Clarity and compliance in all client interactions — client-first, always.</p></div></div>
+        <div class="aval" style="background:color-mix(in srgb, var(--au) 5%, transparent);border-color:color-mix(in srgb, var(--au) 15%, transparent)"><div class="aval-icon" style="background:color-mix(in srgb, var(--au) 15%, transparent)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="var(--au)" stroke-width="1.3"/><path d="M2 14C2 11 5 9 8 9C11 9 14 11 14 14" stroke="var(--au)" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></div><div><h4>Transparency</h4><p>Clarity and compliance in all client interactions — client-first, always.</p></div></div>
         <div class="aval"><div class="aval-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2 L10 5H14L11 7.5L12 11L8 9L4 11L5 7.5L2 5H6Z" stroke="var(--g3)" stroke-width="1.2" fill="none"/></svg></div><div><h4>Disciplined Execution</h4><p>Accuracy and accountability in every transaction we handle.</p></div></div>
       </div>
     </div>
@@ -1523,7 +1523,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <div class="ao-wrap">
   <!-- Sidebar -->
   <div class="ao-side">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Account Opening</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo" data-edit-img="brand.logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Account Opening</span></div></div>
     <div style="font-size:10px;font-weight:700;color:var(--au);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">Your Progress</div>
     <div class="ao-steps-list" id="sideSteps">
       <div class="ao-step active" id="ao-s1"><div class="ao-step-n" id="ao-n1">1</div><div><div class="ao-step-title">Personal Information</div><div class="ao-step-sub">CNIC, name, contact</div></div></div>
@@ -1542,7 +1542,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <div class="ao-tb"><div class="ao-tbi"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="5" r="2.5" stroke="var(--g3)" stroke-width="1.1"/><path d="M1.5 11C1.5 8.5 3.5 7 6 7C8.5 7 10.5 8.5 10.5 11" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round" fill="none"/></svg></div>CDC registered protection</div>
       <div class="ao-tb"><div class="ao-tbi">🕌</div><span style="font-family:'Noto Nastaliq Urdu',serif;font-size:11px;direction:rtl">حلال آپشن دستیاب</span></div>
     </div>
-    <div style="margin-top:18px;padding:14px;border-radius:12px;background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.15)">
+    <div style="margin-top:18px;padding:14px;border-radius:12px;background:color-mix(in srgb, var(--au) 6%, transparent);border:1px solid color-mix(in srgb, var(--au) 15%, transparent)">
       <div style="font-size:10px;font-weight:700;color:var(--au);margin-bottom:6px">Need Help?</div>
       <div style="font-size:11px;color:var(--mt);line-height:1.7">📞 <span style="color:var(--g3)">042-36366667 · 0316-9991907</span><br>📧 hello@rallysequities.com<br>🏢 Visit us at LSE Building, Lahore</div>
       <div style="margin-top:10px;font-size:11px"><a href="https://aof.eclear.com.pk/repl" target="_blank" rel="noopener" style="color:var(--g3);text-decoration:underline">Or apply via the official PSX eClear portal ↗</a></div>
@@ -1701,7 +1701,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
             </div>
           </div>
         </div>
-        <div style="background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.18);border-radius:12px;padding:16px;margin-bottom:16px">
+        <div style="background:color-mix(in srgb, var(--au) 6%, transparent);border:1px solid color-mix(in srgb, var(--au) 18%, transparent);border-radius:12px;padding:16px;margin-bottom:16px">
           <div style="font-size:11px;font-weight:700;color:var(--au);margin-bottom:6px">📋 Document Requirements</div>
           <div style="font-size:11px;color:var(--mt);line-height:1.75">• CNIC must be valid and not expired<br>• All documents must be clearly readable — no blurry photos<br>• PDFs accepted for utility bills and bank statements<br>• Documents older than 3 months will not be accepted as address proof</div>
         </div>
@@ -1816,13 +1816,13 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   <!-- LEADERSHIP -->
   <div style="margin-top:8px;text-align:center" id="leadership"><p class="sub" style="margin:14px auto 0;text-align:center">At Rallys Equities, our leadership team combines decades of market experience with modern financial expertise and strong governance. Each member of our management brings a distinct strength, ensuring strategic direction, operational excellence, and strict regulatory compliance across the organization.</p></div>
   <div class="testi-grid">
-    <div class="testi" style="border-color:rgba(200,168,75,.35)"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">MF</div><div><div class="testi-name">Muhammad Fayyaz</div><div class="testi-role">Chief Executive Officer (CEO)</div></div></div><div class="testi-q">With over 35 years of experience across the Pakistan Stock Exchange and Mercantile Exchange, Muhammad Fayyaz brings deep market knowledge and seasoned leadership to Rallys Equities. His extensive understanding of trading structures, regulatory frameworks, and investor behavior has been instrumental in establishing the firm's credibility and long-term vision. Under his leadership, the company continues to uphold the core values of trust, transparency, and disciplined performance in Pakistan's capital markets.</div></div>
+    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">MF</div><div><div class="testi-name">Muhammad Fayyaz</div><div class="testi-role">Chief Executive Officer (CEO)</div></div></div><div class="testi-q">With over 35 years of experience across the Pakistan Stock Exchange and Mercantile Exchange, Muhammad Fayyaz brings deep market knowledge and seasoned leadership to Rallys Equities. His extensive understanding of trading structures, regulatory frameworks, and investor behavior has been instrumental in establishing the firm's credibility and long-term vision. Under his leadership, the company continues to uphold the core values of trust, transparency, and disciplined performance in Pakistan's capital markets.</div></div>
     <div class="testi"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">HF</div><div><div class="testi-name">Hasham Fayyaz</div><div class="testi-role">Chief Operating Officer (COO)</div></div></div><div class="testi-q">Hasham Fayyaz represents the next generation of brokerage leadership, combining a strong academic foundation in Finance and Data Analytics with an entrepreneurial mindset. He focuses on operational efficiency, client experience, and the adoption of technology-driven processes that enhance how investors interact with the PSX. His analytical approach and forward-looking vision play a key role in aligning traditional market expertise with modern brokerage practices at Rallys Equities.</div></div>
     <div class="testi"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">TK</div><div><div class="testi-name">Tayyab Kaleem Khan</div><div class="testi-role">Chief Compliance Officer (CCO)</div></div></div><div class="testi-q">Tayyab Kaleem Khan is a seasoned professional with extensive experience in corporate governance, executive leadership, and operational management. Serving as a Director across multiple private limited companies, he brings strong board-level insight into regulatory oversight, accountability, and sustainable business practices. His ability to balance strategic governance with hands-on operational understanding ensures that Rallys Equities consistently maintains robust compliance standards and regulatory discipline.</div></div>
   </div>
 
   <!-- LEADERSHIP PHILOSOPHY -->
-  <div style="margin-top:36px;border:1px solid rgba(200,168,75,.25);border-radius:16px;padding:28px;background:rgba(200,168,75,.05);text-align:center">
+  <div style="margin-top:36px;border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:28px;background:color-mix(in srgb, var(--au) 5%, transparent);text-align:center">
     <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--au);margin-bottom:10px">Leadership Philosophy</div>
     <p class="sub" style="max-width:760px;margin:0 auto">The management of Rallys Equities is guided by a shared commitment to integrity, accountability, and investor protection. By combining legacy market experience with modern operational thinking and strong compliance culture, the leadership team ensures that the firm remains resilient, transparent, and aligned with the highest standards of Pakistan's capital markets.</p>
   </div>
@@ -1839,7 +1839,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   <div style="margin-top:8px" id="rating">
     <div class="stag">Management Rating</div>
     <h3 class="sh" style="font-size:34px">A Key Measure of<br><em>Investment Success</em></h3>
-    <div style="margin-top:24px;border:1px solid rgba(200,168,75,.25);border-radius:16px;padding:26px;background:rgba(200,168,75,.05);max-width:760px">
+    <div style="margin-top:24px;border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:26px;background:color-mix(in srgb, var(--au) 5%, transparent);max-width:760px">
       <p class="sub" style="max-width:none;margin-bottom:12px">At Rallys Equities, we place strong emphasis on governance, leadership quality, and operational discipline as core pillars of our business.</p>
       <p class="sub" style="max-width:none">The management rating for Rallys Equities (Pvt) Ltd has not yet been conducted. The formal evaluation will be completed by the relevant rating or regulatory authority, after which this section will be updated with the official rating and commentary. Until then, the firm remains committed to maintaining high standards of transparency, compliance, and accountability across all levels of management.</p>
     </div>
@@ -2067,7 +2067,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
     <div class="stag">Financial Highlights</div>
     <h3 class="sh" style="font-size:30px">Timely <em>Financial Disclosure</em></h3>
     <div class="imgwrap rv" style="max-width:760px;margin-top:24px"><img src="assets/img/bg-4-1.webp" alt="Financial highlights coming soon" loading="lazy"></div>
-    <div style="margin-top:24px;border:1px solid rgba(200,168,75,.25);border-radius:16px;padding:26px;background:rgba(200,168,75,.05);max-width:760px">
+    <div style="margin-top:24px;border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:26px;background:color-mix(in srgb, var(--au) 5%, transparent);max-width:760px">
       <p class="sub" style="max-width:none;margin-bottom:12px">Rallys Equities (Pvt) Ltd is committed to transparency and timely financial disclosure.</p>
       <p class="sub" style="max-width:none">The quarterly financial report for 2026 will be made available here after finalization and approval.</p>
     </div>
@@ -2095,7 +2095,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <a class="svc-link" href="https://rallysequities.com/investor-education-awareness/" target="_blank" rel="noopener">Download / view the guide →</a>
     </div>
   </div>
-  <div style="margin-top:30px;border:1px solid rgba(18,184,124,.25);border-radius:16px;padding:24px;background:rgba(18,184,124,.05);max-width:860px">
+  <div style="margin-top:30px;border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);border-radius:16px;padding:24px;background:color-mix(in srgb, var(--g3) 5%, transparent);max-width:860px">
     <p class="sub" style="max-width:none">Together, these two resources cover both the <strong style="color:var(--g3)">transactional</strong> side of investing (trading, broker protections) and the <strong style="color:var(--g3)">ownership</strong> side (shareholder governance rights) — supporting investors at every stage of their journey on the Pakistan Stock Exchange.</p>
   </div>
 </section>
@@ -2395,7 +2395,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
         <div class="fg" style="margin-bottom:16px"><label class="flbl">Complaint Details <span class="req">*</span></label><textarea class="ftarea" id="cmp-msg" placeholder="Describe your complaint in detail"></textarea></div>
         <button class="fnext" style="width:100%" onclick="submitComplaint()">Submit Complaint</button>
       </div>
-      <div style="display:none;border:1px solid rgba(46,204,138,.35);border-radius:18px;padding:36px;background:rgba(46,204,138,.07);text-align:center" id="cmpDone">
+      <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center" id="cmpDone">
         <div style="font-size:28px;margin-bottom:8px">✓</div>
         <div style="font-size:15px;font-weight:700;margin-bottom:6px">Complaint received</div>
         <div style="font-size:12px;color:var(--mt)">We've logged your complaint and our compliance team will respond at the email you provided. For urgent matters, call 042-36366667.</div>
@@ -2451,7 +2451,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       </div>
       <button class="fnext" style="width:100%" onclick="submitCareer()">Submit Application</button>
     </div>
-    <div style="display:none;border:1px solid rgba(46,204,138,.35);border-radius:18px;padding:36px;background:rgba(46,204,138,.07);margin-top:24px;text-align:center" id="carDone">
+    <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:24px;text-align:center" id="carDone">
       <div style="font-size:28px;margin-bottom:8px">✓</div>
       <div style="font-size:15px;font-weight:700;margin-bottom:6px">Application received</div>
       <div style="font-size:12px;color:var(--mt)">Thank you for your interest in Rallys Equities. If your profile matches an opening, our team will be in touch.</div>
@@ -2476,7 +2476,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
     <div class="fg" style="margin-bottom:16px"><label class="flbl">Feedback Details <span class="req">*</span></label><textarea class="ftarea" id="fb-msg" placeholder="Share your feedback in detail"></textarea></div>
     <button class="fnext" style="width:100%" onclick="submitFeedback()">Submit Feedback</button>
   </div>
-  <div style="display:none;border:1px solid rgba(46,204,138,.35);border-radius:18px;padding:36px;background:rgba(46,204,138,.07);margin-top:24px;text-align:center" id="fbDone">
+  <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:24px;text-align:center" id="fbDone">
     <div style="font-size:28px;margin-bottom:8px">✓</div>
     <div style="font-size:15px;font-weight:700;margin-bottom:6px">Feedback received</div>
     <div style="font-size:12px;color:var(--mt)">Thank you for helping us improve. We read every submission.</div>
@@ -2498,7 +2498,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <footer>
   <div class="footer-grid">
     <div class="fb">
-      <div style="display:flex;align-items:center;gap:10px"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Pakistan Stock Exchange</span></div></div>
+      <div style="display:flex;align-items:center;gap:10px"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo" data-edit-img="brand.logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Pakistan Stock Exchange</span></div></div>
       <p>At Rallys Equities (Pvt) Ltd, we make investing in the Pakistan Stock Exchange (PSX) simple, secure, and transparent. Licensed &amp; regulated by SECP &amp; PSX.</p>
       <span class="fb-urdu">رالیز ایکویٹیز — آپ کا قابل اعتماد مالی ساتھی</span>
       <div style="margin-top:12px;font-size:11px;color:var(--mt2);line-height:2">📞 042-36366667 · 0316-9991907<br>📧 hello@rallysequities.com<br>🏢 Office # 408, 4th Floor, Lahore Stock Exchange Building,<br>&nbsp;&nbsp;&nbsp;&nbsp;Khayaban-e-Aiwan-e-Iqbal, Lahore, Pakistan</div>
@@ -2525,9 +2525,9 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <style>
 /* inline styles needed for dynamic elements */
 .ac-opt{border:1px solid var(--gb);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s}
-.ac-opt.active-opt{border-color:rgba(18,184,124,.5);background:rgba(10,107,75,.1)}
+.ac-opt.active-opt{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 10%, transparent)}
 .risk-opt{border:1px solid var(--gb);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all .2s}
-.risk-opt.active-risk{border-color:rgba(18,184,124,.4);background:rgba(10,107,75,.08)}
+.risk-opt.active-risk{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
 </style>
 
 <!-- Content editor: Supabase config (safe anon key) + editor loader (only active with ?edit=1 + login) -->
@@ -3287,23 +3287,40 @@ function injectThemeOverrides(theme){
 }
 
 /* Apply an overrides record to the live DOM */
+/* Resolve a path-style key (page.tagN-tagN-…) back to its element — lets edits to
+   UN-tagged nodes (keyed by getEditKey) re-apply on the public site, where the
+   element has no data-edit attribute. */
+function resolveKey(key){
+  const dot=key.indexOf('.'); if(dot<0)return null;
+  const page=document.getElementById('page-'+key.slice(0,dot)); if(!page)return null;
+  let node=page;
+  for(const seg of key.slice(dot+1).split('-')){
+    const m=seg.match(/^([a-z]+)(\d+)$/i); if(!m)return null;
+    const tag=m[1].toUpperCase(); let cnt=+m[2], found=null;
+    for(const c of node.children){ if(c.tagName===tag && --cnt===0){ found=c; break; } }
+    if(!found)return null; node=found;
+  }
+  return node;
+}
+function reTargets(attr,key){ const m=document.querySelectorAll('['+attr+'="'+cssEsc(key)+'"]'); if(m.length)return [...m]; const n=resolveKey(key); return n?[n]:[]; }
+
 function applyOverrides(data){
   if(!data||typeof data!=='object') return;
   OVERRIDES=data;
   injectThemeOverrides(data.theme);
   const t=data.text||{};
-  for(const k in t){ document.querySelectorAll('[data-edit="'+cssEsc(k)+'"]').forEach(el=>{ el.innerHTML=sanitizeFragment(t[k]); }); }
+  for(const k in t){ reTargets('data-edit',k).forEach(el=>{ el.innerHTML=sanitizeFragment(t[k]); }); }
   const im=data.img||{}, meta=data.imgMeta||{};
-  for(const k in im){ document.querySelectorAll('[data-edit-img="'+cssEsc(k)+'"]').forEach(img=>{ img.src=im[k]; const m=meta[k]; if(m){ if(m.srcset!=null)img.srcset=m.srcset; if(m.alt!=null)img.alt=m.alt; } }); }
+  for(const k in im){ reTargets('data-edit-img',k).forEach(img=>{ if(img.tagName!=='IMG')return; img.src=im[k]; const m=meta[k]; if(m){ if(m.srcset!=null)img.srcset=m.srcset; if(m.alt!=null)img.alt=m.alt; } }); }
 }
 function refreshCalcInfo(){ document.querySelectorAll('.calc-info').forEach(n=>n.remove()); renderCalcInfo(); }
 
-/* Stable fallback key for an un-tagged node (used by the editor in a later phase) */
+/* Stable, reversible fallback key for an un-tagged node (full nth-of-type path from its page) */
 function getEditKey(el){
   if(el.dataset.edit) return el.dataset.edit;
   const page=el.closest('[id^="page-"]'), base=page?page.id.replace('page-',''):'site', parts=[];
   let n=el;
-  while(n&&n!==page&&parts.length<4){ let i=1,s=n; while(s.previousElementSibling){ s=s.previousElementSibling; if(s.tagName===n.tagName)i++; } parts.unshift(n.tagName.toLowerCase()+i); n=n.parentElement; }
+  while(n&&n!==page&&n.parentElement){ let i=1,s=n; while(s.previousElementSibling){ s=s.previousElementSibling; if(s.tagName===n.tagName)i++; } parts.unshift(n.tagName.toLowerCase()+i); n=n.parentElement; }
   return base+'.'+parts.join('-');
 }
 

@@ -11,7 +11,8 @@ if(!API){ console.warn('[editor] RE_API not found'); return; }
 /* ---------- tiny DOM helpers ---------- */
 const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
 const $=(s,r=document)=>r.querySelector(s);
-const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.nav,.mnav,.re-bar,.re-panel,.re-savebar,.re-overlay,.wa-fab,#toTop,.theme-toggle';
+/* Locked = live/dynamic widgets + the editor's own UI. Everything else (incl. nav labels & logo) is editable. */
+const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.ticker,.live-badge,.theme-toggle,#toTop,.wa-fab,.ham,.re-bar,.re-panel,.re-savebar,.re-overlay,.re-fmt,.re-img-btn,.re-coach,.re-toast,.cnt';
 function toast(msg){let t=$('.re-toast');if(!t){t=h('div',{class:'re-toast'});document.body.append(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 const debounce=(fn,ms=120)=>{let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms);};};
 
@@ -110,13 +111,21 @@ function toggleEditing(){
 }
 
 /* ════════ PHASE 3: TEXT EDITING ════════ */
-const EDITABLE_SEL='[data-edit],.sh,.phero h1,.phero p,.sub,.hero-p,.hero-tag,.stag,.svc-title,.svc-desc,.ft,.fd,.testi-q,.testi-name,.testi-role,.reg-name,.reg-desc,.calc-title,.calc-sub,.ci-wrap p,.ci-wrap h3,.ci-wrap li,.how-title,.how-desc,footer h5,.footer-dis';
+/* A text "leaf": contains text, no nested block elements (only inline formatting), no controls/media */
+const INLINE=/^(SPAN|EM|STRONG|B|I|A|BR|SUP|SUB|U|SMALL|MARK|WBR|ABBR)$/;
+function isTextLeaf(n){
+  if(!n||n.nodeType!==1)return false;
+  if(/^(INPUT|SELECT|TEXTAREA|SVG|CANVAS|IMG|VIDEO|UL|OL|HR|TABLE|TR|THEAD|TBODY)$/.test(n.tagName))return false;
+  if(n.querySelector('input,select,textarea,svg,canvas,img,video'))return false;
+  if(!n.textContent.trim())return false;
+  if([...n.children].some(c=>!INLINE.test(c.tagName)))return false; // has a block child → not a leaf
+  return true;
+}
 function eligibleText(el){
   if(!el||el.closest(LOCKED))return null;
-  let t=el.closest('[data-edit]');
-  if(t)return t;
-  t=el.closest(EDITABLE_SEL);
-  if(t&&!t.closest(LOCKED)&&!t.querySelector('input,select,textarea,button,svg,canvas,img'))return t;
+  const tagged=el.closest('[data-edit]'); if(tagged&&!tagged.closest(LOCKED))return tagged;
+  let n=el;
+  while(n&&n!==document.body){ if(n.closest&&n.closest(LOCKED))return null; if(isTextLeaf(n))return n; n=n.parentElement; }
   return null;
 }
 document.addEventListener('click',e=>{
@@ -170,8 +179,9 @@ function hideFmtBar(){ if(fmtBar){fmtBar.remove();fmtBar=null;} }
 let imgBtn,imgHoverEl;
 document.addEventListener('mousemove',e=>{
   if(!editing||document.body.classList.contains('re-preview'))return;
-  const img=e.target.closest('[data-edit-img]');
-  if(img&&!img.closest(LOCKED)){ if(img!==imgHoverEl){imgHoverEl=img;positionImgBtn(img);} }
+  const img=e.target.closest('img');                 // ANY image is replaceable
+  if(img&&!img.closest(LOCKED)&&!img.closest('.re-ui')){ if(img!==imgHoverEl){imgHoverEl=img;positionImgBtn(img);} }
+  else if(!img&&imgHoverEl&&!e.target.closest('.re-img-btn')){ clearImgBtn(); }
 });
 function positionImgBtn(img){
   if(!imgBtn){imgBtn=h('button',{class:'re-img-btn re-ui',onclick:()=>openMedia(imgHoverEl)},'📷 Change image');document.body.append(imgBtn);}
@@ -183,7 +193,7 @@ function positionImgBtn(img){
 function clearImgBtn(){ if(imgBtn)imgBtn.style.display='none'; imgHoverEl=null; }
 
 function openMedia(img){
-  const key=img.dataset.editImg||('img.'+API.getEditKey(img));
+  const key=img.dataset.editImg||API.getEditKey(img);
   if(!img.dataset.editImg)img.dataset.editImg=key;
   const lib=[...new Set([...document.images].map(i=>i.getAttribute('src')).filter(s=>s&&/^assets\//.test(s)))].sort();
   const apply=url=>{ undo.push({kind:'img',key,prev:WORK.img[key]}); WORK.img[key]=url; img.src=url; img.classList.add('re-dirty'); markDirty('img:'+key); overlay.remove(); toast('Image updated'); };
@@ -207,7 +217,7 @@ const GROUPS=[
   {name:'Brand Gold', vars:[['--au','Primary gold'],['--au2','Light gold']]},
   {name:'Emerald', vars:[['--g','Deep green'],['--g2','Mid green'],['--g3','Bright accent']]},
   {name:'Backgrounds', vars:[['--nv','Page background'],['--nv2','Alt sections'],['--nv3','Raised surfaces']]},
-  {name:'Text', vars:[['--tx','Main text'],['--mt','Muted text']]},
+  {name:'Text', vars:[['--tx','Text color']]},  /* muted text auto-derives from this */
   {name:'Market Up / Down', vars:[['--up','Gains (up)'],['--dn','Losses (down)']]},
   {name:'Chart lines', vars:[['--chart-grid','Grid lines'],['--chart-axis','Axis labels']]},
 ];
