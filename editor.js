@@ -1,0 +1,299 @@
+/* ════════════════════════════════════════════════════════════════
+   Rallys Equities — Visual Content Editor (admin only; loaded via ?edit=1)
+   Phases: 2 Colors · 3 Text · 4 Images/Media. Works with Supabase when
+   configured, else a local (localStorage) preview store so it's testable.
+   ════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+const API = window.RE_API;
+if(!API){ console.warn('[editor] RE_API not found'); return; }
+
+/* ---------- tiny DOM helpers ---------- */
+const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
+const $=(s,r=document)=>r.querySelector(s);
+const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.nav,.mnav,.re-bar,.re-panel,.re-savebar,.re-overlay,.wa-fab,#toTop,.theme-toggle';
+function toast(msg){let t=$('.re-toast');if(!t){t=h('div',{class:'re-toast'});document.body.append(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+const debounce=(fn,ms=120)=>{let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms);};};
+
+/* ---------- working state ---------- */
+const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{}});
+let WORK=blank();          // full working overrides (loaded from draft)
+const dirty=new Set();     // "kind:key" changed this session
+const undo=[];             // {kind,key,prev}
+let editing=false;
+
+function markDirty(id){ dirty.add(id); updateSaveBar(); }
+function pendingCount(){ return dirty.size; }
+
+/* ════════ STORE ADAPTERS ════════ */
+function localStore(){
+  const get=k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}};
+  const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){toast('Storage full (image too large for local preview)');}};
+  return {
+    mode:'local',
+    init(){return Promise.resolve(!!sessionStorage.getItem('re-auth'));},
+    loginFields:[{id:'pass',label:'Editor passphrase',type:'password',ph:'Local preview — type any passphrase'}],
+    login(v){ if(!v.pass||!v.pass.trim())return Promise.reject(new Error('Enter a passphrase')); sessionStorage.setItem('re-auth','1'); return Promise.resolve(true); },
+    logout(){ sessionStorage.removeItem('re-auth'); },
+    getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
+    saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
+    publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
+    uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); }
+  };
+}
+function supabaseStore(){
+  const sb=window.supabase.createClient(window.RE_SUPABASE.url,window.RE_SUPABASE.anonKey);
+  const rowData=async scope=>{const{data}=await sb.from('site_content').select('data').eq('scope',scope).maybeSingle();return (data&&data.data)||blank();};
+  return {
+    mode:'supabase', _sb:sb,
+    async init(){const{data}=await sb.auth.getSession();return !!(data&&data.session);},
+    loginFields:[{id:'email',label:'Email',type:'email',ph:'you@email.com'},{id:'pass',label:'Password',type:'password',ph:'Your password'}],
+    async login(v){const{error}=await sb.auth.signInWithPassword({email:(v.email||'').trim(),password:v.pass||''});if(error)throw new Error(error.message);return true;},
+    async logout(){await sb.auth.signOut();},
+    async getDraft(){return await rowData('draft');},
+    async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
+    async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
+    async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;}
+  };
+}
+const Store = (window.RE_SUPABASE_READY && window.supabase) ? supabaseStore() : localStore();
+
+/* ════════ LOGIN ════════ */
+function showLogin(){
+  const err=h('div',{class:'re-err'});
+  const inputs={};
+  const fields=Store.loginFields.map(f=>{const inp=h('input',{class:'re-input',type:f.type,placeholder:f.ph});inputs[f.id]=inp;return h('div',{class:'re-field'},h('label',{},f.label),inp);});
+  const submit=()=>{const v={};for(const k in inputs)v[k]=inputs[k].value;err.textContent='';
+    Store.login(v).then(()=>{overlay.remove();onAuthed();}).catch(e=>{err.textContent=e.message||'Login failed';});};
+  fields.forEach(f=>$('input',f).addEventListener('keydown',e=>{if(e.key==='Enter')submit();}));
+  const card=h('div',{class:'re-modal'},
+    h('h2',{},'Rallys Equities — Editor'),
+    h('p',{}, Store.mode==='supabase'?'Sign in to edit your website.':'Local preview mode (Supabase not configured yet). Enter any passphrase to try the editor — changes save to this browser only.'),
+    ...fields, err,
+    h('button',{class:'re-btn re-btn-pri',onclick:submit}, Store.mode==='supabase'?'Log in':'Enter editor'));
+  const overlay=h('div',{class:'re-overlay'},card);
+  document.body.append(overlay);
+  setTimeout(()=>{const i=$('input',overlay);i&&i.focus();},50);
+}
+
+/* ════════ AFTER LOGIN ════════ */
+function onAuthed(){
+  document.body.classList.add('re-on');
+  buildBar();
+  buildSaveBar();
+  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); toast('Loaded your latest draft'); maybeCoach(); })
+    .catch(e=>{ console.warn(e); WORK=blank(); });
+}
+function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},version:d.version||0}; }
+
+/* ---------- top bar ---------- */
+let editToggle;
+function buildBar(){
+  editToggle=h('div',{class:'re-toggle',onclick:toggleEditing}, h('span',{class:'re-switch'}), 'Edit mode');
+  const bar=h('div',{class:'re-bar re-ui'},
+    h('span',{class:'re-logo'},'RE Editor'),
+    editToggle,
+    h('span',{class:'re-spacer'}),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
+  document.body.append(bar);
+}
+function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
+
+function toggleEditing(){
+  editing=!editing;
+  document.body.classList.toggle('re-editing',editing);
+  editToggle.classList.toggle('on',editing);
+  if(editing){ toast('Click any text to edit · hover an image to replace it'); }
+  else { clearImgBtn(); }
+}
+
+/* ════════ PHASE 3: TEXT EDITING ════════ */
+const EDITABLE_SEL='[data-edit],.sh,.phero h1,.phero p,.sub,.hero-p,.hero-tag,.stag,.svc-title,.svc-desc,.ft,.fd,.testi-q,.testi-name,.testi-role,.reg-name,.reg-desc,.calc-title,.calc-sub,.ci-wrap p,.ci-wrap h3,.ci-wrap li,.how-title,.how-desc,footer h5,.footer-dis';
+function eligibleText(el){
+  if(!el||el.closest(LOCKED))return null;
+  let t=el.closest('[data-edit]');
+  if(t)return t;
+  t=el.closest(EDITABLE_SEL);
+  if(t&&!t.closest(LOCKED)&&!t.querySelector('input,select,textarea,button,svg,canvas,img'))return t;
+  return null;
+}
+document.addEventListener('click',e=>{
+  if(!editing||document.body.classList.contains('re-preview'))return;
+  if(e.target.closest('.re-ui,.re-fmt,.re-img-btn,.re-panel,.re-savebar,.re-overlay,.re-bar'))return;
+  const t=eligibleText(e.target);
+  if(!t)return;
+  if(t.getAttribute('contenteditable')==='true')return;
+  e.preventDefault();e.stopPropagation();
+  startTextEdit(t);
+},true);
+
+let fmtBar;
+function startTextEdit(el){
+  const key=el.dataset.edit||API.getEditKey(el);
+  if(!el.dataset.edit)el.dataset.edit=key;
+  const before=el.innerHTML;
+  el.setAttribute('contenteditable','true');
+  el.classList.add('vis'); // ensure revealed
+  el.focus();
+  showFmtBar(el);
+  const finish=()=>{
+    el.removeAttribute('contenteditable');
+    hideFmtBar();
+    const after=API.sanitizeFragment(el.innerHTML);
+    el.innerHTML=after;
+    if(after!==API.sanitizeFragment(before)){
+      undo.push({kind:'text',key,prev:WORK.text[key]});
+      WORK.text[key]=after; el.classList.add('re-dirty'); markDirty('text:'+key);
+    }
+    el.removeEventListener('blur',finish);
+  };
+  el.addEventListener('blur',finish);
+  el.addEventListener('keydown',ev=>{ if(ev.key==='Escape'){el.innerHTML=before;el.blur();} });
+}
+function showFmtBar(el){
+  hideFmtBar();
+  const cmd=c=>{document.execCommand(c,false);el.focus();};
+  fmtBar=h('div',{class:'re-fmt re-ui'},
+    h('button',{title:'Bold',onmousedown:e=>{e.preventDefault();cmd('bold');},html:'<b>B</b>'}),
+    h('button',{title:'Italic',onmousedown:e=>{e.preventDefault();cmd('italic');},html:'<i>I</i>'}),
+    h('button',{title:'Link',onmousedown:e=>{e.preventDefault();const u=prompt('Link URL (https://...)');if(u)document.execCommand('createLink',false,u);el.focus();},html:'🔗'}));
+  document.body.append(fmtBar);
+  const r=el.getBoundingClientRect();
+  fmtBar.style.left=Math.max(8,r.left)+'px';
+  fmtBar.style.top=Math.max(54,r.top+window.scrollY-40)+'px';
+}
+function hideFmtBar(){ if(fmtBar){fmtBar.remove();fmtBar=null;} }
+
+/* ════════ PHASE 4: IMAGE / MEDIA ════════ */
+let imgBtn,imgHoverEl;
+document.addEventListener('mousemove',e=>{
+  if(!editing||document.body.classList.contains('re-preview'))return;
+  const img=e.target.closest('[data-edit-img]');
+  if(img&&!img.closest(LOCKED)){ if(img!==imgHoverEl){imgHoverEl=img;positionImgBtn(img);} }
+});
+function positionImgBtn(img){
+  if(!imgBtn){imgBtn=h('button',{class:'re-img-btn re-ui',onclick:()=>openMedia(imgHoverEl)},'📷 Change image');document.body.append(imgBtn);}
+  const r=img.getBoundingClientRect();
+  imgBtn.style.left=(r.left+r.width/2)+'px';
+  imgBtn.style.top=(r.top+window.scrollY+r.height/2)+'px';
+  imgBtn.style.display='block';
+}
+function clearImgBtn(){ if(imgBtn)imgBtn.style.display='none'; imgHoverEl=null; }
+
+function openMedia(img){
+  const key=img.dataset.editImg||('img.'+API.getEditKey(img));
+  if(!img.dataset.editImg)img.dataset.editImg=key;
+  const lib=[...new Set([...document.images].map(i=>i.getAttribute('src')).filter(s=>s&&/^assets\//.test(s)))].sort();
+  const apply=url=>{ undo.push({kind:'img',key,prev:WORK.img[key]}); WORK.img[key]=url; img.src=url; img.classList.add('re-dirty'); markDirty('img:'+key); overlay.remove(); toast('Image updated'); };
+  const fileInp=h('input',{type:'file',accept:'image/png,image/jpeg,image/webp',style:'display:none',onchange:e=>{const f=e.target.files[0];if(!f)return;if(f.size>5e6){toast('Max 5 MB');return;}toast('Uploading…');Store.uploadImage(f).then(apply).catch(err=>toast('Upload failed: '+err.message));}});
+  const drop=h('div',{class:'re-drop',onclick:()=>fileInp.click()},'⬆ Click to upload an image (PNG/JPG/WEBP, max 5 MB)');
+  const altInp=h('input',{class:'re-input',placeholder:'Alt text (for accessibility)',value:(WORK.imgMeta[key]&&WORK.imgMeta[key].alt)||img.getAttribute('alt')||''});
+  altInp.addEventListener('input',()=>{WORK.imgMeta[key]=Object.assign({},WORK.imgMeta[key],{alt:altInp.value});img.alt=altInp.value;markDirty('imgMeta:'+key);});
+  const grid=h('div',{class:'re-grid'},lib.map(src=>h('img',{src,loading:'lazy',title:src,onclick:()=>apply(src)})));
+  const card=h('div',{class:'re-modal re-media'},
+    h('h2',{},'Change image'),
+    h('div',{class:'re-field'},fileInp,drop),
+    h('div',{class:'re-field'},h('label',{},'Or pick from your media library'),grid),
+    h('div',{class:'re-field'},h('label',{},'Alt text'),altInp),
+    h('div',{style:'display:flex;gap:8px;justify-content:flex-end'},h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel')));
+  const overlay=h('div',{class:'re-overlay',onclick:e=>{if(e.target===overlay)overlay.remove();}},card);
+  document.body.append(overlay);
+}
+
+/* ════════ PHASE 2: COLORS CUSTOMIZER ════════ */
+const GROUPS=[
+  {name:'Brand Gold', vars:[['--au','Primary gold'],['--au2','Light gold']]},
+  {name:'Emerald', vars:[['--g','Deep green'],['--g2','Mid green'],['--g3','Bright accent']]},
+  {name:'Backgrounds', vars:[['--nv','Page background'],['--nv2','Alt sections'],['--nv3','Raised surfaces']]},
+  {name:'Text', vars:[['--tx','Main text'],['--mt','Muted text']]},
+  {name:'Market Up / Down', vars:[['--up','Gains (up)'],['--dn','Losses (down)']]},
+  {name:'Chart lines', vars:[['--chart-grid','Grid lines'],['--chart-axis','Axis labels']]},
+];
+let colorMode='dark', colorPanel;
+function syncTabs(){ const t=colorPanel._tabs.children; t[0].classList.toggle('on',colorMode==='dark'); t[1].classList.toggle('on',colorMode==='light'); }
+function openColors(){
+  colorMode=document.body.classList.contains('light')?'light':'dark'; // match what the user currently sees
+  if(colorPanel){ syncTabs(); renderColorGroups(); colorPanel.classList.add('open'); return; }
+  const groups=h('div');
+  const tabs=h('div',{class:'re-tabs'},
+    h('div',{class:'re-tab',onclick:()=>setMode('dark')},'Dark mode'),
+    h('div',{class:'re-tab',onclick:()=>setMode('light')},'Light mode'));
+  colorPanel=h('div',{class:'re-panel re-ui'},
+    h('div',{class:'re-panel-head'},h('h3',{},'Colors'),h('button',{class:'re-btn re-btn-ghost',onclick:()=>colorPanel.classList.remove('open')},'✕')),
+    h('div',{class:'re-panel-body'},tabs,groups));
+  document.body.append(colorPanel);
+  colorPanel._tabs=tabs;colorPanel._groups=groups;
+  syncTabs(); renderColorGroups();
+  requestAnimationFrame(()=>colorPanel.classList.add('open'));
+}
+function setMode(m){
+  colorMode=m;
+  document.body.classList.toggle('light',m==='light'); // live-preview the edited mode
+  syncTabs(); renderColorGroups();
+}
+function toHex(v){ // normalize a css color to #rrggbb for <input type=color>
+  v=(v||'').trim(); if(/^#([0-9a-f]{6})$/i.test(v))return v;
+  if(/^#([0-9a-f]{3})$/i.test(v))return '#'+v.slice(1).split('').map(c=>c+c).join('');
+  const m=v.match(/rgba?\(([^)]+)\)/i); if(m){const[r,g,b]=m[1].split(',').map(n=>parseInt(n));return '#'+[r,g,b].map(n=>(n||0).toString(16).padStart(2,'0')).join('');}
+  return '#000000';
+}
+function curVal(name){ const m=WORK.theme[colorMode]; if(m&&m[name]!=null)return m[name]; return API.defaultVar(name,colorMode==='light'); }
+function renderColorGroups(){
+  const body=colorPanel._groups; body.innerHTML='';
+  GROUPS.forEach(g=>{
+    const rows=g.vars.map(([v,lbl])=>{
+      const val=curVal(v); const hex=toHex(val);
+      const picker=h('input',{type:'color',value:hex});
+      const hexI=h('input',{class:'re-cl-hex',value:val});
+      const set=nv=>{ WORK.theme[colorMode][v]=nv; hexI.value=nv; picker.value=toHex(nv);
+        API.injectThemeOverrides(WORK.theme); window.dispatchEvent(new Event('re-recolor')); markDirty('theme:'+colorMode+':'+v); };
+      picker.addEventListener('input',()=>set(picker.value));
+      hexI.addEventListener('change',()=>set(hexI.value.trim()));
+      return h('div',{class:'re-color'},picker,h('span',{class:'re-cl-lbl'},lbl),hexI);
+    });
+    body.append(h('div',{class:'re-group'},
+      h('div',{class:'re-group-h'},g.name,h('button',{onclick:()=>{g.vars.forEach(([v])=>{delete WORK.theme[colorMode][v];markDirty('theme:'+colorMode+':'+v);});API.injectThemeOverrides(WORK.theme);window.dispatchEvent(new Event('re-recolor'));renderColorGroups();}},'reset')),
+      ...rows));
+  });
+}
+
+/* ════════ SAVE / PUBLISH BAR ════════ */
+let saveBar,countEl;
+function buildSaveBar(){
+  countEl=h('span',{class:'re-count'});
+  saveBar=h('div',{class:'re-savebar re-ui'},
+    countEl,
+    h('button',{class:'re-btn re-btn-ghost',onclick:discardAll},'Discard'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:saveDraft},'Save draft'),
+    h('button',{class:'re-btn re-btn-gd',onclick:publish},'Publish'));
+  document.body.append(saveBar);
+}
+function updateSaveBar(){ const n=pendingCount(); countEl.innerHTML='<span>'+n+'</span> change'+(n===1?'':'s'); saveBar.classList.toggle('show',n>0); }
+function cleanWork(){ // drop empty theme buckets
+  const w=JSON.parse(JSON.stringify(WORK));
+  return w;
+}
+function saveDraft(){ Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{dirty.clear();updateSaveBar();toast('Draft saved (not yet public)');}).catch(e=>toast('Save failed: '+e.message)); }
+function publish(){ if(!confirm('Publish your changes? This makes them live for all visitors.'))return;
+  Promise.resolve(Store.publish(cleanWork())).then(()=>{ try{localStorage.setItem('re-content',JSON.stringify(cleanWork()));}catch(e){} dirty.clear();updateSaveBar();toast('Published! Your changes are now live.'); }).catch(e=>toast('Publish failed: '+e.message)); }
+function discardAll(){ if(!confirm('Discard all unsaved changes?'))return;
+  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); dirty.clear();updateSaveBar();toast('Changes discarded'); }); }
+
+/* global undo (Ctrl/Cmd-Z) */
+document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&editing){ const u=undo.pop(); if(!u)return; e.preventDefault();
+  if(u.kind==='text'){ if(u.prev==null)delete WORK.text[u.key];else WORK.text[u.key]=u.prev; }
+  if(u.kind==='img'){ if(u.prev==null)delete WORK.img[u.key];else WORK.img[u.key]=u.prev; }
+  API.setOverrides(WORK); toast('Undo'); }});
+
+/* ════════ first-run coachmark ════════ */
+function maybeCoach(){ if(localStorage.getItem('re-coached'))return;
+  const c=h('div',{class:'re-coach re-ui',html:'<b>Welcome to your editor!</b><br>• Turn on <b>Edit mode</b>, then <b>click any text</b> to change it.<br>• <b>Hover an image</b> to replace it.<br>• Open <b>Colors</b> to recolor the site.<br>• Hit <b>Publish</b> when ready.'},);
+  c.append(h('button',{class:'re-btn re-btn-pri',onclick:()=>{c.remove();localStorage.setItem('re-coached','1');}},'Got it'));
+  document.body.append(c);
+}
+
+/* ════════ start ════════ */
+Promise.resolve(Store.init()).then(authed=>{ if(authed)onAuthed(); else showLogin(); });
+})();
