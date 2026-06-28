@@ -216,9 +216,9 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .finput{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%}
 .finput:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent);box-shadow:0 0 0 3px color-mix(in srgb, var(--g3) 8%, transparent)}
 .finput::placeholder{color:var(--mt2)}
-.fselect{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='color-mix(in srgb, var(--tx) 40%, transparent)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.fselect{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239DB0C6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .fselect:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background-color:color-mix(in srgb, var(--g) 8%, transparent)}
-.fselect option{background:#0c2040;color:var(--tx)}
+.fselect option{background:var(--nv3);color:var(--tx)}
 .ftarea{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;resize:vertical;min-height:80px;line-height:1.6}
 .ftarea:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
 .fhint{font-size:10px;color:var(--mt2);line-height:1.5}
@@ -637,6 +637,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
   background:radial-gradient(ellipse 58% 52% at 50% 40%,#0c2138 0%,#071321 52%,#040b14 100%);
   transition:opacity .9s ease,visibility .9s ease,transform .9s var(--lux-ease)}
 #preloader.done{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.05)}
+body.light #preloader{background:radial-gradient(ellipse 58% 52% at 50% 40%,var(--nv3) 0%,var(--nv2) 52%,var(--nv) 100%)}
 /* slow conic sheen sweeping the backdrop */
 #preloader::before{content:'';position:absolute;width:160vmax;height:160vmax;pointer-events:none;
   background:conic-gradient(from 0deg,transparent 0deg,color-mix(in srgb, var(--au) 5%, transparent) 50deg,transparent 130deg,transparent 230deg,color-mix(in srgb, var(--g3) 4%, transparent) 290deg,transparent 360deg);
@@ -763,6 +764,8 @@ body.light .svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--
 body.light .finput{background:var(--nv3);border:1px solid color-mix(in srgb, var(--tx) 18%, transparent);color:var(--tx)}
 body.light .finput::placeholder{color:color-mix(in srgb, var(--tx) 40%, transparent)}
 body.light .finput:focus{border-color:var(--au);box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 14%, transparent)}
+body.light .fselect{background-color:var(--nv3);border-color:color-mix(in srgb, var(--tx) 18%, transparent);color:var(--tx);background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235A6B7E' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")}
+body.light .fselect:focus{border-color:var(--au);box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 14%, transparent)}
 /* section tag, gold accent words, formula, tables on light */
 body.light .stag{background:color-mix(in srgb, var(--g) 9%, transparent);border-color:color-mix(in srgb, var(--g) 32%, transparent);color:#0A6B4B;box-shadow:none}
 body.light .sh span,body.light .phero h1 span,body.light .cta-inner h2 span,body.light .hero h1 span,body.light .snum{background:linear-gradient(100deg,#6B5310,#8A6A14,#A07D1A,#8A6A14,#6B5310);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
@@ -770,7 +773,7 @@ body.light .sh span,body.light .phero h1 span,body.light .cta-inner h2 span,body
 body.light .stats-band{background:linear-gradient(180deg,var(--nv2),var(--nv));-webkit-backdrop-filter:none;backdrop-filter:none}
 body.light .sc2{border-right-color:color-mix(in srgb, var(--tx) 10%, transparent)}
 /* deepen gold accents (links, calc titles) for contrast on white */
-body.light{--au:#8A6A14;--au2:#A07D1A}
+body.light{--au:#8A6A14;--au2:#A07D1A;--au-grad:linear-gradient(100deg,#6B5310 0%,#8A6A14 28%,#A07D1A 50%,#8A6A14 72%,#6B5310 100%)}
 body.light .pcard,body.light .gov-donut{--au:#C8A84B;--au2:#E2C070}
 body.light .snum{filter:none}
 body.light .calc-chart{background:color-mix(in srgb, var(--tx) 2.5%, transparent);border-color:color-mix(in srgb, var(--tx) 10%, transparent)}
@@ -807,7 +810,7 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 }
 </style>
 </head>
-<body>
+<body class="light">
 
 <!-- IMMERSIVE OVERLAYS -->
 <div id="preloader" aria-hidden="true">
@@ -3236,7 +3239,7 @@ function toggleTheme(){
   try{localStorage.setItem('re-theme',light?'light':'dark');}catch(e){}
   setTimeout(()=>{try{drawChart();}catch(e){}},60); // redraw hero chart for the new palette
 }
-try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('light');}catch(e){}
+try{if(localStorage.getItem('re-theme')==='dark')document.body.classList.remove('light');}catch(e){}
 
 /* ══════════════════════════════════════════════════════════════
    CONTENT-OVERRIDE ENGINE (powers the visual editor)
