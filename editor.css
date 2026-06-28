@@ -91,4 +91,29 @@ body.re-editing [data-edit].re-dirty, body.re-editing [data-edit-img].re-dirty{ 
 .re-coach{ position:fixed; top:58px; right:14px; z-index:99987; max-width:280px; background:var(--re-bg2); border:1px solid var(--re-ac); border-radius:12px; padding:16px; color:var(--re-tx); font-size:12.5px; line-height:1.65; box-shadow:var(--re-sh); }
 .re-coach b{ color:var(--re-gd); }
 .re-coach button{ margin-top:10px; }
-@media(max-width:560px){ .re-panel{ width:100%; } .re-grid{ grid-template-columns:repeat(3,1fr); } }
+/* ── Submissions inbox ── */
+.re-inbox{ width:420px; }
+.re-inbox .re-panel-head .re-btn{ padding:7px 11px; }
+.re-ibx-empty{ color:var(--re-mt); font-size:13px; line-height:1.6; text-align:center; margin:30px 8px; }
+.re-ibx-card{ background:rgba(255,255,255,.03); border:1px solid var(--re-line); border-radius:12px; padding:13px 14px; margin-bottom:12px; }
+.re-ibx-card.done{ opacity:.55; }
+.re-ibx-top{ display:flex; align-items:center; gap:9px; margin-bottom:10px; flex-wrap:wrap; }
+.re-ibx-badge{ font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,.08); color:var(--re-tx); white-space:nowrap; }
+.re-k-application{ background:rgba(216,180,90,.18); color:var(--re-gd); }
+.re-k-contact{ background:rgba(77,141,240,.18); color:var(--re-ac2); }
+.re-k-complaint{ background:rgba(232,85,78,.18); color:#ff9a94; }
+.re-k-feedback{ background:rgba(46,204,138,.18); color:var(--re-ok); }
+.re-k-career{ background:rgba(170,130,255,.18); color:#c6b0ff; }
+.re-ibx-name{ font-weight:700; font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.re-ibx-when{ font-size:11px; color:var(--re-mt); font-variant-numeric:tabular-nums; }
+.re-ibx-fields{ display:flex; flex-direction:column; gap:5px; }
+.re-ibx-row{ display:flex; gap:10px; font-size:12.5px; line-height:1.45; }
+.re-ibx-k{ flex:none; width:96px; color:var(--re-mt); font-weight:600; }
+.re-ibx-v{ flex:1; min-width:0; color:var(--re-tx); word-break:break-word; }
+.re-ibx-files{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid var(--re-line); }
+.re-ibx-file{ border:1px solid var(--re-line); background:rgba(216,180,90,.10); color:var(--re-gd); border-radius:7px; padding:5px 10px; font-size:11.5px; font-weight:600; cursor:pointer; }
+.re-ibx-file:hover{ filter:brightness(1.12); }
+.re-ibx-handled{ display:flex; align-items:center; gap:7px; margin-top:11px; font-size:12px; color:var(--re-mt); cursor:pointer; user-select:none; }
+.re-ibx-handled input{ accent-color:var(--re-ok); width:15px; height:15px; }
+
+@media(max-width:560px){ .re-panel,.re-inbox{ width:100%; } .re-grid{ grid-template-columns:repeat(3,1fr); } .re-ibx-k{ width:78px; } }

@@ -2859,37 +2859,71 @@ function populateReview(){
   const lc=document.querySelector('input[name=lang]:checked');s('rv-lang',lc?lc.value:'English');
 }
 
+/* ══ FORM BACKEND — submissions are saved to Supabase (files → Storage) ══ */
+function reCfg(){ const c=window.RE_SUPABASE; return (c&&c.url&&c.anonKey)?c:null; }
+async function reUpload(c,kind,field,file){
+  if(file.size>5*1024*1024) throw new Error('“'+file.name+'” is larger than 5 MB. Please upload a smaller file.');
+  const safe=(file.name||'file').replace(/[^A-Za-z0-9.\-_]/g,'_').slice(-60);
+  const path=kind+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'-'+field+'-'+safe;
+  const r=await fetch(c.url+'/storage/v1/object/form-uploads/'+path,{method:'POST',
+    headers:{apikey:c.anonKey,Authorization:'Bearer '+c.anonKey,'Content-Type':file.type||'application/octet-stream','x-upsert':'false'},body:file});
+  if(!r.ok) throw new Error('We could not upload “'+file.name+'”. Please try again.');
+  return {field,path,name:file.name,type:file.type,size:file.size};
+}
+async function reSubmit(kind,data,files){
+  const c=reCfg(); if(!c) throw new Error('no-backend');   // unconfigured → caller shows demo success
+  const uploaded=[];
+  if(files){ for(const[field,file]of files){ if(file) uploaded.push(await reUpload(c,kind,field,file)); } }
+  const r=await fetch(c.url+'/rest/v1/form_submissions',{method:'POST',
+    headers:{apikey:c.anonKey,Authorization:'Bearer '+c.anonKey,'Content-Type':'application/json',Prefer:'return=minimal'},
+    body:JSON.stringify({kind,reference:data.reference||null,data,files:uploaded})});
+  if(!r.ok){ const t=await r.text().catch(()=>''); throw new Error('save-failed '+r.status+' '+t.slice(0,140)); }
+  return true;
+}
+/* Resolve a submit: real send when configured; on failure show a real error (never a fake
+   success, so a lead is never silently lost); only fall back to the demo screen when Supabase
+   isn't configured at all (e.g. local preview). */
+async function finishSubmit(promise,boxId,doneId){
+  try{ await promise; }
+  catch(e){
+    if(!(e&&e.message==='no-backend')){
+      alert(/larger than 5 MB|could not upload/.test(e.message)?e.message
+        :'Sorry, we couldn’t send your details just now. Please try again in a moment, or email hello@rallysequities.com.');
+      return false;
+    }
+    console.warn('Form backend not configured — demo mode.');
+  }
+  if(boxId){const b=document.getElementById(boxId);if(b)b.style.display='none';}
+  if(doneId){const d=document.getElementById(doneId);if(d)d.style.display='block';}
+  return true;
+}
+
 async function submitApp(){
   const c1=document.getElementById('chk1'),c2=document.getElementById('chk2'),c3=document.getElementById('chk3');
   if(!c1?.checked||!c2?.checked||!c3?.checked){
     alert('Please tick all three consent boxes before submitting.');return;
   }
   const g=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
-  const fd=new FormData();
-  fd.append('firstName',g('f-fn'));fd.append('lastName',g('f-ln'));fd.append('fatherOrHusband',g('f-fn2'));
-  fd.append('cnic',g('f-cnic'));fd.append('dob',g('f-dob'));fd.append('gender',g('f-gender'));
-  fd.append('mobile',g('f-mob'));fd.append('email',g('f-email'));fd.append('address',g('f-addr'));
-  fd.append('city',g('f-city'));fd.append('province',g('f-prov'));
-  fd.append('employment',g('f-emp'));fd.append('employer',g('f-employer'));fd.append('income',g('f-income'));
-  fd.append('sourceOfFunds',g('f-src'));fd.append('bank',g('f-bank'));fd.append('iban',g('f-iban'));
-  fd.append('experience',g('f-exp'));fd.append('objective',g('f-obj'));
-  fd.append('accountType',acType);fd.append('riskTolerance',riskVal);
-  const lc=document.querySelector('input[name=lang]:checked');fd.append('language',lc?lc.value:'english');
+  const lc=document.querySelector('input[name=lang]:checked');
   const svcs=[...document.querySelectorAll('#step3 .fcheck input:checked')].map(c=>c.parentElement.textContent.trim()).join('; ');
-  fd.append('services',svcs);
-  const fileMap={'uf-cnicF':'cnicFront','uf-cnicB':'cnicBack','uf-addr':'addressProof','uf-photo':'photo'};
-  for(const[id,field]of Object.entries(fileMap)){
-    const inp=document.getElementById(id);
-    if(inp&&inp.files&&inp.files[0])fd.append(field,inp.files[0]);
-  }
-  let ref='RE-'+new Date().getFullYear()+'-'+Math.floor(10000+Math.random()*90000); // demo fallback
-  try{
-    const r=await fetch('/api/applications',{method:'POST',body:fd});
-    if(r.status===404||r.status===405)throw new Error('no-backend'); // static deploy → demo mode
-    if(!r.ok){const e=await r.json().catch(()=>({}));alert(e.error||'Submission failed. Please review your details and try again.');return;}
-    const data=await r.json();ref=data.reference;
-  }catch(e){
-    console.warn('No backend reachable — application form running in demo mode.');
+  const ref='RE-'+new Date().getFullYear()+'-'+Math.floor(10000+Math.random()*90000);
+  const payload={ reference:ref,
+    firstName:g('f-fn'),lastName:g('f-ln'),fatherOrHusband:g('f-fn2'),
+    cnic:g('f-cnic'),dob:g('f-dob'),gender:g('f-gender'),
+    mobile:g('f-mob'),email:g('f-email'),address:g('f-addr'),city:g('f-city'),province:g('f-prov'),
+    employment:g('f-emp'),employer:g('f-employer'),income:g('f-income'),sourceOfFunds:g('f-src'),
+    bank:g('f-bank'),iban:g('f-iban'),experience:g('f-exp'),objective:g('f-obj'),
+    accountType:acType,riskTolerance:riskVal,language:lc?lc.value:'english',services:svcs };
+  const fileMap=[['cnicFront','uf-cnicF'],['cnicBack','uf-cnicB'],['addressProof','uf-addr'],['photo','uf-photo']];
+  const files=fileMap.map(([field,id])=>{const inp=document.getElementById(id);return [field,inp&&inp.files&&inp.files[0]];}).filter(x=>x[1]);
+  try{ await reSubmit('application',payload,files); }
+  catch(e){
+    if(!(e&&e.message==='no-backend')){
+      alert(/larger than 5 MB|could not upload/.test(e.message)?e.message
+        :'Sorry, we couldn’t submit your application just now. Please try again, or email hello@rallysequities.com.');
+      return;
+    }
+    console.warn('Form backend not configured — application running in demo mode.');
   }
   const rn=document.getElementById('refNum');if(rn)rn.textContent=ref;
   document.getElementById('formBody').style.display='none';
@@ -2924,40 +2958,22 @@ async function submitContact(){
   need.forEach(([id,f])=>{const el=document.getElementById(id);if(!el)return;if(!f(el.value.trim())){el.classList.add('err');ok=false;}else el.classList.remove('err');});
   if(!ok)return;
   const g=id=>document.getElementById(id).value.trim();
-  const body={name:g('cf-name'),email:g('cf-email'),phone:g('cf-phone'),subject:g('cf-subj'),message:g('cf-msg')};
-  try{
-    const r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.status===404||r.status===405)throw new Error('no-backend'); // static deploy → demo mode
-    if(!r.ok){const e=await r.json().catch(()=>({}));alert(e.error||'Something went wrong. Please try again or email hello@rallysequities.com.');return;}
-  }catch(e){
-    console.warn('No backend reachable — contact form running in demo mode.');
-  }
-  document.getElementById('cfBox').style.display='none';
-  document.getElementById('cfDone').style.display='block';
+  finishSubmit(reSubmit('contact',{name:g('cf-name'),email:g('cf-email'),phone:g('cf-phone'),subject:g('cf-subj'),message:g('cf-msg')}),'cfBox','cfDone');
 }
 
-/* Shared helper: validate required fields, POST to an endpoint, fall back to demo success.
+/* Shared helper: validate required fields, then send the submission to Supabase.
    fields: [[id, testFn], ...]; on success hides boxId and shows doneId. */
-async function submitGenericForm(fields, endpoint, payloadBuilder, boxId, doneId, multipart){
+function submitGenericForm(fields, kind, dataBuilder, boxId, doneId, filesBuilder){
   let ok=true;
   fields.forEach(([id,f])=>{const el=document.getElementById(id);if(!el)return;if(!f((el.value||'').trim())){el.classList.add('err');ok=false;}else el.classList.remove('err');});
   if(!ok)return;
-  try{
-    const opt=multipart?{method:'POST',body:payloadBuilder()}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payloadBuilder())};
-    const r=await fetch(endpoint,opt);
-    if(r.status===404||r.status===405)throw new Error('no-backend'); // static deploy → demo mode
-    if(!r.ok){const e=await r.json().catch(()=>({}));alert(e.error||'Something went wrong. Please try again or email hello@rallysequities.com.');return;}
-  }catch(e){
-    console.warn('No backend reachable — form running in demo mode.');
-  }
-  document.getElementById(boxId).style.display='none';
-  document.getElementById(doneId).style.display='block';
+  finishSubmit(reSubmit(kind, dataBuilder(), filesBuilder?filesBuilder():null), boxId, doneId);
 }
 function submitComplaint(){
   const g=id=>document.getElementById(id).value.trim();
   submitGenericForm(
     [['cmp-name',v=>v.length>1],['cmp-email',v=>v.includes('@')],['cmp-cat',v=>v!==''],['cmp-msg',v=>v.length>2]],
-    '/api/complaints',
+    'complaint',
     ()=>({name:g('cmp-name'),email:g('cmp-email'),phone:g('cmp-phone'),category:g('cmp-cat'),message:g('cmp-msg')}),
     'cmpBox','cmpDone');
 }
@@ -2965,7 +2981,7 @@ function submitFeedback(){
   const g=id=>document.getElementById(id).value.trim();
   submitGenericForm(
     [['fb-name',v=>v.length>1],['fb-email',v=>v.includes('@')],['fb-cat',v=>v!==''],['fb-msg',v=>v.length>2]],
-    '/api/feedback',
+    'feedback',
     ()=>({name:g('fb-name'),email:g('fb-email'),phone:g('fb-phone'),category:g('fb-cat'),message:g('fb-msg')}),
     'fbBox','fbDone');
 }
@@ -2973,9 +2989,10 @@ function submitCareer(){
   const g=id=>document.getElementById(id).value.trim();
   submitGenericForm(
     [['car-name',v=>v.length>1],['car-email',v=>v.includes('@')],['car-pos',v=>v!=='']],
-    '/api/careers',
-    ()=>{const fd=new FormData();fd.append('name',g('car-name'));fd.append('email',g('car-email'));fd.append('phone',g('car-phone'));fd.append('position',g('car-pos'));fd.append('coverLetter',g('car-cover'));const cv=document.getElementById('car-cv');if(cv&&cv.files&&cv.files[0])fd.append('cv',cv.files[0]);return fd;},
-    'carBox','carDone',true);
+    'career',
+    ()=>({name:g('car-name'),email:g('car-email'),phone:g('car-phone'),position:g('car-pos'),coverLetter:g('car-cover')}),
+    'carBox','carDone',
+    ()=>{const cv=document.getElementById('car-cv');return (cv&&cv.files&&cv.files[0])?[['cv',cv.files[0]]]:[];});
 }
 
 /* ══ CALCULATORS ══ */

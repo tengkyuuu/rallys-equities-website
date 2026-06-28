@@ -39,7 +39,10 @@ function localStore(){
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
-    uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); }
+    uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); },
+    listSubmissions(){ return Promise.resolve([]); },
+    signedUrl(){ return Promise.resolve(null); },
+    setHandled(){ return Promise.resolve(); }
   };
 }
 function supabaseStore(){
@@ -54,7 +57,10 @@ function supabaseStore(){
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
-    async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;}
+    async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
+    async listSubmissions(){const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).limit(300);if(error)throw new Error(error.message);return data||[];},
+    async signedUrl(path){const{data,error}=await sb.storage.from('form-uploads').createSignedUrl(path,3600);return error?null:data.signedUrl;},
+    async setHandled(id,val){await sb.from('form_submissions').update({handled:val}).eq('id',id);}
   };
 }
 const Store = (window.RE_SUPABASE_READY && window.supabase) ? supabaseStore() : localStore();
@@ -95,6 +101,7 @@ function buildBar(){
     h('span',{class:'re-logo'},'RE Editor'),
     editToggle,
     h('span',{class:'re-spacer'}),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openInbox},'📥 Submissions'),
     h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
     h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
     h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
@@ -266,6 +273,56 @@ function renderColorGroups(){
     body.append(h('div',{class:'re-group'},
       h('div',{class:'re-group-h'},g.name,h('button',{onclick:()=>{g.vars.forEach(([v])=>{delete WORK.theme[colorMode][v];markDirty('theme:'+colorMode+':'+v);});API.injectThemeOverrides(WORK.theme);window.dispatchEvent(new Event('re-recolor'));renderColorGroups();}},'reset')),
       ...rows));
+  });
+}
+
+/* ════════ SUBMISSIONS INBOX (form leads) ════════ */
+let inboxPanel;
+const KIND_LABEL={contact:'Contact',complaint:'Complaint',feedback:'Feedback',career:'Career',application:'Account application'};
+function openInbox(){
+  if(!inboxPanel){
+    const head=h('div',{class:'re-panel-head'},h('h3',{},'Submissions'),
+      h('div',{},h('button',{class:'re-btn re-btn-ghost',title:'Refresh',onclick:loadInbox},'↻'),
+        h('button',{class:'re-btn re-btn-ghost',onclick:()=>inboxPanel.classList.remove('open')},'✕')));
+    inboxPanel=h('div',{class:'re-panel re-inbox re-ui'},head,h('div',{class:'re-panel-body',id:'re-ibx-body'}));
+    document.body.append(inboxPanel);
+  }
+  inboxPanel.classList.add('open');
+  loadInbox();
+}
+function prettyLabel(k){return k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());}
+function fieldRows(obj){
+  const order=['name','firstName','lastName','email','phone','mobile','subject','category','position','message','coverLetter','reference','cnic','dob','gender','address','city','province','employment','employer','income','sourceOfFunds','bank','iban','experience','objective','accountType','riskTolerance','language','services'];
+  const has=k=>obj[k]!=null&&String(obj[k]).trim()!=='';
+  const keys=[...order.filter(has),...Object.keys(obj).filter(k=>order.indexOf(k)<0&&has(k))];
+  return keys.map(k=>h('div',{class:'re-ibx-row'},h('span',{class:'re-ibx-k'},prettyLabel(k)),h('span',{class:'re-ibx-v'},String(obj[k]))));
+}
+async function loadInbox(){
+  const body=document.getElementById('re-ibx-body'); if(!body)return;
+  body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Loading…'));
+  if(Store.mode!=='supabase'){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Submissions show up here once your site is connected to Supabase. (You’re currently in local preview mode.)')); return; }
+  let rows;
+  try{ rows=await Store.listSubmissions(); }
+  catch(e){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Couldn’t load submissions: '+e.message+' — has the forms setup SQL been run yet?')); return; }
+  body.innerHTML='';
+  if(!rows.length){ body.append(h('p',{class:'re-ibx-empty'},'No submissions yet. When a visitor sends a form, it appears here.')); return; }
+  rows.forEach(r=>{
+    const d=r.data||{};
+    const when=(r.created_at||'').replace('T',' ').slice(0,16);
+    const name=d.name||[d.firstName,d.lastName].filter(Boolean).join(' ')||d.email||'—';
+    const chk=h('input',{type:'checkbox'}); chk.checked=!!r.handled;
+    const card=h('div',{class:'re-ibx-card'+(r.handled?' done':'')});
+    chk.addEventListener('change',()=>{Store.setHandled(r.id,chk.checked);card.classList.toggle('done',chk.checked);});
+    const files=(r.files||[]).map(f=>h('button',{class:'re-ibx-file',onclick:async ev=>{ev.preventDefault();const b=ev.currentTarget;const old=b.textContent;b.textContent='opening…';const u=await Store.signedUrl(f.path);b.textContent=old;if(u)window.open(u,'_blank');else toast('Could not open file');}},'⬇ '+(f.field||'file')));
+    card.append(
+      h('div',{class:'re-ibx-top'},
+        h('span',{class:'re-ibx-badge re-k-'+r.kind},KIND_LABEL[r.kind]||r.kind),
+        h('span',{class:'re-ibx-name'},name),
+        h('span',{class:'re-ibx-when'},when)),
+      h('div',{class:'re-ibx-fields'},...fieldRows(d)),
+      files.length?h('div',{class:'re-ibx-files'},h('span',{class:'re-ibx-k'},'Files'),h('span',{},...files)):document.createTextNode(''),
+      h('label',{class:'re-ibx-handled'},chk,'Mark handled'));
+    body.append(card);
   });
 }
 
