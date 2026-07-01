@@ -42,7 +42,8 @@ function localStore(){
     uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); },
     listSubmissions(){ return Promise.resolve([]); },
     signedUrl(){ return Promise.resolve(null); },
-    setHandled(){ return Promise.resolve(); }
+    setHandled(){ return Promise.resolve(); },
+    deleteSubmission(){ return Promise.resolve(); }
   };
 }
 function supabaseStore(){
@@ -60,7 +61,8 @@ function supabaseStore(){
     async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
     async listSubmissions(){const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).limit(300);if(error)throw new Error(error.message);return data||[];},
     async signedUrl(path){const{data,error}=await sb.storage.from('form-uploads').createSignedUrl(path,3600);return error?null:data.signedUrl;},
-    async setHandled(id,val){await sb.from('form_submissions').update({handled:val}).eq('id',id);}
+    async setHandled(id,val){await sb.from('form_submissions').update({handled:val}).eq('id',id);},
+    async deleteSubmission(id){const{error}=await sb.from('form_submissions').delete().eq('id',id);if(error)throw new Error(error.message);}
   };
 }
 const Store = (window.RE_SUPABASE_READY && window.supabase) ? supabaseStore() : localStore();
@@ -321,7 +323,9 @@ async function loadInbox(){
         h('span',{class:'re-ibx-when'},when)),
       h('div',{class:'re-ibx-fields'},...fieldRows(d)),
       files.length?h('div',{class:'re-ibx-files'},h('span',{class:'re-ibx-k'},'Files'),h('span',{},...files)):document.createTextNode(''),
-      h('label',{class:'re-ibx-handled'},chk,'Mark handled'));
+      h('div',{class:'re-ibx-foot'},
+        h('label',{class:'re-ibx-handled'},chk,'Mark handled'),
+        h('button',{class:'re-ibx-del',onclick:async()=>{ if(!confirm('Delete this submission permanently?'))return; try{ await Store.deleteSubmission(r.id); card.remove(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message); } }},'🗑 Delete')));
     body.append(card);
   });
 }

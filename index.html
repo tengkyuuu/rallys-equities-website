@@ -440,6 +440,31 @@ footer{background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 1
 .float-bob{animation:floatBob 5.5s ease-in-out infinite}
 @keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
 /* Scroll reveal (wow.js / animate.css equivalent) */
+/* ══ Contact page ══ */
+.ct-wrap{display:grid;grid-template-columns:0.92fr 1.08fr;gap:24px;margin-top:44px;align-items:stretch}
+.ct-panel,.ct-formcard{border:1px solid var(--gb);border-radius:18px;background:var(--gl);padding:30px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.ct-panel{display:flex;flex-direction:column}
+.ct-eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--au);margin-bottom:6px}
+.ct-panel>h3,.ct-formcard>h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--tx);margin:0 0 14px;line-height:1.08}
+.ct-lede{font-size:13px;color:var(--mt);line-height:1.7;margin:0 0 14px}
+.ct-row{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--gb)}
+.ct-row:last-of-type{border-bottom:none}
+.ct-ic{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb, var(--g3) 11%, transparent);border:1px solid color-mix(in srgb, var(--g3) 26%, transparent)}
+.ct-l{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mt2);font-weight:700}
+.ct-v{font-size:13.5px;color:var(--tx);font-weight:600;margin-top:4px;line-height:1.6}
+.ct-v a{color:var(--tx);text-decoration:none;transition:color .2s}
+.ct-v a:hover{color:var(--au)}
+.ct-v small{display:block;font-weight:400;color:var(--mt2);font-size:11.5px;margin-top:3px;letter-spacing:0;text-transform:none}
+.ct-social{display:flex;gap:10px;margin-top:20px}
+.ct-soc{width:40px;height:40px;border-radius:11px;border:1px solid var(--gb);display:grid;place-items:center;color:var(--mt);transition:color .2s,border-color .2s,transform .2s}
+.ct-soc:hover{color:var(--au);border-color:var(--au);transform:translateY(-2px)}
+.ct-cta{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:22px}
+.ct-map{margin-top:24px;border-radius:18px;overflow:hidden;border:1px solid var(--gb);height:340px;position:relative;box-shadow:0 30px 60px -34px rgba(0,0,0,.45);background:linear-gradient(135deg,color-mix(in srgb, var(--g) 14%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))}
+.ct-map iframe{width:100%;height:100%;border:0;display:block;position:relative;z-index:1}
+.ct-mappin{position:absolute;left:18px;bottom:18px;z-index:2;background:color-mix(in srgb, var(--nv) 90%, transparent);border:1px solid var(--gb);border-radius:12px;padding:11px 15px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ct-mappin a{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:var(--au);text-decoration:none}
+.ct-mappin a:hover{text-decoration:underline}
+@media(max-width:820px){.ct-wrap{grid-template-columns:1fr}.ct-map{height:270px}}
 .rv{opacity:0;transform:translateY(30px);transition:opacity .75s ease,transform .75s ease;transition-delay:var(--rvd,0s)}
 .rv-l{transform:translateX(-36px)}.rv-r{transform:translateX(36px)}
 .rv.vis{opacity:1;transform:none}
@@ -730,6 +755,9 @@ body.light .pcard,body.light .gov-donut,body.light .map-box{
   --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
   --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:color-mix(in srgb, var(--au) 20%, transparent);--gl:rgba(255,255,255,.04);
   --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx)}
+/* keep the KSE-30 / KMI-30 / ALLSHR footer cells dark (the market panel is a dark "screen"),
+   else --nv goes ivory in light mode and the light text on them becomes invisible */
+body.light .pcard .ixc{background:color-mix(in srgb, #05101E 78%, transparent)}
 body.light .gov-donut{background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 97%, transparent),color-mix(in srgb, var(--nv2) 97%, transparent))}
 /* light hero + page-hero banners (fade the dark photos, light gradient) */
 body.light .hero-bg{background:radial-gradient(ellipse 55% 65% at 76% 50%,color-mix(in srgb, var(--g) 8%, transparent),transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,color-mix(in srgb, var(--au) 10%, transparent),transparent 55%),linear-gradient(165deg,var(--nv2) 0%,var(--nv) 60%,var(--nv) 100%)}
@@ -752,7 +780,7 @@ body.light .skyline svg circle[r="14"]{fill:#EFE9DC}
 body.light .lt-main{background:linear-gradient(100deg,#8C6E18,#B8922A,#8C6E18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 body.light .btn-ghost{border-color:color-mix(in srgb, var(--tx) 22%, transparent)!important;color:var(--tx)}
 /* white cards */
-body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item{
+body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item,body.light .ct-panel,body.light .ct-formcard{
   background:var(--nv3)!important;border:1px solid color-mix(in srgb, var(--tx) 10%, transparent)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
   box-shadow:0 16px 36px -20px color-mix(in srgb, var(--tx) 22%, transparent),0 2px 6px -2px color-mix(in srgb, var(--tx) 6%, transparent)!important}
 body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover{
@@ -980,14 +1008,14 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   <div class="hero-r">
     <div class="pcard">
       <div class="pstatus">
-        <div style="display:flex;align-items:center"><div class="psdot"></div><span class="pslbl" id="dataLbl">SIMULATED LIVE</span><span style="color:var(--mt2);font-size:9px;margin-left:5px">— Real PSX base prices</span></div>
+        <div style="display:flex;align-items:center"><div class="psdot"></div><span class="pslbl" id="dataLbl">SIMULATED</span><span id="dataSub" style="color:var(--mt2);font-size:9px;margin-left:5px">— Indicative data</span></div>
         <span class="pstime" id="psxClock">--:--:--</span>
       </div>
       <div class="phead">
         <div>
           <div class="pidxl">KSE-100 Index</div>
-          <div class="pidxv" id="k100">76,824.35</div>
-          <div class="pidxc" id="k100c" style="color:var(--up)">▲ +934.20 (+1.23%)</div>
+          <div class="pidxv" id="k100">180,301.70</div>
+          <div class="pidxc" id="k100c" style="color:var(--up)">▲ +1,886.91 (+1.06%)</div>
           <div style="font-size:9px;color:var(--mt2);margin-top:2px">Vol: 284.6M · 09:30–15:30 PKT</div>
         </div>
         <div class="ptabs">
@@ -1002,9 +1030,9 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <div class="shdr"><span>Company</span><span style="text-align:right">Price</span><span style="text-align:right">Chg</span><span style="text-align:right">%</span></div>
       <div id="heroStocks"></div>
       <div class="idxrow">
-        <div class="ixc"><div class="ixn">KSE-30</div><div class="ixv" id="k30">26,340.18</div><div class="ixch" style="color:var(--up)">▲+0.87%</div></div>
-        <div class="ixc"><div class="ixn">KMI-30</div><div class="ixv" id="k30m">68,915.42</div><div class="ixch" style="color:var(--up)">▲+1.41%</div></div>
-        <div class="ixc"><div class="ixn">KASE</div><div class="ixv" id="kase">4,210.77</div><div class="ixch" style="color:var(--dn)">▼−0.22%</div></div>
+        <div class="ixc"><div class="ixn">KSE-30</div><div class="ixv" id="k30">53,716.03</div><div class="ixch" style="color:var(--up)">▲ +1.14%</div></div>
+        <div class="ixc"><div class="ixn">KMI-30</div><div class="ixv" id="k30m">257,327.46</div><div class="ixch" style="color:var(--up)">▲ +1.23%</div></div>
+        <div class="ixc"><div class="ixn">ALLSHR</div><div class="ixv" id="kase">108,938.83</div><div class="ixch" style="color:var(--up)">▲ +0.89%</div></div>
       </div>
     </div>
   </div>
@@ -1315,9 +1343,9 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <section class="sec" style="padding-top:52px">
   <span class="urdu">پاکستان اسٹاک ایکسچینج — لائیو ریٹس</span>
   <div class="mkt-idx">
-    <div class="mkt-idxc"><div class="mkt-idxn">KSE-100</div><div class="mkt-idxv" id="mk100">76,824.35</div><div class="mkt-idxc2" id="mk100c" style="color:var(--up)">▲ +1.23%</div></div>
-    <div class="mkt-idxc"><div class="mkt-idxn">KSE-30</div><div class="mkt-idxv" id="mk30">26,340.18</div><div class="mkt-idxc2" style="color:var(--up)">▲ +0.87%</div></div>
-    <div class="mkt-idxc"><div class="mkt-idxn">KMI-30 (Halal)</div><div class="mkt-idxv" id="mkmi">68,915.42</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.41%</div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KSE-100</div><div class="mkt-idxv" id="mk100">180,301.70</div><div class="mkt-idxc2" id="mk100c" style="color:var(--up)">▲ +1.06%</div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KSE-30</div><div class="mkt-idxv" id="mk30">53,716.03</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.14%</div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KMI-30 (Halal)</div><div class="mkt-idxv" id="mkmi">257,327.46</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.23%</div></div>
   </div>
   <div class="mkt-table-wrap">
     <div class="mkt-table-head"><span class="mkt-table-title">Featured Securities — Live</span><span style="font-size:10px;color:var(--mt2)" id="mktTime">updating...</span></div>
@@ -1340,142 +1368,62 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 <!-- ══════ LOCATIONS PAGE ══════ -->
 <div class="page" id="page-locations">
 <section class="sec">
-  <div class="stag">Find Us</div>
-  <h2 class="sh">Our Office in <em>Lahore</em></h2>
-  <span class="urdu">لاہور میں ہمارا دفتر — آپ کا خیرمقدم ہے</span>
-  <p class="sub" style="margin-top:10px">Visit our head office at the Lahore Stock Exchange Building for in-person account opening, advisory sessions, or trading support — or open your account online. Walk-ins welcome.</p>
-
-  <!-- Pakistan Map -->
-  <div class="map-box">
-    <svg viewBox="0 0 800 420" width="100%" height="100%" style="display:block">
-      <rect width="800" height="420" fill="#081828"/>
-      <g stroke="rgba(200,168,75,.04)" stroke-width=".5">
-        <line x1="0" y1="105" x2="800" y2="105"/><line x1="0" y1="210" x2="800" y2="210"/><line x1="0" y1="315" x2="800" y2="315"/>
-        <line x1="160" y1="0" x2="160" y2="420"/><line x1="320" y1="0" x2="320" y2="420"/><line x1="480" y1="0" x2="480" y2="420"/><line x1="640" y1="0" x2="640" y2="420"/>
-      </g>
-      <path d="M220 55 L240 40 L290 45 L340 34 L380 38 L420 34 L460 50 L500 44 L540 56 L570 76 L585 106 L598 140 L582 170 L566 196 L555 228 L544 262 L524 292 L504 312 L482 336 L458 356 L442 380 L422 400 L398 415 L370 418 L340 412 L314 396 L290 375 L270 350 L252 324 L238 296 L226 266 L220 234 L215 200 L212 166 L216 134 L218 106 L220 80 Z"
-        fill="rgba(10,107,75,.09)" stroke="rgba(18,184,124,.28)" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M220 55 L240 40 L280 30 L320 22 L360 26 L400 24 L440 34 L460 50 L440 66 L400 62 L360 66 L320 64 L280 68 L250 76 L224 70 Z"
-        fill="rgba(10,107,75,.05)" stroke="rgba(18,184,124,.14)" stroke-width="1"/>
-      <path d="M380 86 Q370 126 360 166 Q354 198 348 232 Q342 264 336 296 Q330 326 324 355" stroke="rgba(66,153,225,.18)" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
-      <!-- Lahore pin (Head Office) -->
-      <g onclick="hlCity('lahore')" style="cursor:pointer">
-        <circle cx="370" cy="158" r="15" fill="rgba(200,168,75,.18)" stroke="rgba(200,168,75,.5)" stroke-width="1.5"/>
-        <circle cx="370" cy="158" r="6" fill="var(--au)"/>
-        <circle cx="370" cy="158" r="10" fill="none" stroke="rgba(200,168,75,.5)" stroke-width="1"><animate attributeName="r" values="6;18;6" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0;0.8" dur="3s" repeatCount="indefinite"/></circle>
-        <text x="390" y="155" fill="var(--au)" font-size="11" font-weight="700" font-family="sans-serif">Lahore HQ</text>
-        <text x="390" y="168" fill="rgba(246,242,234,.45)" font-size="9" font-family="sans-serif">Lahore Stock Exchange Building</text>
-      </g>
-      <!-- Legend box -->
-      <rect x="570" y="300" width="200" height="100" rx="8" fill="rgba(5,16,30,.92)" stroke="rgba(200,168,75,.2)" stroke-width=".5"/>
-      <text x="585" y="320" fill="rgba(246,242,234,.4)" font-size="9" font-family="sans-serif" letter-spacing="2">OFFICES</text>
-      <circle cx="590" cy="340" r="5" fill="var(--au)"/><text x="602" y="344" fill="rgba(246,242,234,.7)" font-size="10" font-family="sans-serif">Head Office — Lahore</text>
-      <text x="585" y="365" fill="rgba(246,242,234,.5)" font-size="9" font-family="sans-serif">Office # 408, 4th Floor, LSE Building</text>
-      <text x="585" y="380" fill="rgba(246,242,234,.5)" font-size="9" font-family="sans-serif">Khayaban-e-Aiwan-e-Iqbal, Lahore</text>
-      <text x="585" y="395" fill="rgba(246,242,234,.28)" font-size="8" font-family="sans-serif">Click pin for details</text>
-    </svg>
+  <div style="text-align:center">
+    <div class="stag">Contact Us</div>
+    <h2 class="sh">Connect with Your <em>Trusted Brokerage</em> in PSX</h2>
+    <span class="urdu">پی ایس ایکس میں آپ کے قابلِ اعتماد بروکر سے رابطہ</span>
+    <p class="sub" style="margin:12px auto 0">Opening an account, need trading support, or exploring a corporate partnership? Our Lahore team is here to help — in Urdu and English. Walk in to our head office, or open your account online in minutes.</p>
   </div>
 
-  <!-- Office cards -->
-  <div class="loc-grid">
-    <!-- Lahore Head Office -->
-    <div class="loc-card" id="loc-lahore">
-      <div class="loc-map" style="background:linear-gradient(135deg,color-mix(in srgb, var(--g) 10%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))">
-        <svg viewBox="0 0 420 200" fill="none" width="100%">
-          <rect width="420" height="200" fill="rgba(8,24,40,.95)"/>
-          <g stroke="rgba(18,184,124,.1)" stroke-width=".5" fill="none"><line x1="0" y1="50" x2="420" y2="50"/><line x1="0" y1="100" x2="420" y2="100"/><line x1="0" y1="150" x2="420" y2="150"/><line x1="70" y1="0" x2="70" y2="200"/><line x1="140" y1="0" x2="140" y2="200"/><line x1="210" y1="0" x2="210" y2="200"/><line x1="280" y1="0" x2="280" y2="200"/><line x1="350" y1="0" x2="350" y2="200"/></g>
-          <line x1="0" y1="100" x2="420" y2="100" stroke="rgba(200,168,75,.18)" stroke-width="3"/>
-          <line x1="210" y1="0" x2="210" y2="200" stroke="rgba(200,168,75,.12)" stroke-width="2.5"/>
-          <rect x="20" y="20" width="90" height="20" rx="3" fill="rgba(10,107,75,.12)" stroke="rgba(18,184,124,.15)" stroke-width=".5"/>
-          <rect x="120" y="20" width="70" height="20" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="220" y="20" width="80" height="20" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="20" y="58" width="60" height="32" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="90" y="58" width="100" height="32" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="220" y="58" width="90" height="32" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="320" y="58" width="80" height="32" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="20" y="112" width="180" height="36" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="220" y="112" width="180" height="36" rx="3" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width=".5"/>
-          <rect x="20" y="162" width="380" height="24" rx="3" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.05)" stroke-width=".5"/>
-          <circle cx="160" cy="74" r="16" fill="rgba(200,168,75,.22)" stroke="rgba(200,168,75,.7)" stroke-width="1.5"/>
-          <circle cx="160" cy="74" r="6.5" fill="var(--au)"/>
-          <text x="160" y="54" text-anchor="middle" fill="var(--au)" font-size="9" font-weight="700" font-family="sans-serif">RALLYS HQ</text>
-          <text x="160" y="104" text-anchor="middle" fill="rgba(200,168,75,.55)" font-size="8" font-family="sans-serif">Khayaban-e-Aiwan-e-Iqbal</text>
-        </svg>
+  <div class="ct-wrap">
+    <!-- Contact details -->
+    <div class="ct-panel">
+      <div class="ct-eyebrow">Reach us directly</div>
+      <h3>Rallys Equities — Lahore</h3>
+      <div class="ct-row"><div class="ct-ic"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><path d="M4 3H7L8.5 7L7 8.5C8 10.5 11.5 14 13.5 15L15 13.5L19 15V18C17.5 20 4 14.5 3 8Z" stroke="var(--g3)" stroke-width="1.5" fill="none"/></svg></div><div><div class="ct-l">Call &amp; WhatsApp</div><div class="ct-v"><a href="tel:+924236366667">042-36366667</a><br><a href="tel:+923169991907">0316-9991907</a></div></div></div>
+      <div class="ct-row"><div class="ct-ic"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><rect x="3" y="5" width="16" height="12" rx="2" stroke="var(--g3)" stroke-width="1.5"/><path d="M3 8L11 13L19 8" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div><div class="ct-l">Email</div><div class="ct-v"><a href="mailto:hello@rallysequities.com">hello@rallysequities.com</a><small>General · Client support · Careers · Partnerships</small></div></div></div>
+      <div class="ct-row"><div class="ct-ic"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><path d="M11 2C7.5 2 5 4.8 5 8C5 12.5 11 20 11 20S17 12.5 17 8C17 4.8 14.5 2 11 2Z" stroke="var(--g3)" stroke-width="1.5" fill="none"/><circle cx="11" cy="8" r="2.4" fill="var(--g3)"/></svg></div><div><div class="ct-l">Head Office</div><div class="ct-v">Office #408, 4th Floor, Lahore Stock Exchange Building<small>Khayaban-e-Aiwan-e-Iqbal, Lahore, Pakistan</small></div></div></div>
+      <div class="ct-row"><div class="ct-ic"><svg width="18" height="18" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="var(--g3)" stroke-width="1.5"/><path d="M11 6.5V11L14 13" stroke="var(--g3)" stroke-width="1.5" stroke-linecap="round"/></svg></div><div><div class="ct-l">Business Hours</div><div class="ct-v">Monday – Friday · 9:00 AM – 6:00 PM<small>Sat &amp; Sun closed · PSX trading 09:30–15:30 PKT</small></div></div></div>
+      <div class="ct-social">
+        <a class="ct-soc" href="https://www.facebook.com/profile.php?id=61584496977916" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.9c0-.8.2-1.3 1.4-1.3H17V2.6C16.6 2.5 15.6 2.4 14.5 2.4c-2.4 0-4 1.5-4 4.1v2H8v3h2.5V21h3.5v-8.5h2.5l.4-3z"/></svg></a>
+        <a class="ct-soc" href="https://www.instagram.com/rallyssequities/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7" fill="currentColor" stroke="none"/></svg></a>
+        <a class="ct-soc" href="https://www.linkedin.com/company/rallys-equities" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 002.5 6 2.5 2.5 0 005 8.5 2.5 2.5 0 007.5 6 2.5 2.5 0 004.98 3.5zM3 9h4v12H3zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05 4 0 4.74 2.64 4.74 6.07V21h-4v-5.32c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21h-4z"/></svg></a>
       </div>
-      <div class="loc-info">
-        <div class="loc-city">Lahore</div>
-        <div class="loc-type">★ Head Office — Lahore Stock Exchange Building</div>
-        <div class="loc-row"><div class="loc-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1C4 1 2 2.8 2 5C2 7.5 6 11 6 11S10 7.5 10 5C10 2.8 8 1 6 1Z" stroke="var(--g3)" stroke-width="1.2" fill="none"/><circle cx="6" cy="5" r="1.5" fill="var(--g3)"/></svg></div><span>Office # 408, 4th Floor, Lahore Stock Exchange Building, Khayaban-e-Aiwan-e-Iqbal, Lahore, Pakistan</span></div>
-        <div class="loc-row"><div class="loc-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2H5L6 5L4.5 6C5.2 7.5 6.5 8.8 8 9.5L9 8L12 9V11C10 12 2 8 2 4Z" stroke="var(--g3)" stroke-width="1.1" fill="none"/></svg></div><span>042-36366667 · 0316-9991907</span></div>
-        <div class="loc-row"><div class="loc-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="3" width="8" height="6" rx="1" stroke="var(--g3)" stroke-width="1.1"/><path d="M2 5L6 7L10 5" stroke="var(--g3)" stroke-width=".9"/></svg></div><span>hello@rallysequities.com</span></div>
-        <div class="hrs-grid">
-          <div class="hrs-item"><div class="hrs-day">Mon–Fri</div><div class="hrs-time">09:00–18:00</div></div>
-          <div class="hrs-item"><div class="hrs-day">Saturday</div><div class="hrs-time" style="color:var(--dn)">Closed</div></div>
-          <div class="hrs-item"><div class="hrs-day">Sunday</div><div class="hrs-time" style="color:var(--dn)">Closed</div></div>
-          <div class="hrs-item"><div class="hrs-day">PSX Trading</div><div class="hrs-time" style="color:var(--up)">09:30–15:30</div></div>
+      <div class="ct-cta">
+        <button class="bbig bbig-g" style="width:100%;display:block;text-align:center" onclick="showPage('account')">Book an appointment</button>
+        <button class="bbig bbig-o" style="width:100%;display:block;text-align:center" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open account online via eClear ↗</button>
+      </div>
+    </div>
+
+    <!-- Message form -->
+    <div class="ct-formcard" id="contact-form">
+      <div class="ct-eyebrow">Send a message</div>
+      <h3>We'd love to hear from you</h3>
+      <p class="ct-lede">Fill in the form and our team will reply at the email you provide. For urgent matters, call 042-36366667.</p>
+      <div id="cfBox">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Your Name <span class="req">*</span></label><input type="text" class="finput" id="cf-name" placeholder="Enter name here"></div>
+          <div class="fg"><label class="flbl">Email Address <span class="req">*</span></label><input type="email" class="finput" id="cf-email" placeholder="Email address"></div>
         </div>
-        <button class="bbig bbig-g" style="width:100%;margin-top:16px;display:block" onclick="showPage('account')">Book Appointment</button>
-      </div>
-    </div>
-    <!-- Online Account Opening -->
-    <div class="loc-card" id="loc-online">
-      <div class="loc-map" style="background:linear-gradient(135deg,color-mix(in srgb, var(--g) 8%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))">
-        <svg viewBox="0 0 420 200" fill="none" width="100%">
-          <rect width="420" height="200" fill="rgba(8,24,40,.95)"/>
-          <g stroke="rgba(18,184,124,.08)" stroke-width=".5" fill="none"><line x1="0" y1="50" x2="420" y2="50"/><line x1="0" y1="100" x2="420" y2="100"/><line x1="0" y1="150" x2="420" y2="150"/><line x1="105" y1="0" x2="105" y2="200"/><line x1="210" y1="0" x2="210" y2="200"/><line x1="315" y1="0" x2="315" y2="200"/></g>
-          <rect x="120" y="40" width="180" height="110" rx="10" fill="rgba(10,107,75,.12)" stroke="rgba(18,184,124,.35)" stroke-width="1.5"/>
-          <rect x="135" y="55" width="150" height="12" rx="3" fill="rgba(255,255,255,.06)"/>
-          <rect x="135" y="75" width="150" height="12" rx="3" fill="rgba(255,255,255,.06)"/>
-          <rect x="135" y="95" width="100" height="12" rx="3" fill="rgba(255,255,255,.06)"/>
-          <rect x="135" y="118" width="70" height="18" rx="5" fill="rgba(18,184,124,.4)"/>
-          <text x="170" y="131" text-anchor="middle" fill="var(--tx)" font-size="9" font-weight="700" font-family="sans-serif">SUBMIT</text>
-          <circle cx="300" cy="60" r="12" fill="rgba(200,168,75,.2)" stroke="rgba(200,168,75,.6)" stroke-width="1.5"/>
-          <path d="M295 60L299 64L306 55" stroke="var(--au)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <text x="210" y="172" text-anchor="middle" fill="rgba(18,184,124,.6)" font-size="9" font-weight="700" font-family="sans-serif">PSX eCLEAR ACCOUNT OPENING FORM</text>
-        </svg>
-      </div>
-      <div class="loc-info">
-        <div class="loc-city">Open Online</div>
-        <div class="loc-type">Digital Account Opening — Anywhere in Pakistan</div>
-        <div class="loc-row"><div class="loc-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="3" width="8" height="6" rx="1" stroke="var(--g3)" stroke-width="1.1"/><path d="M2 5L6 7L10 5" stroke="var(--g3)" stroke-width=".9"/></svg></div><span>Open your account digitally through the official PSX eClear account opening portal — no office visit required.</span></div>
-        <div class="loc-row"><div class="loc-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2H5L6 5L4.5 6C5.2 7.5 6.5 8.8 8 9.5L9 8L12 9V11C10 12 2 8 2 4Z" stroke="var(--g3)" stroke-width="1.1" fill="none"/></svg></div><span>Need help? Call 042-36366667 or 0316-9991907 during office hours.</span></div>
-        <div class="hrs-grid">
-          <div class="hrs-item"><div class="hrs-day">Portal</div><div class="hrs-time" style="color:var(--up)">Open 24/7</div></div>
-          <div class="hrs-item"><div class="hrs-day">Support</div><div class="hrs-time">Mon–Fri 09:00–18:00</div></div>
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Phone (optional)</label><input type="tel" class="finput" id="cf-phone" placeholder="+92-3XX-XXXXXXX"></div>
+          <div class="fg"><label class="flbl">Subject <span class="req">*</span></label><select class="fselect" id="cf-subj"><option value="">Select subject</option><option>General Inquiry</option><option>Client Support</option><option>Careers &amp; HR</option><option>Corporate Partnerships</option></select></div>
         </div>
-        <button class="bbig bbig-g" style="width:100%;margin-top:16px;display:block" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Account via eClear ↗</button>
+        <div class="fg" style="margin-bottom:16px"><label class="flbl">Message <span class="req">*</span></label><textarea class="ftarea" id="cf-msg" placeholder="How can we help?"></textarea></div>
+        <button class="fnext" style="width:100%" onclick="submitContact()">Send Message</button>
+      </div>
+      <div style="display:none;text-align:center;padding:22px 0" id="cfDone">
+        <div style="font-size:30px;color:var(--up);margin-bottom:8px">✓</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px;color:var(--tx)">Message received!</div>
+        <div style="font-size:12.5px;color:var(--mt);line-height:1.7;max-width:340px;margin:0 auto">Thank you for reaching out. Our team will get back to you at the email you provided. For urgent matters, call 042-36366667.</div>
       </div>
     </div>
   </div>
 
-  <!-- Contact -->
-  <div style="margin-top:56px;text-align:center"><div class="stag">Get In Touch</div><h2 class="sh">Contact <em>Our Team</em></h2></div>
-  <div class="ctc-grid">
-    <div class="ctc-card"><div class="ctc-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 3H7L8.5 7L7 8.5C8 10.5 11.5 14 13.5 15L15 13.5L19 15V18C17.5 20 4 14.5 3 8Z" stroke="var(--g3)" stroke-width="1.5" fill="none"/></svg></div><div class="ctc-title">Call Us</div><div class="ctc-val">042-36366667</div><div class="ctc-sub">Mon–Fri 09:00–18:00 PKT<br>Urdu &amp; English support</div></div>
-    <div class="ctc-card"><div class="ctc-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="5" width="16" height="12" rx="2" stroke="var(--g3)" stroke-width="1.5"/><path d="M3 8L11 13L19 8" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div class="ctc-title">Email Us</div><div class="ctc-val">hello@rallysequities.com</div><div class="ctc-sub">General inquiry · Client support<br>Careers &amp; corporate partnerships</div></div>
-    <div class="ctc-card"><div class="ctc-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="5" y="2" width="12" height="18" rx="2" stroke="var(--g3)" stroke-width="1.5"/><circle cx="11" cy="16" r="1.2" fill="var(--g3)"/><line x1="8" y1="6" x2="14" y2="6" stroke="var(--g3)" stroke-width="1.2"/></svg></div><div class="ctc-title">Mobile</div><div class="ctc-val">0316-9991907</div><div class="ctc-sub">Direct line during office hours<br>Urdu &amp; English</div></div>
-  </div>
-
-  <!-- CONTACT FORM -->
-  <div style="margin-top:56px;max-width:720px;margin-left:auto;margin-right:auto" id="contact-form">
-    <div style="text-align:center"><div class="stag">Send a Message</div><h3 class="sh" style="font-size:30px">We'd Love to <em>Hear From You</em></h3></div>
-    <div style="border:1px solid var(--gb);border-radius:18px;padding:30px;background:var(--gl);margin-top:28px" id="cfBox">
-      <div class="fgrid">
-        <div class="fg"><label class="flbl">Your Name <span class="req">*</span></label><input type="text" class="finput" id="cf-name" placeholder="Enter name here"></div>
-        <div class="fg"><label class="flbl">Email Address <span class="req">*</span></label><input type="email" class="finput" id="cf-email" placeholder="Email address"></div>
-      </div>
-      <div class="fgrid">
-        <div class="fg"><label class="flbl">Phone (optional)</label><input type="tel" class="finput" id="cf-phone" placeholder="+92-3XX-XXXXXXX"></div>
-        <div class="fg"><label class="flbl">Subject <span class="req">*</span></label><select class="fselect" id="cf-subj"><option value="">Select subject</option><option>General Inquiry</option><option>Client Support</option><option>Careers &amp; HR</option><option>Corporate Partnerships</option></select></div>
-      </div>
-      <div class="fg" style="margin-bottom:16px"><label class="flbl">Message <span class="req">*</span></label><textarea class="ftarea" id="cf-msg" placeholder="Message goes here"></textarea></div>
-      <button class="fnext" style="width:100%" onclick="submitContact()">Send Message</button>
-    </div>
-    <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:28px;text-align:center" id="cfDone">
-      <div style="font-size:28px;margin-bottom:8px">✓</div>
-      <div style="font-size:15px;font-weight:700;margin-bottom:6px">Message received!</div>
-      <div style="font-size:12px;color:var(--mt)">Thank you for reaching out. Our team will get back to you at the email you provided. For urgent matters, call 042-36366667.</div>
-    </div>
+  <!-- Office map -->
+  <div class="ct-map">
+    <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Rallys Equities — Lahore Stock Exchange Building" src="https://maps.google.com/maps?q=Lahore%20Stock%20Exchange%20Building%2C%20Khayaban-e-Aiwan-e-Iqbal%2C%20Lahore&z=15&output=embed"></iframe>
+    <div class="ct-mappin"><div class="ct-l" style="color:var(--au)">Head Office</div><div style="font-size:12.5px;color:var(--tx);font-weight:600;margin-top:3px">Lahore Stock Exchange Building</div><a href="https://www.google.com/maps/search/?api=1&query=Lahore%20Stock%20Exchange%20Building%2C%20Khayaban-e-Aiwan-e-Iqbal%2C%20Lahore" target="_blank" rel="noopener">Get directions ↗</a></div>
   </div>
 </section>
 </div><!-- end locations -->
@@ -2576,7 +2524,7 @@ PSX.forEach(s=>{
   sc[s.sym]=sp[s.sym]-so[s.sym];
 });
 
-let kse=76824.35, kse0=75890.15, k30=26340.18, kmi=68915.42, kas=4210.77;
+let kse=180301.70, kse0=178414.79, k30=53716.03, kmi=257327.46, kas=108938.83;
 let kseH=[], chartCtx=null, dataMode='sim';
 
 // Seed chart history
@@ -2587,55 +2535,39 @@ const fmtN=n=>n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionD
 const nowStr=()=>new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{timeZone:'Asia/Karachi'})),h=pk.getHours(),m=pk.getMinutes(),d=pk.getDay();return d>0&&d<6&&(h>9||(h===9&&m>=30))&&(h<15||(h===15&&m<=30));};
 
-/* Try real Yahoo Finance data via CORS proxies */
-async function tryRealData(){
-  const syms=['ATRL.KA','MEBL.KA','PSO.KA','HBL.KA','PPL.KA','NBP.KA','FABL.KA','TRG.KA','BAFL.KA','FCCL.KA'];
-  const yUrl=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms.join(',')}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
-  const proxies=[
-    `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(yUrl)}`
-  ];
-  for(const proxy of proxies){
-    try{
-      const r=await fetch(proxy,{signal:AbortSignal.timeout(5000)});
-      if(!r.ok)continue;
-      const outer=await r.json();
-      const raw=proxy.includes('allorigins')?JSON.parse(outer.contents):outer;
-      const quotes=raw?.quoteResponse?.result;
-      if(!quotes||!quotes.length)continue;
-      quotes.forEach(q=>{
-        const sym=q.symbol.replace('.KA','');
-        if(!sp[sym])return;
-        if(q.regularMarketPrice){sp[sym]=q.regularMarketPrice;sc[sym]=q.regularMarketChange||sc[sym];}
-      });
-      dataMode='live';
-      setDataStatus();
-      return true;
-    }catch(e){}
-  }
-  return false;
-}
-
-async function tryKSEIndex(){
-  const url='https://query1.finance.yahoo.com/v7/finance/quote?symbols=%5EKSE&fields=regularMarketPrice,regularMarketChange';
-  const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+/* Real PSX index data via our Supabase Edge Function (server-side → no CORS, no key exposed).
+   Only the indices + hero chart are real (PSX, delayed); individual stock rows stay simulated. */
+let LIVE=null;
+async function fetchKSE(){
+  const c=window.RE_SUPABASE;
+  if(!(c&&c.url&&c.anonKey))return false;            // not configured → stay simulated
   try{
-    const r=await fetch(proxy,{signal:AbortSignal.timeout(4000)});
-    if(!r.ok)return;
-    const outer=await r.json();
-    const raw=JSON.parse(outer.contents);
-    const q=raw?.quoteResponse?.result?.[0];
-    if(!q||!q.regularMarketPrice)return;
-    kse=q.regularMarketPrice;kse0=kse-(q.regularMarketChange||0);
-  }catch(e){}
+    const r=await fetch(c.url+'/functions/v1/market',{headers:{apikey:c.anonKey,Authorization:'Bearer '+c.anonKey},signal:AbortSignal.timeout(6000)});
+    if(!r.ok)return false;
+    const j=await r.json();
+    const ix=j&&j.indices;
+    if(!ix||!ix.KSE100)return false;
+    LIVE=ix;
+    kse=ix.KSE100.current; kse0=ix.KSE100.prevClose;
+    if(ix.KSE30)  k30=ix.KSE30.current;
+    if(ix.KMI30)  kmi=ix.KMI30.current;
+    if(ix.ALLSHR) kas=ix.ALLSHR.current;
+    if(Array.isArray(ix.KSE100.series)&&ix.KSE100.series.length>4) kseH=ix.KSE100.series.slice();
+    dataMode='live';
+    updateAllUI(); setDataStatus();
+    return true;
+  }catch(e){ return false; }
 }
 
 function setDataStatus(){
   const lbl=document.getElementById('dataLbl');
-  if(!lbl)return;
-  if(dataMode==='live'){lbl.textContent='LIVE DATA';lbl.style.color='var(--up)';}
-  else{lbl.textContent='SIMULATED LIVE';lbl.style.color='var(--up)';}
-  document.getElementById('mktStatus').textContent=isPSXOpen()?'PSX Open':'PSX Closed';
+  if(lbl){
+    if(dataMode==='live'){lbl.textContent='PSX · DELAYED';lbl.style.color='var(--up)';}
+    else{lbl.textContent='SIMULATED';lbl.style.color='var(--mt)';}
+  }
+  const sub=document.getElementById('dataSub');
+  if(sub)sub.textContent=dataMode==='live'?'— KSE-100 from PSX · ~15-min delayed · individual stock rows are indicative':'— Indicative data (live feed unavailable)';
+  const ms=document.getElementById('mktStatus');if(ms)ms.textContent=isPSXOpen()?'PSX Open':'PSX Closed';
 }
 
 /* Simulation tick */
@@ -2643,18 +2575,25 @@ let tickN=0;
 function simTick(){
   tickN++;
   const drift=(Math.random()-.471)*13;
-  kse+=drift;k30+=drift*.39;kmi+=drift*.66;kas+=drift*.04;
-  kseH.push(Math.round(kse*100)/100);
-  if(kseH.length>120)kseH.shift();
-  PSX.forEach(s=>{
+  if(dataMode!=='live'){           // when live, indices come from PSX — don't fake them
+    kse+=drift;k30+=drift*.39;kmi+=drift*.66;kas+=drift*.04;
+    kseH.push(Math.round(kse*100)/100);
+    if(kseH.length>120)kseH.shift();
+  }
+  PSX.forEach(s=>{                  // individual stock rows stay simulated for liveliness
     const d=drift*s.beta*.013+(Math.random()-.5)*.0006*s.base;
     sp[s.sym]=Math.max(sp[s.sym]+d,s.base*.7);
     sc[s.sym]=sp[s.sym]-so[s.sym];
   });
   updateAllUI();
-  if(tickN%20===0&&dataMode==='sim')tryRealData();
 }
 
+function setSubIdx(id,val,live){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=fmtN(val);
+  if(live){const ch=el.parentElement&&el.parentElement.querySelector('.ixch');
+    if(ch){const up=live.changePct>=0;ch.style.color=up?'var(--up)':'var(--dn)';ch.textContent=(up?'▲ +':'▼ −')+Math.abs(live.changePct).toFixed(2)+'%';}}
+}
 function updateAllUI(){
   /* Hero KSE */
   const d=kse-kse0,pct=(d/kse0*100),up=d>=0;
@@ -2667,9 +2606,10 @@ function updateAllUI(){
   if(mkc){mkc.style.color=up?'var(--up)':'var(--dn)';mkc.textContent=`${up?'▲':'▼'} ${up?'+':''}${pct.toFixed(2)}%`;}
   if(mk3)mk3.textContent=fmtN(k30);
   if(mkmi)mkmi.textContent=fmtN(kmi);
-  /* Sub-indices on hero */
-  const i30=document.getElementById('k30'),i30m=document.getElementById('k30m'),ikas=document.getElementById('kase');
-  if(i30)i30.textContent=fmtN(k30);if(i30m)i30m.textContent=fmtN(kmi);if(ikas)ikas.textContent=fmtN(kas);
+  /* Sub-indices on hero (+ real change % when live) */
+  setSubIdx('k30',  k30, LIVE&&LIVE.KSE30);
+  setSubIdx('k30m', kmi, LIVE&&LIVE.KMI30);
+  setSubIdx('kase', kas, LIVE&&LIVE.ALLSHR);
   /* Clock */
   const cl=document.getElementById('psxClock');if(cl)cl.textContent=nowStr();
   /* Stocks */
@@ -2694,7 +2634,7 @@ function renderMktTable(){
     const p=sp[s.sym],ch=sc[s.sym],pch=(ch/so[s.sym]*100),up=ch>=0;
     return `<tr><td><div class="mkt-sym"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--au);font-size:12px">${s.sym}</div><div style="font-size:10px;color:var(--mt2)">${s.name}</div></div></div></td><td>${fmt(p)}</td><td style="font-weight:600;color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:100px;font-size:9px;font-weight:700;background:${up?'rgba(46,204,138,.12)':'rgba(232,69,69,.11)'};color:${up?'var(--up)':'var(--dn)'};">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></td><td style="color:var(--mt)">${s.vol}</td><td style="font-size:11px;color:var(--mt2)">${s.sector}</td></tr>`;
   }).join('');
-  const tm=document.getElementById('mktTime');if(tm)tm.textContent=`Live · ${nowStr()} PKT`;
+  const tm=document.getElementById('mktTime');if(tm)tm.textContent=`Indicative · ${nowStr()} PKT`;
 }
 
 /* Chart */
@@ -3396,11 +3336,9 @@ setInterval(simTick,3000);
 startCounters();
 loadPublishedContent();   // async: refresh from Supabase published content (no-op if unconfigured)
 
-// Try real data on load
-Promise.all([tryRealData(),tryKSEIndex()]).then(([liveStocks])=>{
-  if(liveStocks)dataMode='live';setDataStatus();
-});
-setInterval(()=>{tryRealData().then(ok=>{dataMode=ok?'live':'sim';setDataStatus();});tryKSEIndex();},300000);
+// Real PSX index data (KSE-100 + sub-indices) via our Edge Function; refresh every minute.
+fetchKSE();
+setInterval(fetchKSE,60000);
 
 document.getElementById('nav-home')?.classList.add('active');
 
