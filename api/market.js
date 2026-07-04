@@ -31,13 +31,19 @@ module.exports = async (req, res) => {
   // cache at the Vercel edge for 60s, serve stale up to 5 min while refreshing
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   try {
-    const results = await Promise.all(SYMBOLS.map(async (sym) => {
-      try { return [sym, summarize(await psx('eod/' + sym))]; }
+    const raw = await Promise.all(SYMBOLS.map(async (sym) => {
+      try { return [sym, await psx('eod/' + sym)]; }
       catch { return [sym, null]; }
     }));
     const indices = {};
     let asOf = 0;
-    for (const [sym, data] of results) { if (data) { indices[sym] = data; asOf = Math.max(asOf, data.asOf); } }
+    for (const [sym, data] of raw) {
+      if (!data) continue;
+      indices[sym] = summarize(data);
+      asOf = Math.max(asOf, indices[sym].asOf);
+      // KSE-100 gets ~1yr of daily closes so the 1W / 1M / YTD chart tabs work
+      if (sym === 'KSE100') indices.KSE100.eod = data.slice(0, 260).reverse().map((r) => [r[0] * 1000, r[1]]);
+    }
     if (!indices.KSE100) { res.status(502).json({ error: 'KSE100 unavailable upstream' }); return; }
 
     // KSE-100 intraday curve for the hero chart (downsampled, oldest -> newest)

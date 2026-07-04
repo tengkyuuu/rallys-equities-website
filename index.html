@@ -813,15 +813,18 @@ body.light .calc-info p,body.light .calc-info li{color:var(--mt)}
 body.light .imgwrap{box-shadow:0 20px 46px -22px color-mix(in srgb, var(--tx) 30%, transparent)}
 body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
 
+html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on small screens */
 @media(max-width:900px){
+  .rv-l,.rv-r{transform:translateY(30px)}   /* reveal vertically on mobile — horizontal slide caused sideways overflow */
   .lux-divider::before,.lux-divider::after{width:22vw}
   .why-row,.svc-hero-row,.gov-donut{grid-template-columns:1fr}
   .calc-grid,.pol-grid{grid-template-columns:1fr}
   .wa-label{display:none}
   .phero{padding:40px 18px 40px}.phero h1{font-size:34px}
-  .nav-inner{padding:12px 18px}.nav-links{display:none}
+  .nav-inner{padding:11px 16px;gap:8px}.nav-links{display:none}
+  .logo{gap:9px;min-width:0}.lm-img{width:40px;height:40px}.lt-main{font-size:16px}.lt-sub{font-size:8px}
   .ham{display:flex}
-  .nav-right .btn-ghost{display:none}
+  .nav-right{gap:8px}.nav-right .btn-ghost{display:none}
   .live-badge{display:none}
   .hero{grid-template-columns:1fr;padding:44px 18px 52px}.hero h1{font-size:38px}.hero-r{display:block;margin-top:10px}.pcard{max-width:100%;box-sizing:border-box}
   .pstatus{padding:8px 12px}.pstatus #dataSub{display:none}
@@ -842,6 +845,16 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   .cta-block{margin:0 18px 56px}.cta-inner{padding:44px 20px}.cta-inner h2{font-size:32px}
   footer{padding:36px 18px}.footer-grid{grid-template-columns:1fr 1fr}
   .mkt-idx{grid-template-columns:1fr 1fr}.cur-grid{grid-template-columns:1fr 1fr}
+}
+/* Phones: clean, dedicated header — logo + theme toggle + menu button.
+   "Open Account" & "Log In" live in the slide-out menu drawer, so the top bar never overflows. */
+@media(max-width:560px){
+  .nav-right .btn-primary{display:none}
+  .lt-sub{display:none}
+  .nav-inner{padding:10px 14px}
+  .lm-img{width:38px;height:38px}
+  .theme-toggle{width:36px;height:36px}
+  .ham{width:40px;height:40px}
 }
 </style>
 </head>
@@ -2536,7 +2549,7 @@ PSX.forEach(s=>{
 });
 
 let kse=180301.70, kse0=178414.79, k30=53716.03, kmi=257327.46, kas=108938.83;
-let kseH=[], chartCtx=null, dataMode='sim';
+let kseH=[], chartCtx=null, dataMode='sim', chartData=null, chartRange='1D';
 
 // Seed chart history
 (()=>{let v=kse*.986;for(let i=0;i<88;i++){v+=(Math.random()-.47)*24;kseH.push(Math.round(v*100)/100);}kseH.push(kse);})();
@@ -2563,7 +2576,7 @@ async function fetchKSE(){
     if(ix.ALLSHR) kas=ix.ALLSHR.current;
     if(Array.isArray(ix.KSE100.series)&&ix.KSE100.series.length>4) kseH=ix.KSE100.series.slice();
     dataMode='live';
-    updateAllUI(); setDataStatus();
+    updateAllUI(); setDataStatus(); applyChartRange();
     return true;
   }catch(e){ return false; }
 }
@@ -2658,7 +2671,8 @@ function drawChart(){
   if(!chartCtx){canvas.width=canvas.offsetWidth||390;canvas.height=90;chartCtx=canvas.getContext('2d');}
   const ctx=chartCtx,w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
-  const data=kseH.slice(-80),mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
+  const src=(chartData&&chartData.length>1?chartData:kseH);
+  const data=src.slice(-120),mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
   const pts=data.map((v,i)=>[(i/(data.length-1))*w,h-((v-mn)/range)*(h-6)-3]);
   const up=data[data.length-1]>=data[0],col=up?cssVar('--up',canvas):cssVar('--dn',canvas);
   ctx.beginPath();pts.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
@@ -2755,7 +2769,35 @@ function closeMnav(){
   document.body.style.overflow='';
 }
 
-function ptab(el){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function ptab(el){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  chartRange=(el.textContent||'1D').trim();
+  applyChartRange();
+}
+/* Switch the hero chart between 1D (intraday) and 1W/1M/YTD (real daily history from PSX) */
+function applyChartRange(){
+  const eod=LIVE&&LIVE.KSE100&&LIVE.KSE100.eod;   // [[ms,close],…] oldest→newest
+  const clbl=document.querySelector('.pcard .clbl');
+  const setLabels=arr=>{if(clbl)clbl.innerHTML=arr.map(l=>`<span>${l}</span>`).join('');};
+  if(chartRange==='1D' || !eod || eod.length<2){
+    chartData=null;                                // → drawChart falls back to live intraday (kseH)
+    setLabels(['09:30','11:00','12:30','14:00','15:30']);
+  }else{
+    let pts;
+    if(chartRange==='YTD'){
+      const yr=new Date().getFullYear();
+      pts=eod.filter(p=>new Date(p[0]).getFullYear()===yr);
+      if(pts.length<2)pts=eod.slice(-130);
+    }else{
+      pts=eod.slice(chartRange==='1W'?-6:-23);     // ~1 trading week / ~1 month
+    }
+    chartData=pts.map(p=>p[1]);
+    const f=ms=>new Date(ms).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const n=pts.length;
+    setLabels([f(pts[0][0]),f(pts[Math.floor(n/2)][0]),f(pts[n-1][0])]);
+  }
+  drawChart();
+}
 
 /* ══ ACCOUNT OPENING LOGIC ══ */
 let curStep=1,acType='standard',riskVal='moderate';
