@@ -21,7 +21,7 @@ Deploy the function — no secrets or API keys needed.
 
 1. Supabase dashboard → **Edge Functions** → **Create a function** → name it exactly `market`.
 2. Paste the entire contents of
-   [`supabase/functions/market/index.ts`](supabase/functions/market/index.ts) → **Deploy**.
+   [`supabase/functions/market/index.ts`](supabase/functions/market/index.ts) → **Deploy**. 
    *(CLI alternative: `supabase functions deploy market`.)*
 
 That's it. The website already calls `…/functions/v1/market` with your public anon key, so leave
