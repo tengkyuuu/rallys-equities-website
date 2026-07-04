@@ -823,7 +823,14 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
   .ham{display:flex}
   .nav-right .btn-ghost{display:none}
   .live-badge{display:none}
-  .hero{grid-template-columns:1fr;padding:44px 18px 52px}.hero h1{font-size:38px}.hero-r{display:block;margin-top:10px}.pcard{max-width:100%}.shdr,.srow{grid-template-columns:1fr 66px 58px 54px}.mkt-table-wrap{overflow-x:auto}.mkt-table table{min-width:580px}
+  .hero{grid-template-columns:1fr;padding:44px 18px 52px}.hero h1{font-size:38px}.hero-r{display:block;margin-top:10px}.pcard{max-width:100%;box-sizing:border-box}
+  .pstatus{padding:8px 12px}.pstatus #dataSub{display:none}
+  .phead{padding-left:14px;padding-right:14px}.pidxv{font-size:26px}
+  .cw{padding:8px 12px 4px}.clbl{padding-left:12px;padding-right:12px}
+  .ptabs{padding:1px}.ptab{padding:3px 7px;font-size:9px}
+  .shdr,.srow{grid-template-columns:1fr 56px 50px 48px;padding-left:12px;padding-right:12px;column-gap:4px}
+  .sname{font-size:12px}.ssub{font-size:9px}.sprice{font-size:12px}.schg{font-size:10.5px}.pill{font-size:9px;padding:2px 5px}
+  .mkt-table-wrap{overflow-x:auto}.mkt-table table{min-width:560px}
   .stats-band,.feat-band{grid-template-columns:repeat(2,1fr)}
   .sec,.sec-sm{padding:52px 18px}
   .svc-grid,.testi-grid,.reg-grid{grid-template-columns:1fr}
@@ -1095,11 +1102,11 @@ body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
       <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="showPage('account')">Open Free Account</button><button class="bbig bbig-o" onclick="showPage('about')">About Us</button></div>
     </div>
   </div>
-  <div style="text-align:center;margin-top:60px"><div class="stag">Client Voices</div><h2 class="sh">What Our <em>Investors Say</em></h2></div>
+  <div style="text-align:center;margin-top:60px"><div class="stag">Why Investors Choose Us</div><h2 class="sh">Built on <em>Trust &amp; Transparency</em></h2></div>
   <div class="testi-grid">
-    <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-q">"Opening my account with Rallys was quick and completely paperless. Their team walked me through my first PSX trades with real patience — I never felt rushed."</div><div class="testi-qu">"اعتماد کے ساتھ سرمایہ کاری۔"</div><div class="testi-auth"><div class="testi-av">AK</div><div><div class="testi-name">Ayesha Khan</div><div class="testi-role">Investor · Lahore</div></div></div></div>
-    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="testi-stars">★★★★★</div><div class="testi-q">"Transparent brokerage rates and a relationship manager who actually answers the phone. I've moved my whole portfolio to Rallys Equities."</div><div class="testi-qu">"شفاف ریٹس اور بہترین سروس۔"</div><div class="testi-auth"><div class="testi-av">BA</div><div><div class="testi-name">Bilal Ahmed</div><div class="testi-role">Investor · Karachi</div></div></div></div>
-    <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-q">"As a first-time investor, the research notes and Urdu support made everything clear. A genuinely modern and trustworthy broker."</div><div class="testi-qu">"نئے سرمایہ کاروں کے لیے بہترین رہنمائی۔"</div><div class="testi-auth"><div class="testi-av">FS</div><div><div class="testi-name">Fatima Sheikh</div><div class="testi-role">Investor · Islamabad</div></div></div></div>
+    <div class="testi"><div class="testi-stars">✦ Licensed &amp; Regulated</div><div class="testi-q">"Every account is SECP-licensed and PSX-regulated, with client assets held securely at CDC Pakistan under a valid TREC (No. 553)."</div><div class="testi-qu">"مکمل ریگولیٹڈ اور محفوظ۔"</div><div class="testi-auth"><div class="testi-av">01</div><div><div class="testi-name">Regulated &amp; Secure</div><div class="testi-role">SECP · PSX · CDC</div></div></div></div>
+    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="testi-stars">✦ Transparent &amp; Fair</div><div class="testi-q">"Competitive brokerage rates and clear, upfront pricing — no hidden charges, and every transaction handled with accuracy and accountability."</div><div class="testi-qu">"شفاف اور منصفانہ قیمتیں۔"</div><div class="testi-auth"><div class="testi-av">02</div><div><div class="testi-name">Fair &amp; Transparent</div><div class="testi-role">No hidden charges</div></div></div></div>
+    <div class="testi"><div class="testi-stars">✦ Expert Guidance</div><div class="testi-q">"35+ years of combined market leadership with dedicated relationship managers — guidance for first-time and seasoned investors alike, in Urdu &amp; English."</div><div class="testi-qu">"ماہرین کی رہنمائی، اردو و انگریزی میں۔"</div><div class="testi-auth"><div class="testi-av">03</div><div><div class="testi-name">Expert Support</div><div class="testi-role">Urdu &amp; English</div></div></div></div>
   </div>
 </section>
 
@@ -2543,10 +2550,8 @@ const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{ti
    Only the indices + hero chart are real (PSX, delayed); individual stock rows stay simulated. */
 let LIVE=null;
 async function fetchKSE(){
-  const c=window.RE_SUPABASE;
-  if(!(c&&c.url&&c.anonKey))return false;            // not configured → stay simulated
   try{
-    const r=await fetch(c.url+'/functions/v1/market',{headers:{apikey:c.anonKey,Authorization:'Bearer '+c.anonKey},signal:AbortSignal.timeout(6000)});
+    const r=await fetch('/api/market',{signal:AbortSignal.timeout(6000)});  // Vercel serverless → real PSX data (same-origin)
     if(!r.ok)return false;
     const j=await r.json();
     const ix=j&&j.indices;
