@@ -26,15 +26,40 @@ function summarize(eod) {
   return { current, prevClose, change, changePct: prevClose ? (change / prevClose) * 100 : 0, asOf: cur[0] * 1000 };
 }
 
+// Parse PSX's market-watch table (one fetch = every listed company's live price).
+// Each row's data-order cells are: [symbol, LDCP(prevClose), open, high, low, CURRENT, change, change%, volume]
+async function marketWatch() {
+  const r = await fetch('https://dps.psx.com.pk/market-watch', { headers: { 'User-Agent': UA } });
+  if (!r.ok) throw new Error('market-watch HTTP ' + r.status);
+  const html = await r.text();
+  const tb = html.match(/<tbody[\s\S]*?<\/tbody>/i);
+  const stocks = {};
+  if (!tb) return stocks;
+  const rows = tb[0].match(/<tr[\s\S]*?<\/tr>/gi) || [];
+  for (const row of rows) {
+    const symM = row.match(/data-search="([^"]+)"/);
+    if (!symM) continue;
+    const o = [...row.matchAll(/data-order="([^"]*)"/g)].map((m) => m[1]);
+    const n = (i) => { const v = parseFloat(o[i]); return isNaN(v) ? null : v; };
+    const current = n(5);
+    if (current == null) continue;
+    stocks[symM[1]] = [current, n(6) || 0, n(7) || 0, n(8) || 0]; // [price, change, change%, volume]
+  }
+  return stocks;
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   // cache at the Vercel edge for 60s, serve stale up to 5 min while refreshing
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   try {
-    const raw = await Promise.all(SYMBOLS.map(async (sym) => {
-      try { return [sym, await psx('eod/' + sym)]; }
-      catch { return [sym, null]; }
-    }));
+    // Fetch everything from PSX in parallel (indices + intraday + all stock prices)
+    const [raw, intr, stocks] = await Promise.all([
+      Promise.all(SYMBOLS.map(async (sym) => { try { return [sym, await psx('eod/' + sym)]; } catch { return [sym, null]; } })),
+      psx('int/KSE100').catch(() => null),
+      marketWatch().catch(() => null),
+    ]);
+
     const indices = {};
     let asOf = 0;
     for (const [sym, data] of raw) {
@@ -46,17 +71,20 @@ module.exports = async (req, res) => {
     }
     if (!indices.KSE100) { res.status(502).json({ error: 'KSE100 unavailable upstream' }); return; }
 
-    // KSE-100 intraday curve for the hero chart (downsampled, oldest -> newest)
-    try {
-      const int = await psx('int/KSE100');
-      const pts = int.map((p) => p[1]).reverse();
+    // KSE-100 intraday curve for the 1D chart (downsampled, oldest -> newest)
+    if (intr) {
+      const pts = intr.map((p) => p[1]).reverse();
       const step = Math.max(1, Math.floor(pts.length / 60));
       const series = pts.filter((_, i) => i % step === 0);
       if (series[series.length - 1] !== pts[pts.length - 1]) series.push(pts[pts.length - 1]);
       indices.KSE100.series = series;
-    } catch { /* series optional */ }
+    }
 
-    res.status(200).json({ indices, asOf, delayed: true, source: 'Pakistan Stock Exchange (dps.psx.com.pk)' });
+    res.status(200).json({
+      indices,
+      stocks: (stocks && Object.keys(stocks).length) ? stocks : null,
+      asOf, delayed: true, source: 'Pakistan Stock Exchange (dps.psx.com.pk)',
+    });
   } catch (e) {
     res.status(502).json({ error: String(e && e.message || e) });
   }

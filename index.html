@@ -2561,7 +2561,8 @@ const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{ti
 
 /* Real PSX index data via our Supabase Edge Function (server-side → no CORS, no key exposed).
    Only the indices + hero chart are real (PSX, delayed); individual stock rows stay simulated. */
-let LIVE=null;
+let LIVE=null, LIVESTOCKS=null, tickerReal=false;
+function fmtVol(n){ return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n||0); }
 async function fetchKSE(){
   try{
     const r=await fetch('/api/market',{signal:AbortSignal.timeout(6000)});  // Vercel serverless → real PSX data (same-origin)
@@ -2575,6 +2576,12 @@ async function fetchKSE(){
     if(ix.KMI30)  kmi=ix.KMI30.current;
     if(ix.ALLSHR) kas=ix.ALLSHR.current;
     if(Array.isArray(ix.KSE100.series)&&ix.KSE100.series.length>4) kseH=ix.KSE100.series.slice();
+    // real per-stock prices from PSX (fallback: keep simulation if unavailable)
+    LIVESTOCKS=(j.stocks&&Object.keys(j.stocks).length)?j.stocks:null;
+    if(LIVESTOCKS){
+      PSX.forEach(s=>{const d=LIVESTOCKS[s.sym];if(d&&d[0]>0){so[s.sym]=d[0]-d[1];sp[s.sym]=d[0];sc[s.sym]=d[1];if(d[3]>0)s.vol=fmtVol(d[3]);}});
+      if(!tickerReal){tickerReal=true;buildTicker();}   // rebuild marquee once with real prices
+    }
     dataMode='live';
     updateAllUI(); setDataStatus(); applyChartRange();
     return true;
@@ -2588,7 +2595,7 @@ function setDataStatus(){
     else{lbl.textContent='SIMULATED';lbl.style.color='var(--mt)';}
   }
   const sub=document.getElementById('dataSub');
-  if(sub)sub.textContent=dataMode==='live'?'— KSE-100 from PSX · ~15-min delayed · individual stock rows are indicative':'— Indicative data (live feed unavailable)';
+  if(sub)sub.textContent=dataMode==='live'?(LIVESTOCKS?'— Live prices from PSX · delayed ~15 min':'— KSE-100 from PSX · ~15-min delayed · stock rows indicative'):'— Indicative data (live feed unavailable)';
   const ms=document.getElementById('mktStatus');if(ms)ms.textContent=isPSXOpen()?'PSX Open':'PSX Closed';
 }
 
@@ -2602,11 +2609,13 @@ function simTick(){
     kseH.push(Math.round(kse*100)/100);
     if(kseH.length>120)kseH.shift();
   }
-  PSX.forEach(s=>{                  // individual stock rows stay simulated for liveliness
-    const d=drift*s.beta*.013+(Math.random()-.5)*.0006*s.base;
-    sp[s.sym]=Math.max(sp[s.sym]+d,s.base*.7);
-    sc[s.sym]=sp[s.sym]-so[s.sym];
-  });
+  if(!LIVESTOCKS){                  // only simulate stock rows when real PSX prices aren't available
+    PSX.forEach(s=>{
+      const d=drift*s.beta*.013+(Math.random()-.5)*.0006*s.base;
+      sp[s.sym]=Math.max(sp[s.sym]+d,s.base*.7);
+      sc[s.sym]=sp[s.sym]-so[s.sym];
+    });
+  }
   updateAllUI();
 }
 
