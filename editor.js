@@ -17,9 +17,33 @@ const $=(s,r=document)=>r.querySelector(s);
 const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.ticker,.live-badge,.theme-toggle,#toTop,.wa-fab,.ham,.re-bar,.re-panel,.re-savebar,.re-overlay,.re-fmt,.re-img-btn,.re-coach,.re-toast,.cnt';
 function toast(msg){let t=$('.re-toast');if(!t){t=h('div',{class:'re-toast'});document.body.append(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 const debounce=(fn,ms=120)=>{let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms);};};
+/* Styled confirm/prompt (replaces native browser dialogs) */
+function reConfirm(msg,opts){ opts=opts||{};
+  return new Promise(res=>{
+    const ok=h('button',{class:'re-btn '+(opts.danger?'re-btn-danger':'re-btn-pri'),style:'width:auto',onclick:()=>done(true)},opts.okLabel||'Confirm');
+    const cancel=h('button',{class:'re-btn re-btn-ghost',onclick:()=>done(false)},opts.cancelLabel||'Cancel');
+    const card=h('div',{class:'re-modal'},h('h2',{},opts.title||'Please confirm'),h('p',{},msg),h('div',{class:'re-confirm-foot'},cancel,ok));
+    const overlay=h('div',{class:'re-overlay re-ui',onclick:e=>{if(e.target===overlay)done(false);}},card);
+    const key=e=>{ if(e.key==='Escape')done(false); else if(e.key==='Enter')done(true); };
+    function done(v){ document.removeEventListener('keydown',key,true); overlay.remove(); res(v); }
+    document.addEventListener('keydown',key,true); document.body.append(overlay); setTimeout(()=>ok.focus(),50);
+  });
+}
+function rePrompt(msg,opts){ opts=opts||{};
+  return new Promise(res=>{
+    const inp=h('input',{class:'re-input',type:'text',value:opts.value||'',placeholder:opts.placeholder||''});
+    const ok=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>done(inp.value.trim())},opts.okLabel||'OK');
+    const cancel=h('button',{class:'re-btn re-btn-ghost',onclick:()=>done(null)},'Cancel');
+    const card=h('div',{class:'re-modal'},h('h2',{},opts.title||'Enter a value'),msg?h('p',{},msg):document.createTextNode(''),h('div',{class:'re-field'},inp),h('div',{class:'re-confirm-foot'},cancel,ok));
+    const overlay=h('div',{class:'re-overlay re-ui',onclick:e=>{if(e.target===overlay)done(null);}},card);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter')done(inp.value.trim()); else if(e.key==='Escape')done(null); });
+    function done(v){ overlay.remove(); res(v); }
+    document.body.append(overlay); setTimeout(()=>inp.focus(),50);
+  });
+}
 
 /* ---------- working state ---------- */
-const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{}});
+const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{},fonts:{}});
 let WORK=blank();          // full working overrides (loaded from draft)
 const dirty=new Set();     // "kind:key" changed this session
 const undo=[];             // {kind,key,prev}
@@ -115,7 +139,7 @@ function onAuthed(){
   Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); toast('Loaded your latest draft'); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); else maybeCoach(); })
     .catch(e=>{ console.warn(e); WORK=blank(); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); });
 }
-function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},version:d.version||0}; }
+function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},version:d.version||0}; }
 
 /* ---------- top bar ---------- */
 let editToggle;
@@ -206,7 +230,7 @@ function openInvite(){
       if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},'No invites yet.')); return; }
       rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
         if(st!=='Accepted')acts.push(h('button',{class:'re-inv-act',title:'Get a fresh link',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email); loadList(); }).catch(x=>toast(x.message)); }},'↻ Link'));
-        acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ if(!confirm('Revoke the invite for '+inv.email+'?'))return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(); }).catch(x=>toast(x.message)); }},'Revoke'));
+        acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(); }).catch(x=>toast(x.message)); }); }},'Revoke'));
         listWrap.append(h('div',{class:'re-inv-row'},
           h('span',{class:'re-inv-email',title:inv.email},inv.email),
           h('span',{class:'re-inv-badge re-inv-'+st.toLowerCase()},st),
@@ -293,7 +317,7 @@ function showFmtBar(el){
     h('button',{title:'Bold',onmousedown:e=>{e.preventDefault();cmd('bold');},html:'<b>B</b>'}),
     h('button',{title:'Italic',onmousedown:e=>{e.preventDefault();cmd('italic');},html:'<i>I</i>'}),
     h('button',{title:'Underline',onmousedown:e=>{e.preventDefault();cmd('underline');},html:'<u>U</u>'}),
-    h('button',{title:'Link',onmousedown:e=>{e.preventDefault();const u=prompt('Link URL (https://...)');if(u)document.execCommand('createLink',false,u);el.focus();},html:'🔗'}),
+    h('button',{title:'Link',onmousedown:e=>{ e.preventDefault(); const sel=window.getSelection(); const range=sel&&sel.rangeCount?sel.getRangeAt(0).cloneRange():null; rePrompt('',{title:'Add a link',placeholder:'https://…',okLabel:'Add link'}).then(u=>{ el.focus(); if(!u)return; if(range&&sel){sel.removeAllRanges();sel.addRange(range);} document.execCommand('createLink',false,u); }); },html:'🔗'}),
     h('button',{title:'Clear formatting',onmousedown:e=>{e.preventDefault();document.execCommand('removeFormat',false);document.execCommand('unlink',false);el.focus();},html:'✕'}));
   document.body.append(fmtBar);
   const r=el.getBoundingClientRect();
@@ -386,21 +410,57 @@ const GROUPS=[
   {name:'Market Up / Down', vars:[['--up','Gains (up)'],['--dn','Losses (down)']]},
   {name:'Chart lines', vars:[['--chart-grid','Grid lines'],['--chart-axis','Axis labels']]},
 ];
+const FONTS={
+  display:[
+    ["Cormorant Garamond","'Cormorant Garamond',serif","Cormorant Garamond (default)"],
+    ["Playfair Display","'Playfair Display',serif","Playfair Display"],
+    ["Merriweather","'Merriweather',serif","Merriweather"],
+    ["Lora","'Lora',serif","Lora"],
+    ["EB Garamond","'EB Garamond',serif","EB Garamond"],
+    ["Libre Baskerville","'Libre Baskerville',serif","Libre Baskerville"],
+    ["Poppins","'Poppins',sans-serif","Poppins (sans)"],
+    ["Montserrat","'Montserrat',sans-serif","Montserrat (sans)"],
+  ],
+  body:[
+    ["Plus Jakarta Sans","'Plus Jakarta Sans',sans-serif","Plus Jakarta Sans (default)"],
+    ["Inter","'Inter',sans-serif","Inter"],
+    ["Poppins","'Poppins',sans-serif","Poppins"],
+    ["Work Sans","'Work Sans',sans-serif","Work Sans"],
+    ["Nunito Sans","'Nunito Sans',sans-serif","Nunito Sans"],
+    ["Manrope","'Manrope',sans-serif","Manrope"],
+    ["Lato","'Lato',sans-serif","Lato"],
+    ["Source Sans 3","'Source Sans 3',sans-serif","Source Sans"],
+  ]
+};
+function renderFonts(box){
+  box.innerHTML='';
+  const mk=(which,label)=>{
+    const sel=h('select',{class:'re-input re-font-sel'});
+    FONTS[which].forEach(([fam,stack,lbl])=>sel.append(h('option',{value:stack},lbl)));
+    sel.value=WORK.fonts[which]||FONTS[which][0][1];
+    sel.addEventListener('change',()=>{ WORK.fonts[which]=sel.value; API.applyFonts(WORK.fonts); markDirty('fonts:'+which); });
+    return h('div',{class:'re-fontrow'},h('span',{class:'re-cl-lbl'},label),sel);
+  };
+  box.append(h('div',{class:'re-group'},
+    h('div',{class:'re-group-h'},'Fonts',h('button',{onclick:()=>{ WORK.fonts={}; API.applyFonts({}); markDirty('fonts:display'); markDirty('fonts:body'); renderFonts(box); }},'reset')),
+    mk('display','Headings'), mk('body','Body text')));
+}
 let colorMode='dark', colorPanel;
 function syncTabs(){ const t=colorPanel._tabs.children; t[0].classList.toggle('on',colorMode==='dark'); t[1].classList.toggle('on',colorMode==='light'); }
 function openColors(){
   colorMode=document.body.classList.contains('light')?'light':'dark'; // match what the user currently sees
   if(colorPanel){ syncTabs(); renderColorGroups(); colorPanel.classList.add('open'); return; }
   const groups=h('div');
+  const fontsBox=h('div');
   const tabs=h('div',{class:'re-tabs'},
     h('div',{class:'re-tab',onclick:()=>setMode('dark')},'Dark mode'),
     h('div',{class:'re-tab',onclick:()=>setMode('light')},'Light mode'));
   colorPanel=h('div',{class:'re-panel re-ui'},
-    h('div',{class:'re-panel-head'},h('h3',{},'Colors'),h('button',{class:'re-btn re-btn-ghost',onclick:()=>colorPanel.classList.remove('open')},'✕')),
-    h('div',{class:'re-panel-body'},tabs,groups));
+    h('div',{class:'re-panel-head'},h('h3',{},'Theme'),h('button',{class:'re-btn re-btn-ghost',onclick:()=>colorPanel.classList.remove('open')},'✕')),
+    h('div',{class:'re-panel-body'},fontsBox,h('div',{class:'re-tabs-lbl'},'Colors'),tabs,groups));
   document.body.append(colorPanel);
   colorPanel._tabs=tabs;colorPanel._groups=groups;
-  syncTabs(); renderColorGroups();
+  renderFonts(fontsBox); syncTabs(); renderColorGroups();
   requestAnimationFrame(()=>colorPanel.classList.add('open'));
 }
 function setMode(m){
@@ -481,7 +541,7 @@ async function loadInbox(){
       files.length?h('div',{class:'re-ibx-files'},h('span',{class:'re-ibx-k'},'Files'),h('span',{},...files)):document.createTextNode(''),
       h('div',{class:'re-ibx-foot'},
         h('label',{class:'re-ibx-handled'},chk,'Mark handled'),
-        h('button',{class:'re-ibx-del',onclick:async()=>{ if(!confirm('Delete this submission permanently?'))return; try{ await Store.deleteSubmission(r.id); card.remove(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message); } }},'🗑 Delete')));
+        h('button',{class:'re-ibx-del',onclick:async()=>{ if(!(await reConfirm('This permanently deletes this submission.',{title:'Delete submission?',okLabel:'Delete',danger:true})))return; try{ await Store.deleteSubmission(r.id); card.remove(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message); } }},'🗑 Delete')));
     body.append(card);
   });
 }
@@ -503,10 +563,10 @@ function cleanWork(){ // drop empty theme buckets
   return w;
 }
 function saveDraft(){ Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{dirty.clear();updateSaveBar();toast('Draft saved (not yet public)');}).catch(e=>toast('Save failed: '+e.message)); }
-function publish(){ if(!confirm('Publish your changes? This makes them live for all visitors.'))return;
-  Promise.resolve(Store.publish(cleanWork())).then(()=>{ try{localStorage.setItem('re-content',JSON.stringify(cleanWork()));}catch(e){} dirty.clear();updateSaveBar();toast('Published! Your changes are now live.'); }).catch(e=>toast('Publish failed: '+e.message)); }
-function discardAll(){ if(!confirm('Discard all unsaved changes?'))return;
-  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); dirty.clear();updateSaveBar();toast('Changes discarded'); }); }
+function publish(){ reConfirm('This makes your changes live for everyone visiting the website.',{title:'Publish changes?',okLabel:'Publish'}).then(ok=>{ if(!ok)return;
+  Promise.resolve(Store.publish(cleanWork())).then(()=>{ try{localStorage.setItem('re-content',JSON.stringify(cleanWork()));}catch(e){} dirty.clear();updateSaveBar();toast('Published! Your changes are now live.'); }).catch(e=>toast('Publish failed: '+e.message)); }); }
+function discardAll(){ reConfirm('This throws away every change since your last save.',{title:'Discard changes?',okLabel:'Discard',danger:true}).then(ok=>{ if(!ok)return;
+  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); dirty.clear();updateSaveBar();toast('Changes discarded'); }); }); }
 
 /* global undo (Ctrl/Cmd-Z) */
 document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&editing){ const u=undo.pop(); if(!u)return; e.preventDefault();
