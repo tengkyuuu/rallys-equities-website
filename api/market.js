@@ -8,6 +8,7 @@
 // ════════════════════════════════════════════════════════════════
 const UA = 'Mozilla/5.0 (compatible; RallysEquities/1.0; +https://rallysequities.com)';
 const SYMBOLS = ['KSE100', 'KSE30', 'KMI30', 'ALLSHR'];
+const decodeEnt = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'");
 
 async function psx(path) {
   const r = await fetch('https://dps.psx.com.pk/timeseries/' + path, {
@@ -55,7 +56,7 @@ async function symbolsMeta() {
   if (!r.ok) throw new Error('symbols HTTP ' + r.status);
   const arr = await r.json();
   const m = {};
-  for (const s of arr) if (s && s.symbol) m[s.symbol] = s.sectorName || '';
+  for (const s of arr) if (s && s.symbol) m[s.symbol] = { name: s.name || '', sector: s.sectorName || '' };
   return m;
 }
 
@@ -71,7 +72,11 @@ module.exports = async (req, res) => {
       marketWatch().catch(() => null),
       symbolsMeta().catch(() => ({})),
     ]);
-    if (stocks) for (const sym in stocks) stocks[sym].push(secMap[sym] || ''); // index 5 = sector
+    if (stocks) for (const sym in stocks) {                     // enrich with clean name + sector
+      const m = secMap[sym];
+      stocks[sym][4] = (m && m.name) || decodeEnt(stocks[sym][4]);
+      stocks[sym][5] = (m && m.sector) || '';
+    }
 
     const indices = {};
     let asOf = 0;
