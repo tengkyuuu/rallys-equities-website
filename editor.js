@@ -136,32 +136,39 @@ function buildBar(){
 }
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
 
-/* Let a signed-in editor set their own password (change, or first-time set after an invite). */
+/* Set a password — single field + show toggle. `welcome`=first-time invitee. */
 function openChangePassword(welcome){
   const err=h('div',{class:'re-err'});
-  const p1=h('input',{class:'re-input',type:'password',placeholder:'New password (min 8 characters)'});
-  const p2=h('input',{class:'re-input',type:'password',placeholder:'Confirm new password'});
+  const p1=h('input',{class:'re-input',type:'password',placeholder:'At least 8 characters'});
+  const show=h('button',{class:'re-eye',type:'button',onclick:()=>{ const t=p1.type==='password'; p1.type=t?'text':'password'; show.textContent=t?'Hide':'Show'; p1.focus(); }},'Show');
+  const okBtn=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>submit()},welcome?'Create my account':'Update password');
   const submit=()=>{ err.textContent='';
-    const a=p1.value||'', b=p2.value||'';
-    if(a.length<8){ err.textContent='Password must be at least 8 characters.'; return; }
-    if(a!==b){ err.textContent='Passwords don’t match.'; return; }
+    const a=p1.value||'';
+    if(a.length<8){ err.textContent='Please use at least 8 characters.'; return; }
+    okBtn.disabled=true; okBtn.textContent=welcome?'Setting up…':'Saving…';
     Promise.resolve(Store.changePassword(a)).then(()=>{ overlay.remove();
-      toast(welcome?'Welcome! You can now edit the site.':'Password updated — use it next time you log in.');
-      if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{}); }
-    }).catch(e=>{ err.textContent=e.message||'Could not update password.'; });
+      if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{}); welcomeGuide(); }
+      else toast('Password updated — use it next time you log in.');
+    }).catch(e=>{ err.textContent=e.message||'Could not set password.'; okBtn.disabled=false; okBtn.textContent=welcome?'Create my account':'Update password'; });
   };
-  [p1,p2].forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); }));
-  const foot=[h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:submit},welcome?'Set password':'Update password')];
-  if(!welcome)foot.unshift(h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'));
+  p1.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); });
+  const foot=[okBtn]; if(!welcome)foot.unshift(h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'));
   const card=h('div',{class:'re-modal'},
-    h('h2',{},welcome?'Welcome — set your password':'Change your password'),
-    h('p',{},welcome?'You’ve been invited as an editor. Choose a password to finish setting up your account.':'Set your own password for this editor account.'),
-    h('div',{class:'re-field'},h('label',{},'New password'),p1),
-    h('div',{class:'re-field'},h('label',{},'Confirm password'),p2), err,
+    h('h2',{},welcome?'Welcome! 👋':'Change your password'),
+    h('p',{},welcome?'You’ve been invited to help manage the Rallys Equities website. Just pick a password below — that’s all it takes to get started.':'Set your own password for this editor account.'),
+    h('div',{class:'re-field'},h('label',{},welcome?'Create a password':'New password'),h('div',{class:'re-pwrow'},p1,show)), err,
     h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},...foot));
   const overlay=h('div',{class:'re-overlay',onclick:e=>{ if(e.target===overlay&&!welcome)overlay.remove(); }},card);
   document.body.append(overlay);
   setTimeout(()=>p1.focus(),50);
+}
+
+/* After an invitee sets their password: turn on edit mode + show a short how-to. */
+function welcomeGuide(){
+  if(!editing)toggleEditing();
+  const c=h('div',{class:'re-coach re-ui',html:'<b>You’re all set! 🎉</b><br>Here’s how to edit the website:<br>• <b>Click any highlighted text</b> to change it.<br>• Use <b>🖼 Photos</b> at the top to swap an image.<br>• Hit <b>Publish</b> when you want your changes to go live.'});
+  c.append(h('button',{class:'re-btn re-btn-pri',onclick:()=>c.remove()},'Start editing'));
+  document.body.append(c);
 }
 
 /* Invite editors: create a shareable link, list existing invites, revoke. */
@@ -174,11 +181,15 @@ function openInvite(){
   const showLink=(url,email)=>{
     linkBox.innerHTML='';
     const inp=h('input',{class:'re-input re-linkinput',value:url,readonly:'readonly'});
+    const msg='Hi! You’ve been invited to help manage the Rallys Equities website. Tap this link to set your password and get started (valid ~24 hours):\n\n'+url;
+    const cp=(text,label)=>{ if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast(label+' copied')).catch(()=>inp.select());}else{inp.select();} };
     linkBox.append(
       h('div',{class:'re-linkbox-h'},'Invite link for '+email),
-      h('div',{class:'re-linkbox-note'},'Send this to them (WhatsApp, email — anywhere). It lets them set a password and start editing. Valid ~24 hours.'),
+      h('div',{class:'re-linkbox-note'},'“Copy message” gives you a friendly note + link to paste into WhatsApp or email — easiest for them. Valid ~24 hours.'),
       h('div',{class:'re-linkrow'},inp,
-        h('button',{class:'re-btn re-btn-gd',style:'width:auto',onclick:()=>{ if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast('Link copied')).catch(()=>inp.select());}else{inp.select();} }},'Copy')));
+        h('button',{class:'re-btn re-btn-gd',style:'width:auto',onclick:()=>cp(url,'Link')},'Copy link')),
+      h('div',{style:'margin-top:8px;text-align:right'},
+        h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>cp(msg,'Message')},'Copy a ready-to-send message ✉')));
     linkBox.style.display='block';
   };
   const btn=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>create()},'Create invite link');

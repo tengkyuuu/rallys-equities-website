@@ -152,5 +152,10 @@ body.re-editing .re-hoverable{ outline:1.5px dashed var(--re-ac2); outline-offse
 .re-inv-act{ background:transparent; border:1px solid var(--re-line); color:var(--re-tx); border-radius:7px; padding:5px 9px; font-size:11px; font-weight:600; cursor:pointer; }
 .re-inv-act:hover{ background:rgba(255,255,255,.08); }
 .re-inv-del{ color:#ff9a94; border-color:rgba(232,85,78,.35); }
+/* password field + show toggle */
+.re-pwrow{ display:flex; gap:8px; }
+.re-pwrow .re-input{ flex:1; }
+.re-eye{ background:transparent; border:1px solid var(--re-line); color:var(--re-mt); border-radius:9px; padding:0 13px; font-size:12px; font-weight:600; cursor:pointer; }
+.re-eye:hover{ color:var(--re-tx); }
 
 @media(max-width:560px){ .re-panel,.re-inbox,.re-photos{ width:100%; } .re-grid{ grid-template-columns:repeat(3,1fr); } .re-ibx-k{ width:78px; } }
