@@ -36,6 +36,7 @@ function localStore(){
     loginFields:[{id:'pass',label:'Editor passphrase',type:'password',ph:'Local preview — type any passphrase'}],
     login(v){ if(!v.pass||!v.pass.trim())return Promise.reject(new Error('Enter a passphrase')); sessionStorage.setItem('re-auth','1'); return Promise.resolve(true); },
     logout(){ sessionStorage.removeItem('re-auth'); },
+    changePassword(){ return Promise.reject(new Error('Password change works on the live site once you’re signed in.')); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
@@ -55,6 +56,7 @@ function supabaseStore(){
     loginFields:[{id:'email',label:'Email',type:'email',ph:'you@email.com'},{id:'pass',label:'Password',type:'password',ph:'Your password'}],
     async login(v){const{error}=await sb.auth.signInWithPassword({email:(v.email||'').trim(),password:v.pass||''});if(error)throw new Error(error.message);return true;},
     async logout(){await sb.auth.signOut();},
+    async changePassword(pw){const{error}=await sb.auth.updateUser({password:pw});if(error)throw new Error(error.message);},
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
@@ -107,10 +109,37 @@ function buildBar(){
     h('button',{class:'re-btn re-btn-ghost',onclick:openPhotos},'🖼 Photos'),
     h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
     h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openChangePassword},'🔑 Password'),
     h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
   document.body.append(bar);
 }
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
+
+/* Let a signed-in editor set their own password (e.g. after being given a temporary one). */
+function openChangePassword(){
+  const err=h('div',{class:'re-err'});
+  const p1=h('input',{class:'re-input',type:'password',placeholder:'New password (min 8 characters)'});
+  const p2=h('input',{class:'re-input',type:'password',placeholder:'Confirm new password'});
+  const submit=()=>{ err.textContent='';
+    const a=p1.value||'', b=p2.value||'';
+    if(a.length<8){ err.textContent='Password must be at least 8 characters.'; return; }
+    if(a!==b){ err.textContent='Passwords don’t match.'; return; }
+    Promise.resolve(Store.changePassword(a)).then(()=>{ overlay.remove(); toast('Password updated — use it next time you log in.'); })
+      .catch(e=>{ err.textContent=e.message||'Could not update password.'; });
+  };
+  [p1,p2].forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); }));
+  const card=h('div',{class:'re-modal'},
+    h('h2',{},'Change your password'),
+    h('p',{},'Set your own password for this editor account.'),
+    h('div',{class:'re-field'},h('label',{},'New password'),p1),
+    h('div',{class:'re-field'},h('label',{},'Confirm password'),p2), err,
+    h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},
+      h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'),
+      h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:submit},'Update password')));
+  const overlay=h('div',{class:'re-overlay',onclick:e=>{if(e.target===overlay)overlay.remove();}},card);
+  document.body.append(overlay);
+  setTimeout(()=>p1.focus(),50);
+}
 
 function toggleEditing(){
   editing=!editing;
