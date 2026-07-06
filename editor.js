@@ -40,6 +40,9 @@ function localStore(){
     logout(){ sessionStorage.removeItem('re-auth'); },
     changePassword(){ return Promise.reject(new Error('Password change works on the live site once you’re signed in.')); },
     inviteEditor(){ return Promise.reject(new Error('Inviting editors works on the live site.')); },
+    revokeInvite(){ return Promise.reject(new Error('Works on the live site.')); },
+    listInvites(){ return Promise.resolve([]); },
+    markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
@@ -60,16 +63,20 @@ function supabaseStore(){
     async login(v){const{error}=await sb.auth.signInWithPassword({email:(v.email||'').trim(),password:v.pass||''});if(error)throw new Error(error.message);return true;},
     async logout(){await sb.auth.signOut();},
     async changePassword(pw){const{error}=await sb.auth.updateUser({password:pw});if(error)throw new Error(error.message);},
-    async inviteEditor(email){
+    async _fn(bodyObj){
       const{data:{session}}=await sb.auth.getSession();
       if(!session)throw new Error('Your session expired — please log in again.');
       const res=await fetch(window.RE_SUPABASE.url+'/functions/v1/invite-editor',{method:'POST',
         headers:{Authorization:'Bearer '+session.access_token,apikey:window.RE_SUPABASE.anonKey,'Content-Type':'application/json'},
-        body:JSON.stringify({email,redirectTo:location.origin+'/admin'})});
+        body:JSON.stringify(bodyObj)});
       const j=await res.json().catch(()=>({}));
-      if(!res.ok)throw new Error(j.error||('Invite failed ('+res.status+')'));
-      return true;
+      if(!res.ok)throw new Error(j.error||('Request failed ('+res.status+')'));
+      return j;
     },
+    async inviteEditor(email){ return await this._fn({email,redirectTo:location.origin+'/admin'}); },
+    async revokeInvite(id){ return await this._fn({action:'revoke',id}); },
+    async listInvites(){ const{data,error}=await sb.from('invites').select('*').order('created_at',{ascending:false}); if(error)throw new Error(error.message); return data||[]; },
+    async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
@@ -140,7 +147,7 @@ function openChangePassword(welcome){
     if(a!==b){ err.textContent='Passwords don’t match.'; return; }
     Promise.resolve(Store.changePassword(a)).then(()=>{ overlay.remove();
       toast(welcome?'Welcome! You can now edit the site.':'Password updated — use it next time you log in.');
-      if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} }
+      if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{}); }
     }).catch(e=>{ err.textContent=e.message||'Could not update password.'; });
   };
   [p1,p2].forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); }));
@@ -157,28 +164,56 @@ function openChangePassword(welcome){
   setTimeout(()=>p1.focus(),50);
 }
 
-/* Invite a new editor by email — they get a link to set their own password. */
+/* Invite editors: create a shareable link, list existing invites, revoke. */
+function inviteStatus(inv){ if(inv.accepted_at)return'Accepted'; if(inv.expires_at&&new Date(inv.expires_at)<=new Date())return'Expired'; return'Pending'; }
 function openInvite(){
   const err=h('div',{class:'re-err'});
   const em=h('input',{class:'re-input',type:'email',placeholder:'teammate@gmail.com'});
-  const btn=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>submit()},'Send invitation');
-  const submit=()=>{ err.textContent='';
-    const e=(em.value||'').trim();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Enter a valid email address.'; return; }
-    btn.disabled=true; btn.textContent='Sending…';
-    Promise.resolve(Store.inviteEditor(e)).then(()=>{ overlay.remove(); toast('Invitation sent to '+e+' — tell them to check inbox & spam.'); })
-      .catch(x=>{ err.textContent=x.message||'Could not send invite.'; btn.disabled=false; btn.textContent='Send invitation'; });
+  const linkBox=h('div',{class:'re-linkbox'});
+  const listWrap=h('div',{class:'re-inv-list'});
+  const showLink=(url,email)=>{
+    linkBox.innerHTML='';
+    const inp=h('input',{class:'re-input re-linkinput',value:url,readonly:'readonly'});
+    linkBox.append(
+      h('div',{class:'re-linkbox-h'},'Invite link for '+email),
+      h('div',{class:'re-linkbox-note'},'Send this to them (WhatsApp, email — anywhere). It lets them set a password and start editing. Valid ~24 hours.'),
+      h('div',{class:'re-linkrow'},inp,
+        h('button',{class:'re-btn re-btn-gd',style:'width:auto',onclick:()=>{ if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast('Link copied')).catch(()=>inp.select());}else{inp.select();} }},'Copy')));
+    linkBox.style.display='block';
   };
-  em.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); });
-  const card=h('div',{class:'re-modal'},
-    h('h2',{},'Invite an editor'),
-    h('p',{},'They’ll get an email with a link to set their own password, then they can edit the site at /admin.'),
+  const btn=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>create()},'Create invite link');
+  const create=()=>{ err.textContent=''; const e=(em.value||'').trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Enter a valid email address.'; return; }
+    btn.disabled=true; btn.textContent='Creating…';
+    Promise.resolve(Store.inviteEditor(e)).then(r=>{ btn.disabled=false; btn.textContent='Create invite link'; em.value='';
+      if(r&&r.link)showLink(r.link,e); else toast('Invite created'); loadList(); })
+      .catch(x=>{ err.textContent=x.message||'Could not create invite.'; btn.disabled=false; btn.textContent='Create invite link'; });
+  };
+  em.addEventListener('keydown',e=>{ if(e.key==='Enter')create(); });
+  const loadList=()=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Loading…'));
+    Promise.resolve(Store.listInvites()).then(rows=>{ listWrap.innerHTML='';
+      if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},'No invites yet.')); return; }
+      rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
+        if(st!=='Accepted')acts.push(h('button',{class:'re-inv-act',title:'Get a fresh link',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email); loadList(); }).catch(x=>toast(x.message)); }},'↻ Link'));
+        acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ if(!confirm('Revoke the invite for '+inv.email+'?'))return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(); }).catch(x=>toast(x.message)); }},'Revoke'));
+        listWrap.append(h('div',{class:'re-inv-row'},
+          h('span',{class:'re-inv-email',title:inv.email},inv.email),
+          h('span',{class:'re-inv-badge re-inv-'+st.toLowerCase()},st),
+          h('span',{class:'re-inv-actions'},...acts)));
+      });
+    }).catch(x=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load invites: '+x.message)); });
+  };
+  const card=h('div',{class:'re-modal re-invite'},
+    h('h2',{},'Invite editors'),
+    h('p',{},'Create a link and send it to your teammate — they set their own password, then can edit the site.'),
     h('div',{class:'re-field'},h('label',{},'Their email'),em), err,
-    h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},
-      h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'), btn));
+    h('div',{style:'display:flex;justify-content:flex-end'},btn),
+    linkBox,
+    h('div',{class:'re-inv-head'},'Invites'), listWrap,
+    h('div',{style:'display:flex;justify-content:flex-end;margin-top:14px'},h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Close')));
   const overlay=h('div',{class:'re-overlay',onclick:e=>{ if(e.target===overlay)overlay.remove(); }},card);
   document.body.append(overlay);
-  setTimeout(()=>em.focus(),50);
+  setTimeout(()=>em.focus(),50); loadList();
 }
 
 function toggleEditing(){
