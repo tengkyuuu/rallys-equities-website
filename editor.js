@@ -7,6 +7,8 @@
 "use strict";
 const API = window.RE_API;
 if(!API){ console.warn('[editor] RE_API not found'); return; }
+/* invitee arriving from an email link → prompt them to set a password after auth */
+const INVITE_FLOW = /type=(invite|recovery)/.test(location.hash + location.search);
 
 /* ---------- tiny DOM helpers ---------- */
 const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
@@ -37,6 +39,7 @@ function localStore(){
     login(v){ if(!v.pass||!v.pass.trim())return Promise.reject(new Error('Enter a passphrase')); sessionStorage.setItem('re-auth','1'); return Promise.resolve(true); },
     logout(){ sessionStorage.removeItem('re-auth'); },
     changePassword(){ return Promise.reject(new Error('Password change works on the live site once you’re signed in.')); },
+    inviteEditor(){ return Promise.reject(new Error('Inviting editors works on the live site.')); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
@@ -57,6 +60,16 @@ function supabaseStore(){
     async login(v){const{error}=await sb.auth.signInWithPassword({email:(v.email||'').trim(),password:v.pass||''});if(error)throw new Error(error.message);return true;},
     async logout(){await sb.auth.signOut();},
     async changePassword(pw){const{error}=await sb.auth.updateUser({password:pw});if(error)throw new Error(error.message);},
+    async inviteEditor(email){
+      const{data:{session}}=await sb.auth.getSession();
+      if(!session)throw new Error('Your session expired — please log in again.');
+      const res=await fetch(window.RE_SUPABASE.url+'/functions/v1/invite-editor',{method:'POST',
+        headers:{Authorization:'Bearer '+session.access_token,apikey:window.RE_SUPABASE.anonKey,'Content-Type':'application/json'},
+        body:JSON.stringify({email,redirectTo:location.origin+'/admin'})});
+      const j=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(j.error||('Invite failed ('+res.status+')'));
+      return true;
+    },
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
@@ -92,8 +105,8 @@ function onAuthed(){
   document.body.classList.add('re-on');
   buildBar();
   buildSaveBar();
-  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); toast('Loaded your latest draft'); maybeCoach(); })
-    .catch(e=>{ console.warn(e); WORK=blank(); });
+  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); toast('Loaded your latest draft'); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); else maybeCoach(); })
+    .catch(e=>{ console.warn(e); WORK=blank(); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); });
 }
 function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},version:d.version||0}; }
 
@@ -109,14 +122,15 @@ function buildBar(){
     h('button',{class:'re-btn re-btn-ghost',onclick:openPhotos},'🖼 Photos'),
     h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
     h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openChangePassword},'🔑 Password'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openInvite},'✉️ Invite'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:()=>openChangePassword()},'🔑 Password'),
     h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
   document.body.append(bar);
 }
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
 
-/* Let a signed-in editor set their own password (e.g. after being given a temporary one). */
-function openChangePassword(){
+/* Let a signed-in editor set their own password (change, or first-time set after an invite). */
+function openChangePassword(welcome){
   const err=h('div',{class:'re-err'});
   const p1=h('input',{class:'re-input',type:'password',placeholder:'New password (min 8 characters)'});
   const p2=h('input',{class:'re-input',type:'password',placeholder:'Confirm new password'});
@@ -124,21 +138,47 @@ function openChangePassword(){
     const a=p1.value||'', b=p2.value||'';
     if(a.length<8){ err.textContent='Password must be at least 8 characters.'; return; }
     if(a!==b){ err.textContent='Passwords don’t match.'; return; }
-    Promise.resolve(Store.changePassword(a)).then(()=>{ overlay.remove(); toast('Password updated — use it next time you log in.'); })
-      .catch(e=>{ err.textContent=e.message||'Could not update password.'; });
+    Promise.resolve(Store.changePassword(a)).then(()=>{ overlay.remove();
+      toast(welcome?'Welcome! You can now edit the site.':'Password updated — use it next time you log in.');
+      if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} }
+    }).catch(e=>{ err.textContent=e.message||'Could not update password.'; });
   };
   [p1,p2].forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); }));
+  const foot=[h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:submit},welcome?'Set password':'Update password')];
+  if(!welcome)foot.unshift(h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'));
   const card=h('div',{class:'re-modal'},
-    h('h2',{},'Change your password'),
-    h('p',{},'Set your own password for this editor account.'),
+    h('h2',{},welcome?'Welcome — set your password':'Change your password'),
+    h('p',{},welcome?'You’ve been invited as an editor. Choose a password to finish setting up your account.':'Set your own password for this editor account.'),
     h('div',{class:'re-field'},h('label',{},'New password'),p1),
     h('div',{class:'re-field'},h('label',{},'Confirm password'),p2), err,
-    h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},
-      h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'),
-      h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:submit},'Update password')));
-  const overlay=h('div',{class:'re-overlay',onclick:e=>{if(e.target===overlay)overlay.remove();}},card);
+    h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},...foot));
+  const overlay=h('div',{class:'re-overlay',onclick:e=>{ if(e.target===overlay&&!welcome)overlay.remove(); }},card);
   document.body.append(overlay);
   setTimeout(()=>p1.focus(),50);
+}
+
+/* Invite a new editor by email — they get a link to set their own password. */
+function openInvite(){
+  const err=h('div',{class:'re-err'});
+  const em=h('input',{class:'re-input',type:'email',placeholder:'teammate@gmail.com'});
+  const btn=h('button',{class:'re-btn re-btn-pri',style:'width:auto',onclick:()=>submit()},'Send invitation');
+  const submit=()=>{ err.textContent='';
+    const e=(em.value||'').trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Enter a valid email address.'; return; }
+    btn.disabled=true; btn.textContent='Sending…';
+    Promise.resolve(Store.inviteEditor(e)).then(()=>{ overlay.remove(); toast('Invitation sent to '+e+' — tell them to check inbox & spam.'); })
+      .catch(x=>{ err.textContent=x.message||'Could not send invite.'; btn.disabled=false; btn.textContent='Send invitation'; });
+  };
+  em.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); });
+  const card=h('div',{class:'re-modal'},
+    h('h2',{},'Invite an editor'),
+    h('p',{},'They’ll get an email with a link to set their own password, then they can edit the site at /admin.'),
+    h('div',{class:'re-field'},h('label',{},'Their email'),em), err,
+    h('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:4px'},
+      h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel'), btn));
+  const overlay=h('div',{class:'re-overlay',onclick:e=>{ if(e.target===overlay)overlay.remove(); }},card);
+  document.body.append(overlay);
+  setTimeout(()=>em.focus(),50);
 }
 
 function toggleEditing(){
