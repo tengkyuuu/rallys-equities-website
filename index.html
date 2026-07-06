@@ -2393,17 +2393,17 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 
 <!-- ══════ CAREERS PAGE ══════ -->
 <div class="page" id="page-careers">
-<section class="phero"><div class="stag">Careers</div><h1>Build Your Career at <em>Rallys</em> <span>Equities</span></h1><p>We value integrity, innovation, and excellence — grow with Pakistan's premier brokerage.</p></section>
+<section class="phero"><div class="stag">Careers</div><h1>Grow With Us in the <em>Pakistan Stock Exchange</em> <span>(PSX)</span></h1><p>At Rallys Equities (Pvt) Ltd, we believe that our people are our greatest strength.</p></section>
 <section class="sec">
-  <div class="stag">Why Work With Us</div>
+  <p class="sub" style="max-width:820px;margin:0 auto;text-align:center">As a trusted brokerage firm in the Pakistan Stock Exchange (PSX), we are committed to building a team of dedicated professionals who are passionate about financial markets, client success, and ethical trading practices. Joining us means becoming part of a dynamic, fast-growing brokerage that values integrity, innovation, and excellence. Whether you are an experienced stockbroker, research analyst, or fresh graduate eager to explore opportunities in the PSX, we offer a platform where your skills and ambitions can thrive.</p>
+  <div class="stag" style="margin-top:40px">Why Work With Us</div>
   <h2 class="sh" style="font-size:32px">Reasons to <em>Join</em> Our Team</h2>
   <div class="svc-grid" style="margin-top:24px">
-    <div class="svc-card"><div class="svc-title">Professional Growth</div><div class="svc-desc">Clear paths to advance your skills and career in Pakistan's capital markets.</div></div>
-    <div class="svc-card"><div class="svc-title">Innovative Environment</div><div class="svc-desc">Work with modern trading technology and a forward-thinking team.</div></div>
-    <div class="svc-card"><div class="svc-title">Client-Centric Culture</div><div class="svc-desc">Be part of a team that puts integrity and client success first.</div></div>
-    <div class="svc-card"><div class="svc-title">Mentorship</div><div class="svc-desc">Learn from leaders with 35+ years of combined market experience.</div></div>
-    <div class="svc-card"><div class="svc-title">Competitive Compensation</div><div class="svc-desc">Rewarding packages that recognise talent and performance.</div></div>
-    <div class="svc-card"><div class="svc-title">Meaningful Impact</div><div class="svc-desc">Help everyday Pakistanis invest with confidence in the PSX.</div></div>
+    <div class="svc-card"><div class="svc-title">Professional Growth</div><div class="svc-desc">Access to continuous training and career development in capital markets.</div></div>
+    <div class="svc-card"><div class="svc-title">Innovative Environment</div><div class="svc-desc">Exposure to modern trading platforms and data-driven investment strategies.</div></div>
+    <div class="svc-card"><div class="svc-title">Client-Centric Culture</div><div class="svc-desc">Be part of a team that prioritizes transparency and investor success.</div></div>
+    <div class="svc-card"><div class="svc-title">Mentorship &amp; Support</div><div class="svc-desc">Guidance from experienced market professionals and senior brokers.</div></div>
+    <div class="svc-card"><div class="svc-title">Competitive Rewards</div><div class="svc-desc">Attractive salary packages and performance-based incentives.</div></div>
   </div>
   <div style="max-width:720px;margin:44px auto 0" id="careers-form">
     <div class="stag">Apply Now</div>
@@ -2877,6 +2877,28 @@ function populateReview(){
 }
 
 /* ══ FORM BACKEND — submissions are saved to Supabase (files → Storage) ══ */
+/* Toast notifications — on-brand replacement for native alert() (glass card, auto-dismiss). */
+function reToast(msg,type){
+  type=type||'err';
+  if(!document.getElementById('reToastCSS')){
+    const st=document.createElement('style');st.id='reToastCSS';
+    st.textContent='.re-toast-wrap{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;flex-direction:column;gap:10px;width:min(92vw,430px);pointer-events:none}.re-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:11px;background:color-mix(in srgb,var(--nv2,#0c1a2e) 84%,transparent);border:1px solid var(--gb,rgba(200,168,75,.28));border-left:3px solid var(--au,#c8a84b);border-radius:13px;padding:14px 15px;box-shadow:0 14px 44px rgba(0,0,0,.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--tx,#e8eef5);font-size:13.5px;line-height:1.5;transform:translateY(-14px);opacity:0;transition:opacity .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}.re-toast.show{transform:translateY(0);opacity:1}.re-toast.err{border-left-color:var(--dn,#e5484d)}.re-toast.ok{border-left-color:var(--up,#2ecc8a)}.re-toast-ic{flex:0 0 auto;font-size:15px;margin-top:1px}.re-toast-msg{flex:1}.re-toast-x{flex:0 0 auto;cursor:pointer;color:var(--mt,#8a93a0);font-size:17px;line-height:1;background:none;border:none;padding:0 0 0 4px}.re-toast-x:hover{color:var(--tx,#fff)}@media (prefers-reduced-motion:reduce){.re-toast{transition:opacity .2s}}';
+    document.head.appendChild(st);
+  }
+  let wrap=document.getElementById('reToastWrap');
+  if(!wrap){wrap=document.createElement('div');wrap.id='reToastWrap';wrap.className='re-toast-wrap';document.body.appendChild(wrap);}
+  const t=document.createElement('div');
+  t.className='re-toast '+(type==='ok'?'ok':type==='info'?'info':'err');
+  t.innerHTML='<span class="re-toast-ic"></span><div class="re-toast-msg"></div><button class="re-toast-x" aria-label="Dismiss">&times;</button>';
+  t.querySelector('.re-toast-ic').textContent=type==='ok'?'✓':type==='info'?'ⓘ':'⚠';
+  t.querySelector('.re-toast-msg').textContent=msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  const dismiss=()=>{t.classList.remove('show');setTimeout(()=>{t.remove();},420);};
+  t.querySelector('.re-toast-x').onclick=dismiss;
+  setTimeout(dismiss,6000);
+  return t;
+}
 function reCfg(){ const c=window.RE_SUPABASE; return (c&&c.url&&c.anonKey)?c:null; }
 async function reUpload(c,kind,field,file){
   if(file.size>5*1024*1024) throw new Error('“'+file.name+'” is larger than 5 MB. Please upload a smaller file.');
@@ -2904,8 +2926,8 @@ async function finishSubmit(promise,boxId,doneId){
   try{ await promise; }
   catch(e){
     if(!(e&&e.message==='no-backend')){
-      alert(/larger than 5 MB|could not upload/.test(e.message)?e.message
-        :'Sorry, we couldn’t send your details just now. Please try again in a moment, or email hello@rallysequities.com.');
+      reToast(/larger than 5 MB|could not upload/.test(e.message)?e.message
+        :'Sorry, we couldn’t send your details just now. Please try again in a moment, or email hello@rallysequities.com.','err');
       return false;
     }
     console.warn('Form backend not configured — demo mode.');
@@ -2918,7 +2940,7 @@ async function finishSubmit(promise,boxId,doneId){
 async function submitApp(){
   const c1=document.getElementById('chk1'),c2=document.getElementById('chk2'),c3=document.getElementById('chk3');
   if(!c1?.checked||!c2?.checked||!c3?.checked){
-    alert('Please tick all three consent boxes before submitting.');return;
+    reToast('Please tick all three consent boxes before submitting.','err');return;
   }
   const g=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
   const lc=document.querySelector('input[name=lang]:checked');
@@ -2936,8 +2958,8 @@ async function submitApp(){
   try{ await reSubmit('application',payload,files); }
   catch(e){
     if(!(e&&e.message==='no-backend')){
-      alert(/larger than 5 MB|could not upload/.test(e.message)?e.message
-        :'Sorry, we couldn’t submit your application just now. Please try again, or email hello@rallysequities.com.');
+      reToast(/larger than 5 MB|could not upload/.test(e.message)?e.message
+        :'Sorry, we couldn’t submit your application just now. Please try again, or email hello@rallysequities.com.','err');
       return;
     }
     console.warn('Form backend not configured — application running in demo mode.');
@@ -2973,7 +2995,7 @@ async function submitContact(){
   const need=[['cf-name',v=>v.length>1],['cf-email',v=>v.includes('@')],['cf-subj',v=>v!==''],['cf-msg',v=>v.length>2]];
   let ok=true;
   need.forEach(([id,f])=>{const el=document.getElementById(id);if(!el)return;if(!f(el.value.trim())){el.classList.add('err');ok=false;}else el.classList.remove('err');});
-  if(!ok)return;
+  if(!ok){reToast('Please complete the highlighted fields.','err');return;}
   const g=id=>document.getElementById(id).value.trim();
   finishSubmit(reSubmit('contact',{name:g('cf-name'),email:g('cf-email'),phone:g('cf-phone'),subject:g('cf-subj'),message:g('cf-msg')}),'cfBox','cfDone');
 }
@@ -2983,7 +3005,7 @@ async function submitContact(){
 function submitGenericForm(fields, kind, dataBuilder, boxId, doneId, filesBuilder){
   let ok=true;
   fields.forEach(([id,f])=>{const el=document.getElementById(id);if(!el)return;if(!f((el.value||'').trim())){el.classList.add('err');ok=false;}else el.classList.remove('err');});
-  if(!ok)return;
+  if(!ok){reToast('Please complete the highlighted fields.','err');return;}
   finishSubmit(reSubmit(kind, dataBuilder(), filesBuilder?filesBuilder():null), boxId, doneId);
 }
 function submitComplaint(){
