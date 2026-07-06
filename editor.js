@@ -136,7 +136,7 @@ function onAuthed(){
   document.body.classList.add('re-on');
   buildBar();
   buildSaveBar();
-  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); toast('Loaded your latest draft'); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); else maybeCoach(); })
+  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); else openDashboard(); })
     .catch(e=>{ console.warn(e); WORK=blank(); if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),500); });
 }
 function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},version:d.version||0}; }
@@ -147,6 +147,7 @@ function buildBar(){
   editToggle=h('div',{class:'re-toggle',onclick:toggleEditing}, h('span',{class:'re-switch'}), 'Edit mode');
   const bar=h('div',{class:'re-bar re-ui'},
     h('span',{class:'re-logo'},'RE Editor'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openDashboard},'🏠 Dashboard'),
     editToggle,
     h('span',{class:'re-spacer'}),
     h('button',{class:'re-btn re-btn-ghost',onclick:openInbox},'📥 Submissions'),
@@ -494,6 +495,34 @@ function renderColorGroups(){
   });
 }
 
+/* ════════ ADMIN DASHBOARD (home) ════════ */
+let dashEl;
+function openDashboard(){
+  if(!dashEl){
+    const tile=(ic,title,desc,fn)=>h('div',{class:'re-dash-tile',onclick:fn},h('div',{class:'re-dash-ic'},ic),h('h4',{},title),h('p',{},desc));
+    const subsBody=h('div',{id:'re-dash-subs'});
+    dashEl=h('div',{class:'re-dash re-ui'},
+      h('div',{class:'re-dash-inner'},
+        h('div',{class:'re-dash-head'},
+          h('div',{},h('h1',{},'Rallys Equities'),h('div',{class:'re-dash-sub'},'Website admin dashboard')),
+          h('div',{class:'re-dash-headbtns'},
+            h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
+            h('button',{class:'re-btn re-btn-ghost',onclick:()=>openChangePassword()},'🔑 Password'),
+            h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'))),
+        h('div',{class:'re-dash-tiles'},
+          tile('✍️','Edit the website','Click any text or image on the live site to change it.',()=>{ closeDashboard(); if(!editing)toggleEditing(); toast('Edit mode on — click any highlighted text.'); }),
+          tile('🖼️','Photos','Swap any image on the site.',()=>{ closeDashboard(); openPhotos(); }),
+          tile('🎨','Theme','Change colors and fonts.',()=>{ closeDashboard(); openColors(); }),
+          tile('✉️','Editors','Invite teammates to help edit.',()=>{ openInvite(); })),
+        h('div',{class:'re-dash-secthead'},h('h3',{},'📥 Form submissions'),h('button',{class:'re-btn re-btn-ghost',onclick:()=>loadInbox(subsBody)},'↻ Refresh')),
+        subsBody));
+    document.body.append(dashEl); dashEl._subs=subsBody;
+  }
+  dashEl.style.display='block'; document.body.classList.add('re-dash-open');
+  loadInbox(dashEl._subs);
+}
+function closeDashboard(){ if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
+
 /* ════════ SUBMISSIONS INBOX (form leads) ════════ */
 let inboxPanel;
 const KIND_LABEL={contact:'Contact',complaint:'Complaint',feedback:'Feedback',career:'Career',application:'Account application'};
@@ -515,8 +544,8 @@ function fieldRows(obj){
   const keys=[...order.filter(has),...Object.keys(obj).filter(k=>order.indexOf(k)<0&&has(k))];
   return keys.map(k=>h('div',{class:'re-ibx-row'},h('span',{class:'re-ibx-k'},prettyLabel(k)),h('span',{class:'re-ibx-v'},String(obj[k]))));
 }
-async function loadInbox(){
-  const body=document.getElementById('re-ibx-body'); if(!body)return;
+async function loadInbox(target){
+  const body=(target&&target.nodeType)?target:document.getElementById('re-ibx-body'); if(!body)return;
   body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Loading…'));
   if(Store.mode!=='supabase'){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Submissions show up here once your site is connected to Supabase. (You’re currently in local preview mode.)')); return; }
   let rows;

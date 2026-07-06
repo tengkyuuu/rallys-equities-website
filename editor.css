@@ -168,5 +168,21 @@ body.re-editing .re-hoverable{ outline:1.5px dashed var(--re-ac2); outline-offse
 .re-fontrow{ display:flex; align-items:center; gap:11px; margin-bottom:9px; }
 .re-fontrow .re-cl-lbl{ flex:none; width:72px; font-size:12.5px; }
 .re-font-sel{ flex:1; padding:8px 10px; cursor:pointer; }
+/* ---- Admin dashboard (home) ---- */
+body.re-dash-open{ overflow:hidden; }
+.re-dash{ position:fixed; inset:0; z-index:99992; background:linear-gradient(180deg,#061321,#02070d); overflow-y:auto; color:var(--re-tx); }
+.re-dash-inner{ max-width:900px; margin:0 auto; padding:46px 22px 70px; }
+.re-dash-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:4px; }
+.re-dash-head h1{ font-family:'Cormorant Garamond',Georgia,serif; font-size:34px; font-weight:700; color:var(--re-gd); line-height:1.05; }
+.re-dash-sub{ font-size:13px; color:var(--re-mt); margin-top:3px; }
+.re-dash-headbtns{ display:flex; gap:8px; flex-wrap:wrap; }
+.re-dash-tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:13px; margin:26px 0 34px; }
+.re-dash-tile{ background:rgba(255,255,255,.03); border:1px solid var(--re-line); border-radius:16px; padding:20px; cursor:pointer; transition:transform .18s,border-color .18s,background .18s; }
+.re-dash-tile:hover{ transform:translateY(-3px); border-color:var(--re-ac); background:rgba(18,184,124,.06); }
+.re-dash-ic{ font-size:24px; margin-bottom:10px; }
+.re-dash-tile h4{ font-family:'Cormorant Garamond',Georgia,serif; font-size:19px; font-weight:700; margin-bottom:4px; color:var(--re-tx); }
+.re-dash-tile p{ font-size:12px; color:var(--re-mt); line-height:1.5; }
+.re-dash-secthead{ display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--re-line); padding-top:20px; margin-bottom:14px; }
+.re-dash-secthead h3{ font-family:'Cormorant Garamond',Georgia,serif; font-size:22px; color:var(--re-gd); }
 
 @media(max-width:560px){ .re-panel,.re-inbox,.re-photos{ width:100%; } .re-grid{ grid-template-columns:repeat(3,1fr); } .re-ibx-k{ width:78px; } }
