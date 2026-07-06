@@ -3,14 +3,16 @@
    Self-contained so the editor UI stays readable in any site theme.
    All classes are prefixed .re- to avoid clashing with the site.
    ════════════════════════════════════════════════════════════════ */
-:root{ --re-bg:#0d1320; --re-bg2:#161d2c; --re-line:rgba(255,255,255,.12); --re-tx:#eef2f8; --re-mt:rgba(238,242,248,.62); --re-ac:#4d8df0; --re-ac2:#6fa8ff; --re-gd:#d8b45a; --re-ok:#2ecc8a; --re-dn:#e8554e; --re-sh:0 18px 50px -16px rgba(0,0,0,.6); }
+:root{ --re-bg:#061321; --re-bg2:#0b1e30; --re-line:rgba(200,168,75,.16); --re-tx:#eef2f8; --re-mt:rgba(238,242,248,.6); --re-ac:#12B87C; --re-ac2:#1ed49a; --re-gd:#cbab52; --re-ok:#2ecc8a; --re-dn:#e8554e; --re-sh:0 22px 60px -18px rgba(0,0,0,.7); }
 .re-hidden{ display:none!important; }
 *[data-re] , .re-ui, .re-ui *{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; box-sizing:border-box; }
 
 /* ---- Overlay / modal base ---- */
 .re-overlay{ position:fixed; inset:0; z-index:100000; background:rgba(4,8,16,.74); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px; }
 .re-modal{ width:100%; max-width:380px; background:linear-gradient(180deg,var(--re-bg2),var(--re-bg)); border:1px solid var(--re-line); border-radius:16px; box-shadow:var(--re-sh); color:var(--re-tx); padding:26px; }
-.re-modal h2{ font-size:18px; font-weight:700; margin:0 0 4px; }
+.re-modal h2{ font-family:'Cormorant Garamond',Georgia,serif; font-size:24px; font-weight:700; letter-spacing:.01em; color:var(--re-gd); margin:0 0 4px; }
+.re-bar .re-logo{ font-family:'Cormorant Garamond',Georgia,serif; }
+.re-panel-head h3{ font-family:'Cormorant Garamond',Georgia,serif; font-size:19px; color:var(--re-gd); }
 .re-modal p{ font-size:12.5px; color:var(--re-mt); margin:0 0 18px; line-height:1.6; }
 .re-field{ margin-bottom:14px; }
 .re-field label{ display:block; font-size:11px; font-weight:600; color:var(--re-mt); margin-bottom:6px; letter-spacing:.03em; }

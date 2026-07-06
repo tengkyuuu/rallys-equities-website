@@ -126,7 +126,7 @@ function showLogin(){
     h('p',{}, Store.mode==='supabase'?'Sign in to edit your website.':'Local preview mode (Supabase not configured yet). Enter any passphrase to try the editor — changes save to this browser only.'),
     ...fields, err,
     h('button',{class:'re-btn re-btn-pri',onclick:submit}, Store.mode==='supabase'?'Log in':'Enter editor'));
-  const overlay=h('div',{class:'re-overlay'},card);
+  const overlay=h('div',{class:'re-overlay re-ui'},card);
   document.body.append(overlay);
   setTimeout(()=>{const i=$('input',overlay);i&&i.focus();},50);
 }
