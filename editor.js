@@ -13,6 +13,24 @@ const INVITE_FLOW = /type=(invite|recovery)/.test(location.hash + location.searc
 /* ---------- tiny DOM helpers ---------- */
 const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
 const $=(s,r=document)=>r.querySelector(s);
+/* Inline SVG icons (Lucide-style) — never emojis in the admin UI */
+const ICONS={
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+  inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+  palette:'<circle cx="13.5" cy="6.5" r=".8"/><circle cx="17.5" cy="10.5" r=".8"/><circle cx="8.5" cy="7.5" r=".8"/><circle cx="6.5" cy="12.5" r=".8"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.66h1.99c3.05 0 5.55-2.5 5.55-5.55C22 6 17.5 2 12 2z"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+  refresh:'<path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.5 12.5 8-8"/><path d="m16 6 2 2"/><path d="m19 3 2 2"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>'
+};
+function icon(name,size){ size=size||20; return h('span',{class:'re-ic',html:'<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'}); }
 /* Locked = live/dynamic widgets + the editor's own UI. Everything else (incl. nav labels & logo) is editable. */
 const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.ticker,.live-badge,.theme-toggle,#toTop,.wa-fab,.ham,.re-bar,.re-panel,.re-savebar,.re-overlay,.re-fmt,.re-img-btn,.re-coach,.re-toast,.cnt';
 function toast(msg){let t=$('.re-toast');if(!t){t=h('div',{class:'re-toast'});document.body.append(t);}t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
@@ -146,17 +164,14 @@ let editToggle;
 function buildBar(){
   editToggle=h('div',{class:'re-toggle',onclick:toggleEditing}, h('span',{class:'re-switch'}), 'Edit mode');
   const bar=h('div',{class:'re-bar re-ui'},
-    h('span',{class:'re-logo'},'RE Editor'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openDashboard},'🏠 Dashboard'),
+    h('span',{class:'re-logo'},'Rallys Equities'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openDashboard},icon('grid',15),'Dashboard'),
     editToggle,
     h('span',{class:'re-spacer'}),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openInbox},'📥 Submissions'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openPhotos},'🖼 Photos'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:openInvite},'✉️ Invite'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:()=>openChangePassword()},'🔑 Password'),
-    h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
+    h('button',{class:'re-btn re-btn-ghost',onclick:openPhotos},icon('image',15),'Photos'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openColors},icon('palette',15),'Theme'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},icon('eye',15),'Preview'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},icon('logout',15),'Log out'));
   document.body.append(bar);
 }
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
@@ -495,33 +510,82 @@ function renderColorGroups(){
   });
 }
 
-/* ════════ ADMIN DASHBOARD (home) ════════ */
-let dashEl;
-function openDashboard(){
-  if(!dashEl){
-    const tile=(ic,title,desc,fn)=>h('div',{class:'re-dash-tile',onclick:fn},h('div',{class:'re-dash-ic'},ic),h('h4',{},title),h('p',{},desc));
-    const subsBody=h('div',{id:'re-dash-subs'});
-    dashEl=h('div',{class:'re-dash re-ui'},
-      h('div',{class:'re-dash-inner'},
-        h('div',{class:'re-dash-head'},
-          h('div',{},h('h1',{},'Rallys Equities'),h('div',{class:'re-dash-sub'},'Website admin dashboard')),
-          h('div',{class:'re-dash-headbtns'},
-            h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
-            h('button',{class:'re-btn re-btn-ghost',onclick:()=>openChangePassword()},'🔑 Password'),
-            h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'))),
-        h('div',{class:'re-dash-tiles'},
-          tile('✍️','Edit the website','Click any text or image on the live site to change it.',()=>{ closeDashboard(); if(!editing)toggleEditing(); toast('Edit mode on — click any highlighted text.'); }),
-          tile('🖼️','Photos','Swap any image on the site.',()=>{ closeDashboard(); openPhotos(); }),
-          tile('🎨','Theme','Change colors and fonts.',()=>{ closeDashboard(); openColors(); }),
-          tile('✉️','Editors','Invite teammates to help edit.',()=>{ openInvite(); })),
-        h('div',{class:'re-dash-secthead'},h('h3',{},'📥 Form submissions'),h('button',{class:'re-btn re-btn-ghost',onclick:()=>loadInbox(subsBody)},'↻ Refresh')),
-        subsBody));
-    document.body.append(dashEl); dashEl._subs=subsBody;
-  }
-  dashEl.style.display='block'; document.body.classList.add('re-dash-open');
-  loadInbox(dashEl._subs);
+/* ════════ ADMIN DASHBOARD (home) — sidebar + KPIs + submissions ════════ */
+let dashEl, dashMain, dashData=[], dashView='overview', dashQuery='', dashFilter='all';
+const FILTERS=[['all','All'],['unhandled','New'],['contact','Contact'],['complaint','Complaint'],['feedback','Feedback'],['career','Career'],['application','Applications']];
+
+function buildDashShell(){
+  if(dashEl) return;
+  const navItem=(id,ic,label,fn,withBadge)=>{
+    const badge=withBadge?h('span',{class:'re-nav-badge'}):null;
+    return h('button',{class:'re-nav-item','data-nav':id||'',onclick:fn}, icon(ic,18), h('span',{class:'re-nav-lbl'},label), badge||document.createTextNode(''));
+  };
+  const side=h('aside',{class:'re-side'},
+    h('div',{class:'re-side-brand'},
+      h('div',{class:'re-side-logo'},'Rallys Equities'),
+      h('div',{class:'re-side-sub'},'Admin')),
+    h('nav',{class:'re-side-nav'},
+      navItem('overview','grid','Dashboard',()=>go('overview')),
+      navItem('submissions','inbox','Submissions',()=>go('submissions'),true),
+      h('div',{class:'re-side-cap'},'Website'),
+      navItem('','edit','Edit content',()=>{ closeDashboard(); if(!editing)toggleEditing(); toast('Edit mode on — click any highlighted text.'); }),
+      navItem('','image','Photos',()=>{ closeDashboard(); openPhotos(); }),
+      navItem('','palette','Theme',()=>{ closeDashboard(); openColors(); }),
+      navItem('','users','Editors',()=>openInvite()),
+      navItem('','eye','View live site',()=>closeDashboard())),
+    h('div',{class:'re-side-foot'},
+      navItem('','key','Change password',()=>openChangePassword()),
+      navItem('','logout','Log out',doLogout)));
+  dashMain=h('div',{class:'re-main-inner'});
+  dashEl=h('div',{class:'re-dash re-ui'},side,h('main',{class:'re-main'},dashMain));
+  document.body.append(dashEl);
+}
+function go(view){ dashView=view; setActiveNav(); renderMain(); dashEl.querySelector('.re-main').scrollTop=0; }
+function setActiveNav(){ dashEl&&dashEl.querySelectorAll('.re-nav-item[data-nav]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-nav')===dashView)); }
+function dashStats(){ const wk=Date.now()-7*864e5; let unhandled=0,week=0; const byKind={}; dashData.forEach(r=>{ if(!r.handled)unhandled++; byKind[r.kind]=(byKind[r.kind]||0)+1; const t=Date.parse(r.created_at||''); if(t&&t>=wk)week++; }); return {total:dashData.length,unhandled,week,byKind}; }
+function filterCount(k){ const s=dashStats(); if(k==='all')return s.total; if(k==='unhandled')return s.unhandled; return s.byKind[k]||0; }
+function filteredSubs(){ const q=dashQuery.trim().toLowerCase(); return dashData.filter(r=>{ if(dashFilter==='unhandled'){ if(r.handled)return false; } else if(dashFilter!=='all' && r.kind!==dashFilter)return false; if(!q)return true; return (JSON.stringify(r.data||{})+' '+(r.reference||'')).toLowerCase().includes(q); }); }
+function updateNavBadge(){ const b=dashEl&&dashEl.querySelector('[data-nav="submissions"] .re-nav-badge'); if(!b)return; const n=dashStats().unhandled; b.textContent=n||''; b.style.display=n?'inline-flex':'none'; }
+function emptyState(msg){ return h('div',{class:'re-empty'},icon('inbox',30),h('p',{},msg||'No submissions yet. When a visitor sends a form, it appears here.')); }
+
+async function openDashboard(){
+  buildDashShell();
+  dashEl.style.display='flex'; document.body.classList.add('re-dash-open');
+  dashView='overview'; setActiveNav(); renderMain();
+  try{ dashData = (Store.mode==='supabase') ? await Store.listSubmissions() : []; }catch(e){ dashData=[]; }
+  updateNavBadge(); renderMain();
 }
 function closeDashboard(){ if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
+
+function kpi(label,value,ic,accent){ return h('div',{class:'re-kpi'+(accent?' on':'')}, h('span',{class:'re-kpi-ic'},icon(ic,18)), h('div',{class:'re-kpi-body'}, h('div',{class:'re-kpi-val'},String(value)), h('div',{class:'re-kpi-lbl'},label))); }
+function renderMain(){ if(!dashMain)return; dashMain.innerHTML=''; dashView==='submissions'?renderSubs():renderOverview(); }
+function renderOverview(){
+  const s=dashStats();
+  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Dashboard'),h('p',{},'Your website content and incoming leads at a glance.')));
+  dashMain.append(h('div',{class:'re-kpis'},
+    kpi('Total submissions',s.total,'inbox'),
+    kpi('New / unread',s.unhandled,'clock',s.unhandled>0),
+    kpi('Last 7 days',s.week,'refresh'),
+    kpi('Account applications',s.byKind.application||0,'users')));
+  dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Recent submissions'),
+    dashData.length?h('button',{class:'re-linkbtn',onclick:()=>go('submissions')},'View all'):document.createTextNode('')));
+  const list=h('div',{class:'re-sub-list'});
+  const recent=dashData.slice(0,4);
+  if(!recent.length)list.append(emptyState()); else recent.forEach(r=>list.append(subCard(r)));
+  dashMain.append(list);
+}
+function renderSubs(){
+  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Submissions'),h('p',{},dashData.length+' total · '+dashStats().unhandled+' new')));
+  const inp=h('input',{class:'re-search-input',type:'search',placeholder:'Search name, email, message…',value:dashQuery});
+  inp.addEventListener('input',()=>{ dashQuery=inp.value; drawList(); });
+  dashMain.append(h('div',{class:'re-search'},icon('search',17),inp));
+  const tabs=h('div',{class:'re-filters'});
+  FILTERS.forEach(([k,lbl])=>tabs.append(h('button',{class:'re-filter'+(dashFilter===k?' on':''),onclick:()=>{ dashFilter=k; tabs.querySelectorAll('.re-filter').forEach(x=>x.classList.remove('on')); tabs.querySelector('[data-f="'+k+'"]').classList.add('on'); drawList(); },'data-f':k},lbl+' ('+filterCount(k)+')')));
+  dashMain.append(tabs);
+  const listWrap=h('div',{class:'re-sub-list'}); dashMain.append(listWrap);
+  function drawList(){ listWrap.innerHTML=''; const rows=filteredSubs(); if(!rows.length){ listWrap.append(emptyState(dashData.length?'No submissions match this filter.':undefined)); return; } rows.forEach(r=>listWrap.append(subCard(r))); }
+  drawList();
+}
 
 /* ════════ SUBMISSIONS INBOX (form leads) ════════ */
 let inboxPanel;
@@ -544,35 +608,36 @@ function fieldRows(obj){
   const keys=[...order.filter(has),...Object.keys(obj).filter(k=>order.indexOf(k)<0&&has(k))];
   return keys.map(k=>h('div',{class:'re-ibx-row'},h('span',{class:'re-ibx-k'},prettyLabel(k)),h('span',{class:'re-ibx-v'},String(obj[k]))));
 }
+function subCard(r){
+  const d=r.data||{};
+  const when=(r.created_at||'').replace('T',' ').slice(0,16);
+  const name=d.name||[d.firstName,d.lastName].filter(Boolean).join(' ')||d.email||'—';
+  const chk=h('input',{type:'checkbox'}); chk.checked=!!r.handled;
+  const card=h('div',{class:'re-ibx-card'+(r.handled?' done':'')});
+  chk.addEventListener('change',()=>{ Store.setHandled(r.id,chk.checked); r.handled=chk.checked; card.classList.toggle('done',chk.checked); updateNavBadge(); });
+  const files=(r.files||[]).map(f=>h('button',{class:'re-ibx-file',onclick:async ev=>{ev.preventDefault();const b=ev.currentTarget;const old=b.textContent;b.textContent='opening…';const u=await Store.signedUrl(f.path);b.textContent=old;if(u)window.open(u,'_blank');else toast('Could not open file');}}, icon('download',13), (f.field||'file')));
+  card.append(
+    h('div',{class:'re-ibx-top'},
+      h('span',{class:'re-ibx-badge re-k-'+r.kind},KIND_LABEL[r.kind]||r.kind),
+      h('span',{class:'re-ibx-name'},name),
+      h('span',{class:'re-ibx-when'},when)),
+    h('div',{class:'re-ibx-fields'},...fieldRows(d)),
+    files.length?h('div',{class:'re-ibx-files'},h('span',{class:'re-ibx-k'},'Files'),h('span',{},...files)):document.createTextNode(''),
+    h('div',{class:'re-ibx-foot'},
+      h('label',{class:'re-ibx-handled'},chk,'Mark handled'),
+      h('button',{class:'re-ibx-del',onclick:async()=>{ if(!(await reConfirm('This permanently deletes this submission.',{title:'Delete submission?',okLabel:'Delete',danger:true})))return; try{ await Store.deleteSubmission(r.id); card.remove(); dashData=dashData.filter(x=>x.id!==r.id); updateNavBadge(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message); } }}, icon('trash',13),'Delete')));
+  return card;
+}
 async function loadInbox(target){
   const body=(target&&target.nodeType)?target:document.getElementById('re-ibx-body'); if(!body)return;
   body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Loading…'));
-  if(Store.mode!=='supabase'){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Submissions show up here once your site is connected to Supabase. (You’re currently in local preview mode.)')); return; }
+  if(Store.mode!=='supabase'){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Submissions show up here once your site is connected to Supabase.')); return; }
   let rows;
   try{ rows=await Store.listSubmissions(); }
-  catch(e){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Couldn’t load submissions: '+e.message+' — has the forms setup SQL been run yet?')); return; }
+  catch(e){ body.innerHTML=''; body.append(h('p',{class:'re-ibx-empty'},'Couldn’t load submissions: '+e.message)); return; }
   body.innerHTML='';
   if(!rows.length){ body.append(h('p',{class:'re-ibx-empty'},'No submissions yet. When a visitor sends a form, it appears here.')); return; }
-  rows.forEach(r=>{
-    const d=r.data||{};
-    const when=(r.created_at||'').replace('T',' ').slice(0,16);
-    const name=d.name||[d.firstName,d.lastName].filter(Boolean).join(' ')||d.email||'—';
-    const chk=h('input',{type:'checkbox'}); chk.checked=!!r.handled;
-    const card=h('div',{class:'re-ibx-card'+(r.handled?' done':'')});
-    chk.addEventListener('change',()=>{Store.setHandled(r.id,chk.checked);card.classList.toggle('done',chk.checked);});
-    const files=(r.files||[]).map(f=>h('button',{class:'re-ibx-file',onclick:async ev=>{ev.preventDefault();const b=ev.currentTarget;const old=b.textContent;b.textContent='opening…';const u=await Store.signedUrl(f.path);b.textContent=old;if(u)window.open(u,'_blank');else toast('Could not open file');}},'⬇ '+(f.field||'file')));
-    card.append(
-      h('div',{class:'re-ibx-top'},
-        h('span',{class:'re-ibx-badge re-k-'+r.kind},KIND_LABEL[r.kind]||r.kind),
-        h('span',{class:'re-ibx-name'},name),
-        h('span',{class:'re-ibx-when'},when)),
-      h('div',{class:'re-ibx-fields'},...fieldRows(d)),
-      files.length?h('div',{class:'re-ibx-files'},h('span',{class:'re-ibx-k'},'Files'),h('span',{},...files)):document.createTextNode(''),
-      h('div',{class:'re-ibx-foot'},
-        h('label',{class:'re-ibx-handled'},chk,'Mark handled'),
-        h('button',{class:'re-ibx-del',onclick:async()=>{ if(!(await reConfirm('This permanently deletes this submission.',{title:'Delete submission?',okLabel:'Delete',danger:true})))return; try{ await Store.deleteSubmission(r.id); card.remove(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message); } }},'🗑 Delete')));
-    body.append(card);
-  });
+  rows.forEach(r=>body.append(subCard(r)));
 }
 
 /* ════════ SAVE / PUBLISH BAR ════════ */
