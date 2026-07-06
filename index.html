@@ -311,8 +311,9 @@ a,button{cursor:pointer}input,select,textarea{font-family:'Plus Jakarta Sans',sa
 .mkt-table-wrap{margin-top:22px;background:var(--gl);border:1px solid var(--gb);border-radius:16px;overflow:hidden}
 .mkt-table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:color-mix(in srgb, var(--g) 7%, transparent)}
 .mkt-table-title{font-size:13px;font-weight:700}
+.mkt-table{max-height:62vh;overflow:auto}
 .mkt-table table{width:100%;border-collapse:collapse;table-layout:fixed}
-.mkt-table thead th{padding:10px 16px;text-align:right;font-size:10px;font-weight:700;color:var(--mt2);letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+.mkt-table thead th{padding:10px 16px;text-align:right;font-size:10px;font-weight:700;color:var(--mt2);letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);background:var(--nv2);position:sticky;top:0;z-index:2}
 .mkt-table thead th:first-child{text-align:left}
 .mkt-table tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
 .mkt-table tbody tr:last-child{border-bottom:none}
@@ -1372,14 +1373,14 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="mkt-idxc"><div class="mkt-idxn">KMI-30 (Halal)</div><div class="mkt-idxv" id="mkmi">257,327.46</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.23%</div></div>
   </div>
   <div class="mkt-table-wrap">
-    <div class="mkt-table-head" style="flex-wrap:wrap;gap:10px"><span class="mkt-table-title">Featured Securities</span><input type="text" id="mktSearch" placeholder="🔍 Search symbol, company or sector…" oninput="renderMktTable()" style="flex:1;min-width:180px;max-width:280px;background:var(--nv3);border:1px solid var(--gb);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:12px;outline:none"><span style="font-size:10px;color:var(--mt2)" id="mktTime">updating...</span></div>
+    <div class="mkt-table-head" style="flex-wrap:wrap;gap:10px"><span class="mkt-table-title">All PSX Securities</span><input type="text" id="mktSearch" placeholder="🔍 Search any of ~490 listed companies…" oninput="mktSearchInput()" style="flex:1;min-width:180px;max-width:280px;background:var(--nv3);border:1px solid var(--gb);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:12px;outline:none"><span style="font-size:10px;color:var(--mt2)" id="mktTime">updating...</span></div>
     <div class="mkt-table"><table><thead><tr>
       <th style="text-align:left;width:30%">Company</th>
       <th style="width:18%">Price (PKR)</th><th style="width:14%">Change</th>
       <th style="width:16%">Chg %</th><th style="width:12%">Volume</th><th style="width:10%">Sector</th>
     </tr></thead><tbody id="mktTbody"></tbody></table></div>
   </div>
-  <p style="font-size:11px;color:var(--mt2);margin-top:12px;line-height:1.6">Showing Rallys Equities' featured securities (indicative). The full PSX board of 500+ listed companies is available through your trading terminal or on request — <a onclick="showPage('account')" style="color:var(--g3);cursor:pointer">open an account</a> for live, tradable quotes.</p>
+  <p style="font-size:11px;color:var(--mt2);margin-top:12px;line-height:1.6">Live prices for every PSX-listed company, sourced from the Pakistan Stock Exchange (delayed ~15 min) and sorted by most active. Use the search above to find any stock. For live, tradable quotes and execution, <a onclick="showPage('account')" style="color:var(--g3);cursor:pointer">open an account</a>.</p>
   <div style="margin-top:24px"><div style="font-size:13px;font-weight:700;color:var(--au);margin-bottom:14px">PKR Exchange Rates</div>
   <div class="cur-grid">
     <div class="cur-c"><div class="cur-p">USD / PKR</div><div class="cur-v">279.45</div><div class="cur-ch" style="color:var(--up)">+0.12</div></div>
@@ -2561,8 +2562,9 @@ const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{ti
 
 /* Real PSX index data via our Supabase Edge Function (server-side → no CORS, no key exposed).
    Only the indices + hero chart are real (PSX, delayed); individual stock rows stay simulated. */
-let LIVE=null, LIVESTOCKS=null, tickerReal=false;
+let LIVE=null, LIVESTOCKS=null, tickerReal=false, mktDirty=true;
 function fmtVol(n){ return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n||0); }
+const escHtml=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 async function fetchKSE(){
   try{
     const r=await fetch('/api/market',{signal:AbortSignal.timeout(6000)});  // Vercel serverless → real PSX data (same-origin)
@@ -2581,6 +2583,7 @@ async function fetchKSE(){
     if(LIVESTOCKS){
       PSX.forEach(s=>{const d=LIVESTOCKS[s.sym];if(d&&d[0]>0){so[s.sym]=d[0]-d[1];sp[s.sym]=d[0];sc[s.sym]=d[1];if(d[3]>0)s.vol=fmtVol(d[3]);}});
       if(!tickerReal){tickerReal=true;buildTicker();}   // rebuild marquee once with real prices
+      mktDirty=true;                                    // full board changed → allow re-render
     }
     dataMode='live';
     updateAllUI(); setDataStatus(); applyChartRange();
@@ -2659,19 +2662,27 @@ function renderHeroStocks(){
 
 function slogoSrc(sym){return `assets/img/stocks/${sym==='PSX'?'PSX-1':sym}.png`;}
 
+function mktSearchInput(){ mktDirty=true; renderMktTable(); }
 function renderMktTable(){
   const el=document.getElementById('mktTbody');if(!el)return;
+  if(LIVESTOCKS&&!mktDirty)return;   // full board doesn't change between 60s refreshes — skip 3s re-renders
   const q=((document.getElementById('mktSearch')||{}).value||'').trim().toLowerCase();
-  const list=q?PSX.filter(s=>s.sym.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)||s.sector.toLowerCase().includes(q)):PSX;
-  if(!list.length){
-    el.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mt2);font-size:13px">No securities match “${q.replace(/[<>&]/g,'')}”. Try a symbol like <strong style="color:var(--au)">MEBL</strong> or a sector like <strong style="color:var(--au)">Banks</strong>.</td></tr>`;
-  } else {
-    el.innerHTML=list.map(s=>{
-      const p=sp[s.sym],ch=sc[s.sym],pch=(ch/so[s.sym]*100),up=ch>=0;
-      return `<tr><td><div class="mkt-sym"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--au);font-size:12.5px">${s.sym}</div><div style="font-size:11px;color:var(--mt2)">${s.name}</div></div></div></td><td>${fmt(p)}</td><td style="font-weight:600;color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;background:${up?'rgba(46,204,138,.12)':'rgba(232,69,69,.11)'};color:${up?'var(--up)':'var(--dn)'};">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></td><td style="color:var(--mt)">${s.vol}</td><td style="font-size:11.5px;color:var(--mt2)">${s.sector}</td></tr>`;
+  let list;
+  if(LIVESTOCKS){                    // full PSX board, real prices, most-active first
+    list=Object.keys(LIVESTOCKS).map(sym=>{const d=LIVESTOCKS[sym];return {sym,name:d[4]||sym,price:d[0],ch:d[1]||0,pch:d[2]||0,vol:fmtVol(d[3]),rawVol:d[3]||0,sector:d[5]||''};}).sort((a,b)=>b.rawVol-a.rawVol);
+  }else{                             // simulated fallback (curated featured list)
+    list=PSX.map(s=>({sym:s.sym,name:s.name,price:sp[s.sym],ch:sc[s.sym],pch:(sc[s.sym]/so[s.sym]*100),vol:s.vol,rawVol:0,sector:s.sector}));
+  }
+  const f=q?list.filter(x=>x.sym.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||(x.sector||'').toLowerCase().includes(q)):list;
+  if(!f.length){
+    el.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mt2);font-size:13px">No securities match “${escHtml(q)}”. Try a symbol like <strong style="color:var(--au)">MEBL</strong> or a sector like <strong style="color:var(--au)">banks</strong>.</td></tr>`;
+  }else{
+    el.innerHTML=f.map(s=>{const up=s.ch>=0;
+      return `<tr><td><div class="mkt-sym"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--au);font-size:12.5px">${escHtml(s.sym)}</div><div style="font-size:11px;color:var(--mt2)">${escHtml(s.name)}</div></div></div></td><td>${fmt(s.price)}</td><td style="font-weight:600;color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${(s.ch||0).toFixed(2)}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;background:${up?'rgba(46,204,138,.12)':'rgba(232,69,69,.11)'};color:${up?'var(--up)':'var(--dn)'};">${up?'▲':'▼'}${Math.abs(s.pch||0).toFixed(2)}%</span></td><td style="color:var(--mt)">${s.vol}</td><td style="font-size:11.5px;color:var(--mt2)">${escHtml(s.sector)}</td></tr>`;
     }).join('');
   }
-  const tm=document.getElementById('mktTime');if(tm)tm.textContent=`Indicative · ${nowStr()} PKT`;
+  mktDirty=false;
+  const tm=document.getElementById('mktTime');if(tm)tm.textContent=(LIVESTOCKS?f.length+' of '+list.length+' listed · ':'Indicative · ')+nowStr()+' PKT';
 }
 
 /* Chart */

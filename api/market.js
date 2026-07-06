@@ -43,9 +43,20 @@ async function marketWatch() {
     const n = (i) => { const v = parseFloat(o[i]); return isNaN(v) ? null : v; };
     const current = n(5);
     if (current == null) continue;
-    stocks[symM[1]] = [current, n(6) || 0, n(7) || 0, n(8) || 0]; // [price, change, change%, volume]
+    const nameM = row.match(/data-title="([^"]+)"/);
+    stocks[symM[1]] = [current, n(6) || 0, n(7) || 0, n(8) || 0, nameM ? nameM[1] : symM[1]]; // [price, change, change%, volume, name]
   }
   return stocks;
+}
+
+// Readable sector names (market-watch only has numeric sector codes)
+async function symbolsMeta() {
+  const r = await fetch('https://dps.psx.com.pk/symbols', { headers: { 'User-Agent': UA } });
+  if (!r.ok) throw new Error('symbols HTTP ' + r.status);
+  const arr = await r.json();
+  const m = {};
+  for (const s of arr) if (s && s.symbol) m[s.symbol] = s.sectorName || '';
+  return m;
 }
 
 module.exports = async (req, res) => {
@@ -54,11 +65,13 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   try {
     // Fetch everything from PSX in parallel (indices + intraday + all stock prices)
-    const [raw, intr, stocks] = await Promise.all([
+    const [raw, intr, stocks, secMap] = await Promise.all([
       Promise.all(SYMBOLS.map(async (sym) => { try { return [sym, await psx('eod/' + sym)]; } catch { return [sym, null]; } })),
       psx('int/KSE100').catch(() => null),
       marketWatch().catch(() => null),
+      symbolsMeta().catch(() => ({})),
     ]);
+    if (stocks) for (const sym in stocks) stocks[sym].push(secMap[sym] || ''); // index 5 = sector
 
     const indices = {};
     let asOf = 0;
