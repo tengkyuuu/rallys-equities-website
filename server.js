@@ -208,7 +208,8 @@ app.get('/api/admin/file/:ref/:name', requireAdmin, (req, res) => {
   if (!fp.startsWith(UPLOAD_DIR) || !fs.existsSync(fp)) return res.status(404).json({ error: 'Not found' });
   res.sendFile(fp);
 });
-app.get('/admin', (req, res) => res.sendFile(path.join(ROOT, 'admin.html')));
+// /admin now loads the in-page visual editor (Supabase-backed), same as ?edit=1
+app.get('/admin', (req, res) => res.sendFile(path.join(ROOT, 'index.html')));
 
 // ---------- static site ----------
 app.use(express.static(ROOT, { extensions: ['html'], index: 'index.html' }));

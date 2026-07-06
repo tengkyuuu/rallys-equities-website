@@ -104,6 +104,7 @@ function buildBar(){
     editToggle,
     h('span',{class:'re-spacer'}),
     h('button',{class:'re-btn re-btn-ghost',onclick:openInbox},'📥 Submissions'),
+    h('button',{class:'re-btn re-btn-ghost',onclick:openPhotos},'🖼 Photos'),
     h('button',{class:'re-btn re-btn-ghost',onclick:openColors},'🎨 Colors'),
     h('button',{class:'re-btn re-btn-ghost',onclick:()=>{document.body.classList.toggle('re-preview');toast(document.body.classList.contains('re-preview')?'Preview (visitor view)':'Editing view');}},'Preview'),
     h('button',{class:'re-btn re-btn-ghost',onclick:doLogout},'Log out'));
@@ -116,7 +117,7 @@ function toggleEditing(){
   document.body.classList.toggle('re-editing',editing);
   editToggle.classList.toggle('on',editing);
   if(editing){ toast('Click any text to edit · hover an image to replace it'); }
-  else { clearImgBtn(); }
+  else { clearImgBtn(); clearHoverText(); }
 }
 
 /* ════════ PHASE 3: TEXT EDITING ════════ */
@@ -176,7 +177,9 @@ function showFmtBar(el){
   fmtBar=h('div',{class:'re-fmt re-ui'},
     h('button',{title:'Bold',onmousedown:e=>{e.preventDefault();cmd('bold');},html:'<b>B</b>'}),
     h('button',{title:'Italic',onmousedown:e=>{e.preventDefault();cmd('italic');},html:'<i>I</i>'}),
-    h('button',{title:'Link',onmousedown:e=>{e.preventDefault();const u=prompt('Link URL (https://...)');if(u)document.execCommand('createLink',false,u);el.focus();},html:'🔗'}));
+    h('button',{title:'Underline',onmousedown:e=>{e.preventDefault();cmd('underline');},html:'<u>U</u>'}),
+    h('button',{title:'Link',onmousedown:e=>{e.preventDefault();const u=prompt('Link URL (https://...)');if(u)document.execCommand('createLink',false,u);el.focus();},html:'🔗'}),
+    h('button',{title:'Clear formatting',onmousedown:e=>{e.preventDefault();document.execCommand('removeFormat',false);document.execCommand('unlink',false);el.focus();},html:'✕'}));
   document.body.append(fmtBar);
   const r=el.getBoundingClientRect();
   fmtBar.style.left=Math.max(8,r.left)+'px';
@@ -201,6 +204,16 @@ function positionImgBtn(img){
 }
 function clearImgBtn(){ if(imgBtn)imgBtn.style.display='none'; imgHoverEl=null; }
 
+/* live "this text is editable" highlight while hovering in edit mode */
+let hoverText;
+function clearHoverText(){ if(hoverText){hoverText.classList.remove('re-hoverable');hoverText=null;} }
+document.addEventListener('mousemove',e=>{
+  if(!editing||document.body.classList.contains('re-preview')){ clearHoverText(); return; }
+  if(e.target.closest('.re-ui,.re-bar,.re-panel,.re-fmt,.re-img-btn,.re-savebar,.re-overlay,.re-coach')){ clearHoverText(); return; }
+  const t=eligibleText(e.target);
+  if(t!==hoverText){ clearHoverText(); if(t&&t.getAttribute('contenteditable')!=='true'){ hoverText=t; t.classList.add('re-hoverable'); } }
+});
+
 function openMedia(img){
   const key=img.dataset.editImg||API.getEditKey(img);
   if(!img.dataset.editImg)img.dataset.editImg=key;
@@ -219,6 +232,34 @@ function openMedia(img){
     h('div',{style:'display:flex;gap:8px;justify-content:flex-end'},h('button',{class:'re-btn re-btn-ghost',onclick:()=>overlay.remove()},'Cancel')));
   const overlay=h('div',{class:'re-overlay',onclick:e=>{if(e.target===overlay)overlay.remove();}},card);
   document.body.append(overlay);
+}
+
+/* ════════ PHOTOS PANEL — list every changeable image on the page, one-click replace ════════ */
+let photosPanel;
+function openPhotos(){
+  if(!photosPanel){
+    const head=h('div',{class:'re-panel-head'},h('h3',{},'Photos'),
+      h('div',{},h('button',{class:'re-btn re-btn-ghost',title:'Refresh',onclick:loadPhotos},'↻'),
+        h('button',{class:'re-btn re-btn-ghost',onclick:()=>photosPanel.classList.remove('open')},'✕')));
+    photosPanel=h('div',{class:'re-panel re-photos re-ui'},head,h('div',{class:'re-panel-body',id:'re-photos-body'}));
+    document.body.append(photosPanel);
+  }
+  photosPanel.classList.add('open'); loadPhotos();
+}
+function loadPhotos(){
+  const body=document.getElementById('re-photos-body'); if(!body)return; body.innerHTML='';
+  const imgs=[...document.images].filter(i=>!i.closest(LOCKED)&&!i.closest('.re-ui')&&i.clientWidth>=24&&i.clientHeight>=24);
+  if(!imgs.length){ body.append(h('p',{class:'re-ibx-empty'},'No changeable photos on this page. Open the page whose photos you want to change, then reopen Photos.')); return; }
+  body.append(h('p',{class:'re-photos-hint'},imgs.length+' photo'+(imgs.length===1?'':'s')+' on this page — click “Change” to replace one, or the thumbnail to jump to it.'));
+  imgs.forEach(img=>{
+    const name=(img.getAttribute('alt')||img.getAttribute('src')||'image').split('/').pop();
+    const change=()=>{ img.scrollIntoView({behavior:'smooth',block:'center'}); openMedia(img); };
+    body.append(h('div',{class:'re-photo-row'},
+      h('img',{class:'re-photo-thumb',src:img.currentSrc||img.src,loading:'lazy',onclick:change}),
+      h('div',{class:'re-photo-meta'},
+        h('div',{class:'re-photo-name',title:name},name),
+        h('button',{class:'re-btn re-btn-ghost re-photo-btn',onclick:change},'Change'))));
+  });
 }
 
 /* ════════ PHASE 2: COLORS CUSTOMIZER ════════ */
@@ -360,7 +401,7 @@ document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowe
 
 /* ════════ first-run coachmark ════════ */
 function maybeCoach(){ if(localStorage.getItem('re-coached'))return;
-  const c=h('div',{class:'re-coach re-ui',html:'<b>Welcome to your editor!</b><br>• Turn on <b>Edit mode</b>, then <b>click any text</b> to change it.<br>• <b>Hover an image</b> to replace it.<br>• Open <b>Colors</b> to recolor the site.<br>• Hit <b>Publish</b> when ready.'},);
+  const c=h('div',{class:'re-coach re-ui',html:'<b>Welcome to your editor!</b><br>• Turn on <b>Edit mode</b>, then <b>click any highlighted text</b> to change it.<br>• Use <b>🖼 Photos</b> to swap any image (or hover an image → <b>Change</b>).<br>• Open <b>🎨 Colors</b> to recolor the site.<br>• <b>Save draft</b> keeps changes private; <b>Publish</b> makes them live.'},);
   c.append(h('button',{class:'re-btn re-btn-pri',onclick:()=>{c.remove();localStorage.setItem('re-coached','1');}},'Got it'));
   document.body.append(c);
 }
