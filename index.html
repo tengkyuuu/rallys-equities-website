@@ -857,6 +857,31 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   .theme-toggle{width:36px;height:36px}
   .ham{width:40px;height:40px}
 }
+
+/* ── admin customization: elements/pages hidden from /admin ── */
+.re-hid{display:none!important}
+
+/* ── Insights (blog) ── */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:26px;margin-top:10px}
+.blog-card{background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 18%,transparent);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s}
+.blog-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--au) 45%,transparent);box-shadow:0 18px 44px -18px rgba(0,0,0,.45)}
+.blog-cover{aspect-ratio:16/9;overflow:hidden;background:var(--nv3)}
+.blog-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.blog-body{padding:18px 20px 20px}
+.blog-date{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--au);margin-bottom:8px}
+.blog-body h3{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:21px;line-height:1.25;color:var(--tx);margin:0 0 8px}
+.blog-body p{font-size:13px;line-height:1.65;color:var(--mt);margin:0 0 12px}
+.blog-more{font-size:12px;font-weight:700;color:var(--g3)}
+.blog-empty{text-align:center;color:var(--mt);padding:50px 0;font-size:14px}
+.blog-back{display:inline-block;font-size:13px;color:var(--g3);cursor:pointer;margin-bottom:22px}
+.blog-title{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:clamp(30px,4.5vw,44px);line-height:1.12;margin:0 0 20px;color:var(--tx)}
+.blog-hero{width:100%;border-radius:16px;margin:6px 0 26px}
+.blog-post{font-size:15px;line-height:1.85;color:var(--tx)}
+.blog-post p{margin:0 0 16px;color:var(--mt)}
+.blog-post h2,.blog-post h3{font-family:var(--font-display,'Cormorant Garamond',serif);color:var(--tx);margin:26px 0 10px}
+.blog-post ul,.blog-post ol{margin:0 0 16px 22px;color:var(--mt)}
+.blog-post img{max-width:100%;border-radius:12px}
+.blog-post a{color:var(--g3)}
 </style>
 </head>
 <body class="light">
@@ -934,6 +959,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
         </div></div>
       </li>
       <li><a id="nav-markets" onclick="showPage('markets')">Markets</a></li>
+      <li><a id="nav-insights" onclick="showPage('insights')">Insights</a></li>
       <li><a id="nav-locations" onclick="showPage('locations')">Contact Us</a></li>
     </ul>
     <div class="nav-right">
@@ -995,6 +1021,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <a onclick="showPage('feedback')">Feedback</a>
   </div>
   <div class="mnav-group"><a onclick="showPage('markets')" style="font-size:15px;color:var(--tx);font-weight:600">Markets</a></div>
+  <div class="mnav-group"><a onclick="showPage('insights')" style="font-size:15px;color:var(--tx);font-weight:600">Insights</a></div>
   <div class="mnav-group"><a onclick="showPage('locations')" style="font-size:15px;color:var(--tx);font-weight:600">Contact Us</a></div>
   <button class="bbig bbig-g" onclick="showPage('account')">Open Account — کھاتہ کھولیں</button>
 </div>
@@ -1034,10 +1061,11 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       </div>
       <div class="phead">
         <div>
-          <div class="pidxl">KSE-100 Index</div>
+          <div class="pidxl" data-edit="pcard.idxlabel" data-edit-free="1">KSE-100 Index</div>
           <div class="pidxv" id="k100">180,301.70</div>
           <div class="pidxc" id="k100c" style="color:var(--up)">▲ +1,886.91 (+1.06%)</div>
-          <div style="font-size:9px;color:var(--mt2);margin-top:2px">Vol: 284.6M · 09:30–15:30 PKT</div>
+          <div class="pctx" id="pCtx" style="display:none;font-size:9px;color:var(--mt2);margin-top:2px;font-weight:600"></div>
+          <div class="pvol" style="font-size:9px;color:var(--mt2);margin-top:2px" data-edit="pcard.vol" data-edit-free="1">Vol: 284.6M · 09:30–15:30 PKT</div>
         </div>
         <div class="ptabs">
           <button class="ptab on" onclick="ptab(this)">1D</button>
@@ -1048,12 +1076,12 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       </div>
       <div class="cw"><canvas id="heroChart"></canvas></div>
       <div class="clbl"><span>09:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span></div>
-      <div class="shdr"><span>Company</span><span style="text-align:right">Price</span><span style="text-align:right">Chg</span><span style="text-align:right">%</span></div>
+      <div class="shdr"><span data-edit="pcard.th1" data-edit-free="1">Company</span><span style="text-align:right" data-edit="pcard.th2" data-edit-free="1">Price</span><span style="text-align:right" data-edit="pcard.th3" data-edit-free="1">Chg</span><span style="text-align:right" data-edit="pcard.th4" data-edit-free="1">%</span></div>
       <div id="heroStocks"></div>
       <div class="idxrow">
-        <div class="ixc"><div class="ixn">KSE-30</div><div class="ixv" id="k30">53,716.03</div><div class="ixch" style="color:var(--up)">▲ +1.14%</div></div>
-        <div class="ixc"><div class="ixn">KMI-30</div><div class="ixv" id="k30m">257,327.46</div><div class="ixch" style="color:var(--up)">▲ +1.23%</div></div>
-        <div class="ixc"><div class="ixn">ALLSHR</div><div class="ixv" id="kase">108,938.83</div><div class="ixch" style="color:var(--up)">▲ +0.89%</div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix1" data-edit-free="1">KSE-30</div><div class="ixv" id="k30">53,716.03</div><div class="ixch" style="color:var(--up)">▲ +1.14%</div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix2" data-edit-free="1">KMI-30</div><div class="ixv" id="k30m">257,327.46</div><div class="ixch" style="color:var(--up)">▲ +1.23%</div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix3" data-edit-free="1">ALLSHR</div><div class="ixv" id="kase">108,938.83</div><div class="ixch" style="color:var(--up)">▲ +0.89%</div></div>
       </div>
     </div>
   </div>
@@ -2471,6 +2499,22 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 </button>
 
 <!-- ══════ FOOTER ══════ -->
+<!-- ══════ INSIGHTS (BLOG) PAGE — posts are written in /admin → Blog Posts ══════ -->
+<div class="page" id="page-insights">
+<section class="phero"><div class="stag">Insights</div><h1>Market <em>Insights</em></h1><p>Research notes, market commentary and investor education from the Rallys Equities desk.</p></section>
+<section class="sec">
+  <div class="blog-grid" id="blogList"></div>
+  <div class="blog-empty" id="blogEmpty" style="display:none">New insights are on the way — check back soon.</div>
+</section>
+</div>
+
+<!-- ══════ SINGLE POST PAGE (rendered from the selected post) ══════ -->
+<div class="page" id="page-post">
+<section class="sec" style="max-width:820px;margin:0 auto">
+  <div id="postView"></div>
+</section>
+</div>
+
 <footer>
   <div class="footer-grid">
     <div class="fb">
@@ -2550,7 +2594,7 @@ PSX.forEach(s=>{
 });
 
 let kse=180301.70, kse0=178414.79, k30=53716.03, kmi=257327.46, kas=108938.83;
-let kseH=[], chartCtx=null, dataMode='sim', chartData=null, chartRange='1D';
+let kseH=[], chartCtx=null, dataMode='sim', chartData=null, chartRange='1D', SIM_EOD=null;
 
 // Seed chart history
 (()=>{let v=kse*.986;for(let i=0;i<88;i++){v+=(Math.random()-.47)*24;kseH.push(Math.round(v*100)/100);}kseH.push(kse);})();
@@ -2633,7 +2677,9 @@ function updateAllUI(){
   const d=kse-kse0,pct=(d/kse0*100),up=d>=0;
   const ek=document.getElementById('k100'),ec=document.getElementById('k100c');
   if(ek)ek.textContent=fmtN(kse);
-  if(ec){ec.style.color=up?'var(--up)':'var(--dn)';ec.textContent=`${up?'▲':'▼'} ${up?'+':''}${d.toFixed(2)} (${up?'+':''}${pct.toFixed(2)}%)`;}
+  /* #k100c shows the SELECTED PERIOD's change, not always today's — only the live
+     1D tick may write here; 1W/1M/YTD set their own figure in applyChartRange(). */
+  if(ec&&chartRange==='1D'){ec.style.color=up?'var(--up)':'var(--dn)';ec.textContent=`${up?'▲':'▼'} ${up?'+':''}${d.toFixed(2)} (${up?'+':''}${pct.toFixed(2)}%)`;}
   /* Markets page indices */
   const mk=document.getElementById('mk100'),mkc=document.getElementById('mk100c'),mk3=document.getElementById('mk30'),mkmi=document.getElementById('mkmi');
   if(mk)mk.textContent=fmtN(kse);
@@ -2763,9 +2809,12 @@ const NAV_PARENT={
   shariah:'services',platforms:'services',support:'services',
   portal:'investors',education:'investors',awareness:'investors',financial:'investors',policies:'investors',
   cagr:'tools',sip:'tools',invest:'tools',depr:'tools',xrate:'tools',dcf:'tools',fcf:'tools',drawdown:'tools',
-  faq:'misc',downloads:'misc',links:'misc',careers:'misc',complaints:'misc',feedback:'misc'
+  faq:'misc',downloads:'misc',links:'misc',careers:'misc',complaints:'misc',feedback:'misc',
+  post:'insights'
 };
 function showPage(id){
+  const target=document.getElementById('page-'+id);
+  if(target&&target.classList.contains('re-hid')&&id!=='home'){ id='home'; } // deleted page → home
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
   const pg=document.getElementById('page-'+id);
@@ -2794,14 +2843,35 @@ function ptab(el){
   chartRange=(el.textContent||'1D').trim();
   applyChartRange();
 }
-/* Switch the hero chart between 1D (intraday) and 1W/1M/YTD (real daily history from PSX) */
+/* When there's no live feed, 1W/1M/YTD still need SOMETHING real to show — a flat
+   reuse of the intraday buffer (the old behavior) made every tab look identical.
+   This builds one stable, plausible daily-close history ending at today's actual
+   opening reference (kse0), so each range genuinely differs. Clearly labelled
+   "SIMULATED" elsewhere on the card — this is indicative, not real PSX history. */
+function genSimEod(){
+  const N=262,day=864e5,today=Date.now();
+  let seed=(Math.round(kse0)%9973)+17;
+  const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+  const closes=[kse0];                             // walk backward from today's reference close
+  for(let i=1;i<N;i++){const pct=(rnd()-0.478)*0.024;closes.push(closes[i-1]/(1+pct));}
+  closes.reverse();                                 // oldest → newest; last entry === kse0
+  return closes.map((v,i)=>[today-day*(N-1-i),Math.round(v*100)/100]);
+}
+/* Switch the hero chart between 1D (live intraday) and 1W/1M/YTD (real PSX daily
+   history when available, otherwise the simulated series above). The change badge
+   and caption always describe the exact slice being drawn, so the number, the
+   label, and the shape of the line never disagree with each other. */
 function applyChartRange(){
-  const eod=LIVE&&LIVE.KSE100&&LIVE.KSE100.eod;   // [[ms,close],…] oldest→newest
-  const clbl=document.querySelector('.pcard .clbl');
+  let eod=LIVE&&LIVE.KSE100&&LIVE.KSE100.eod;      // [[ms,close],…] oldest→newest
+  if(!eod||eod.length<2){ if(!SIM_EOD)SIM_EOD=genSimEod(); eod=SIM_EOD; }
+  const clbl=document.querySelector('.pcard .clbl'),pctx=document.getElementById('pCtx');
   const setLabels=arr=>{if(clbl)clbl.innerHTML=arr.map(l=>`<span>${l}</span>`).join('');};
-  if(chartRange==='1D' || !eod || eod.length<2){
+  const f=ms=>new Date(ms).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  if(chartRange==='1D'){
     chartData=null;                                // → drawChart falls back to live intraday (kseH)
     setLabels(['09:30','11:00','12:30','14:00','15:30']);
+    if(pctx){pctx.style.display='none';pctx.textContent='';}
+    updateAllUI();                                  // put today's live change back immediately
   }else{
     let pts;
     if(chartRange==='YTD'){
@@ -2812,9 +2882,17 @@ function applyChartRange(){
       pts=eod.slice(chartRange==='1W'?-6:-23);     // ~1 trading week / ~1 month
     }
     chartData=pts.map(p=>p[1]);
-    const f=ms=>new Date(ms).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
     const n=pts.length;
     setLabels([f(pts[0][0]),f(pts[Math.floor(n/2)][0]),f(pts[n-1][0])]);
+    /* change badge: computed from THIS slice, so it always matches the line on screen */
+    const first=pts[0][1],last=pts[n-1][1],d=last-first,pct=first?d/first*100:0,up=d>=0;
+    const ec=document.getElementById('k100c');
+    if(ec){ec.style.color=up?'var(--up)':'var(--dn)';ec.textContent=`${up?'▲':'▼'} ${up?'+':''}${d.toFixed(2)} (${up?'+':''}${pct.toFixed(2)}%)`;}
+    if(pctx){
+      const lbl=chartRange==='1W'?'Past week':chartRange==='1M'?'Past month':'Year to date';
+      pctx.style.display='block';
+      pctx.textContent=lbl+' · '+f(pts[0][0])+' – '+f(pts[n-1][0]);
+    }
   }
   drawChart();
 }
@@ -3349,11 +3427,8 @@ function injectThemeOverrides(theme){
 /* Resolve a path-style key (page.tagN-tagN-…) back to its element — lets edits to
    UN-tagged nodes (keyed by getEditKey) re-apply on the public site, where the
    element has no data-edit attribute. */
-function resolveKey(key){
-  const dot=key.indexOf('.'); if(dot<0)return null;
-  const page=document.getElementById('page-'+key.slice(0,dot)); if(!page)return null;
-  let node=page;
-  for(const seg of key.slice(dot+1).split('-')){
+function walkPath(node,path){
+  for(const seg of path.split('-')){
     const m=seg.match(/^([a-z]+)(\d+)$/i); if(!m)return null;
     const tag=m[1].toUpperCase(); let cnt=+m[2], found=null;
     for(const c of node.children){ if(c.tagName===tag && --cnt===0){ found=c; break; } }
@@ -3361,7 +3436,27 @@ function resolveKey(key){
   }
   return node;
 }
-function reTargets(attr,key){ const m=document.querySelectorAll('['+attr+'="'+cssEsc(key)+'"]'); if(m.length)return [...m]; const n=resolveKey(key); return n?[n]:[]; }
+function resolveKey(key){
+  const slash=key.lastIndexOf('/');            // anchored key: <ancestor-key>/<sub-path> (stable across reorders)
+  if(slash>0){ const anchor=reResolve(key.slice(0,slash))[0]; return anchor?walkPath(anchor,key.slice(slash+1)):null; }
+  const dot=key.indexOf('.'); if(dot<0)return null;
+  const base=key.slice(0,dot);
+  const root=base==='site'?document.documentElement:document.getElementById('page-'+base);
+  return root?walkPath(root,key.slice(dot+1)):null;
+}
+/* any key form → matching elements. sel:<css> · page:<id> · path key (optionally anchored) */
+function reResolve(key){
+  if(key.startsWith('sel:'))return [...document.querySelectorAll(key.slice(4))];
+  if(key.startsWith('page:')){ const p=document.getElementById('page-'+key.slice(5)); return p?[p]:[]; }
+  const hit=document.querySelector('[data-rekey="'+cssEsc(key)+'"],[data-edit="'+cssEsc(key)+'"]');
+  if(hit)return [hit];
+  const n=resolveKey(key); return n?[n]:[];
+}
+function reTargets(attr,key){
+  const m=document.querySelectorAll('['+attr+'="'+cssEsc(key)+'"]'); if(m.length)return [...m];
+  const n=resolveKey(key); if(n){ n.setAttribute(attr,key); return [n]; }   // stamp so the target stays bound once siblings reorder
+  return [];
+}
 
 /* Font/typography overrides — set --font-display / --font-body and load the web font. */
 function loadFontLink(family){
@@ -3384,25 +3479,125 @@ function applyFonts(fonts){
   });
   tag.textContent=out.length?(':root{'+out.join(';')+'}'):'';
 }
+/* ── Customization: hide elements/pages + reorder siblings (set from /admin) ── */
+function sigStampKids(parent){ [...parent.children].forEach(c=>{ if(c.nodeType===1&&!c.dataset.rekey)c.dataset.rekey=getEditKey(c); }); }
+function applyHidden(hidden){
+  document.querySelectorAll('.re-hid').forEach(n=>n.classList.remove('re-hid'));
+  hidden=hidden||{};
+  let css='';
+  for(const k in hidden){
+    if(k.startsWith('sel:')){ css+=k.slice(4)+'{display:none!important}\n'; }  // CSS rule → survives live re-renders (ticker, hero stocks…)
+    else if(k.startsWith('page:')){
+      const id=k.slice(5), pg=document.getElementById('page-'+id);
+      if(pg)pg.classList.add('re-hid');
+      document.querySelectorAll('[onclick*="showPage(\''+id+'\')"]').forEach(a=>{
+        const box=(a.parentElement&&a.parentElement.tagName==='LI')?a.parentElement:a;
+        box.classList.add('re-hid');
+      });
+      if(pg&&pg.classList.contains('active'))showPage('home');
+    } else reResolve(k).forEach(n=>n.classList.add('re-hid'));
+  }
+  let tag=document.getElementById('re-hidden-css');
+  if(!tag){ tag=document.createElement('style'); tag.id='re-hidden-css'; document.head.appendChild(tag); }
+  tag.textContent=css;
+}
+function applyOrder(order){
+  order=order||{};
+  for(const pk in order){
+    const parent=reResolve(pk)[0]; if(!parent)continue;
+    if(!pk.startsWith('page:')&&!parent.dataset.rekey)parent.dataset.rekey=pk; // children anchor to this key on both sides
+    sigStampKids(parent);
+    const map={}; [...parent.children].forEach(c=>{ if(c.dataset&&c.dataset.rekey)map[c.dataset.rekey]=c; });
+    order[pk].forEach(k=>{ const c=map[k]; if(c)parent.appendChild(c); });
+  }
+}
 function applyOverrides(data){
   if(!data||typeof data!=='object') return;
   OVERRIDES=data;
   injectThemeOverrides(data.theme);
   applyFonts(data.fonts);
+  const ord=data.order||{};
+  for(const pk in ord){ const p=reResolve(pk)[0]; if(!p)continue; if(!pk.startsWith('page:')&&!p.dataset.rekey)p.dataset.rekey=pk; sigStampKids(p); } // stamp while the DOM is still in source order
   const t=data.text||{};
   for(const k in t){ reTargets('data-edit',k).forEach(el=>{ el.innerHTML=sanitizeFragment(t[k]); }); }
   const im=data.img||{}, meta=data.imgMeta||{};
   for(const k in im){ reTargets('data-edit-img',k).forEach(img=>{ if(img.tagName!=='IMG')return; img.src=im[k]; const m=meta[k]; if(m){ if(m.srcset!=null)img.srcset=m.srcset; if(m.alt!=null)img.alt=m.alt; } }); }
+  applyHidden(data.hidden);
+  applyOrder(ord);
+  renderBlog(data.posts);
 }
 function refreshCalcInfo(){ document.querySelectorAll('.calc-info').forEach(n=>n.remove()); renderCalcInfo(); }
 
-/* Stable, reversible fallback key for an un-tagged node (full nth-of-type path from its page) */
+/* Stable, reversible fallback key for an un-tagged node (nth-of-type path from its page,
+   or anchored to the nearest data-rekey/data-edit ancestor so keys survive reordering) */
 function getEditKey(el){
   if(el.dataset.edit) return el.dataset.edit;
-  const page=el.closest('[id^="page-"]'), base=page?page.id.replace('page-',''):'site', parts=[];
+  if(el.dataset.rekey) return el.dataset.rekey;
+  const page=el.closest('[id^="page-"]'), parts=[];
   let n=el;
-  while(n&&n!==page&&n.parentElement){ let i=1,s=n; while(s.previousElementSibling){ s=s.previousElementSibling; if(s.tagName===n.tagName)i++; } parts.unshift(n.tagName.toLowerCase()+i); n=n.parentElement; }
-  return base+'.'+parts.join('-');
+  while(n&&n!==page&&n.parentElement){
+    let i=1,s=n; while(s.previousElementSibling){ s=s.previousElementSibling; if(s.tagName===n.tagName)i++; }
+    parts.unshift(n.tagName.toLowerCase()+i);
+    const anc=n.parentElement;
+    if(anc!==page&&anc.dataset&&(anc.dataset.rekey||anc.dataset.edit))
+      return (anc.dataset.rekey||anc.dataset.edit)+'/'+parts.join('-');
+    n=anc;
+  }
+  return (page?page.id.replace('page-',''):'site')+'.'+parts.join('-');
+}
+
+/* ══ INSIGHTS (BLOG) — posts are authored in /admin → Blog Posts, stored with site content ══ */
+function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtPostDate(d){ const t=Date.parse(d||''); if(!t)return d||''; return new Date(t).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
+/* Post-body sanitizer: like sanitizeFragment but allows article block tags + images */
+function sanitizePost(html){
+  const ALLOW={B:1,I:1,EM:1,STRONG:1,BR:1,SPAN:1,A:1,SUP:1,SUB:1,U:1,P:1,H2:1,H3:1,UL:1,OL:1,LI:1,BLOCKQUOTE:1,IMG:1,DIV:1,FIGURE:1,FIGCAPTION:1};
+  const tmp=document.createElement('div'); tmp.innerHTML=String(html==null?'':html);
+  (function walk(node){
+    [...node.childNodes].forEach(n=>{
+      if(n.nodeType===8){ n.remove(); return; }
+      if(n.nodeType!==1) return;
+      const tag=n.tagName;
+      if(tag==='SCRIPT'||tag==='STYLE'||tag==='IFRAME'){ n.remove(); return; }
+      if(!ALLOW[tag]){ const p=n.parentNode; while(n.firstChild)p.insertBefore(n.firstChild,n); p.removeChild(n); return; }
+      [...n.attributes].forEach(a=>{
+        const an=a.name.toLowerCase();
+        if(an==='href'&&tag==='A'){ if(/^\s*javascript:/i.test(a.value))n.removeAttribute(a.name); }
+        else if(an==='src'&&tag==='IMG'){ if(/^\s*javascript:/i.test(a.value))n.removeAttribute(a.name); }
+        else if(an==='alt'||an==='loading'){ /* keep */ }
+        else n.removeAttribute(a.name);
+      });
+      walk(n);
+    });
+  })(tmp);
+  return tmp.innerHTML;
+}
+function renderBlog(posts){
+  const list=document.getElementById('blogList'); if(!list)return;
+  const pub=(posts||[]).filter(p=>p&&p.published!==false).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  window.__POSTS=pub;
+  const navA=document.getElementById('nav-insights');
+  const links=[navA&&navA.parentElement,...document.querySelectorAll('.mnav [onclick*="showPage(\'insights\')"]')];
+  links.forEach(n=>{ if(n)n.style.display=pub.length?'':'none'; });   // no published posts → hide the nav entry
+  list.innerHTML='';
+  const empty=document.getElementById('blogEmpty'); if(empty)empty.style.display=pub.length?'none':'block';
+  pub.forEach((p,i)=>{
+    const card=document.createElement('article'); card.className='blog-card';
+    card.onclick=()=>openPost(i);
+    card.innerHTML=(p.cover?'<div class="blog-cover"><img loading="lazy" src="'+escH(p.cover)+'" alt=""></div>':'')+
+      '<div class="blog-body"><div class="blog-date">'+escH(fmtPostDate(p.date))+'</div><h3>'+escH(p.title||'Untitled')+'</h3>'+
+      (p.excerpt?'<p>'+escH(p.excerpt)+'</p>':'')+'<span class="blog-more">Read more →</span></div>';
+    list.appendChild(card);
+  });
+}
+function openPost(i){
+  const p=(window.__POSTS||[])[i]; if(!p)return;
+  const v=document.getElementById('postView'); if(!v)return;
+  v.innerHTML='<a class="blog-back" onclick="showPage(\'insights\')">← All insights</a>'+
+    '<div class="blog-date">'+escH(fmtPostDate(p.date))+'</div><h1 class="blog-title">'+escH(p.title||'Untitled')+'</h1>'+
+    (p.cover?'<img class="blog-hero" src="'+escH(p.cover)+'" alt="">':'')+
+    '<div class="blog-post">'+sanitizePost(p.body||'')+'</div>';
+  showPage('post');
 }
 
 /* Cached overrides (instant apply, no flash) + live published fetch from Supabase */
@@ -3418,7 +3613,8 @@ function loadPublishedContent(){
 
 /* Bridge so the (separately loaded) editor can reach the engine */
 window.RE_API={
-  applyOverrides, injectThemeOverrides, applyFonts, sanitizeFragment, getEditKey, cssVar, refreshCalcInfo,
+  applyOverrides, injectThemeOverrides, applyFonts, sanitizeFragment, sanitizePost, getEditKey, cssVar, refreshCalcInfo,
+  applyHidden, applyOrder, sigStampKids, reResolve, renderBlog, showPage,
   get overrides(){ return OVERRIDES; },
   setOverrides(v){ applyOverrides(v||{}); },
   get calcInfo(){ return CALC_INFO; },
