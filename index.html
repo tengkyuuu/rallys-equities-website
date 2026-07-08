@@ -101,12 +101,18 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .ptab.on{background:var(--g);color:#fff}
 .cw{padding:10px 15px 4px}.cw canvas{display:block;width:100%!important;height:90px!important}
 .clbl{display:flex;justify-content:space-between;padding:2px 15px 6px;font-size:9px;color:var(--mt2)}
-.shdr{display:grid;grid-template-columns:1fr 76px 62px 60px;padding:4px 15px;font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
-.srow{display:grid;grid-template-columns:1fr 76px 62px 60px;align-items:center;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s}
+/* header + rows share one flex layout so any column can be toggled off cleanly
+   (hidden cell collapses, siblings keep their widths, no leftover gap/misalign) */
+.shdr{display:flex;align-items:center;padding:4px 15px;font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
+.srow{display:flex;align-items:center;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s}
 .srow:hover{background:color-mix(in srgb, var(--g) 8%, transparent)}.srow:last-child{border-bottom:none}
+.sco,.sh-co{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
 .sname{font-weight:600;font-size:13px}.ssub{font-size:10px;color:var(--mt2);margin-top:1px}
-.sprice{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
-.schg{text-align:right;font-size:11.5px;font-weight:600}
+.sprice,.sh-price{width:76px;flex:none;text-align:right}
+.schg,.sh-chg{width:62px;flex:none;text-align:right}
+.spct,.sh-pct{width:60px;flex:none;text-align:right}
+.sprice{font-variant-numeric:tabular-nums;font-weight:500}
+.schg{font-size:11.5px;font-weight:600}
 .pill{display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700}
 .pill-u{background:color-mix(in srgb, var(--up) 12%, transparent);color:var(--up);border:1px solid color-mix(in srgb, var(--up) 20%, transparent)}
 .pill-d{background:color-mix(in srgb, var(--dn) 11%, transparent);color:var(--dn);border:1px solid color-mix(in srgb, var(--dn) 18%, transparent)}
@@ -1076,7 +1082,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       </div>
       <div class="cw"><canvas id="heroChart"></canvas></div>
       <div class="clbl"><span>09:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span></div>
-      <div class="shdr"><span data-edit="pcard.th1" data-edit-free="1">Company</span><span style="text-align:right" data-edit="pcard.th2" data-edit-free="1">Price</span><span style="text-align:right" data-edit="pcard.th3" data-edit-free="1">Chg</span><span style="text-align:right" data-edit="pcard.th4" data-edit-free="1">%</span></div>
+      <div class="shdr"><span class="sh-co" data-edit="pcard.th1" data-edit-free="1">Company</span><span class="sh-price" data-edit="pcard.th2" data-edit-free="1">Price</span><span class="sh-chg" data-edit="pcard.th3" data-edit-free="1">Chg</span><span class="sh-pct" data-edit="pcard.th4" data-edit-free="1">%</span></div>
       <div id="heroStocks"></div>
       <div class="idxrow">
         <div class="ixc"><div class="ixn" data-edit="pcard.ix1" data-edit-free="1">KSE-30</div><div class="ixv" id="k30">53,716.03</div><div class="ixch" style="color:var(--up)">▲ +1.14%</div></div>
@@ -2702,7 +2708,7 @@ function renderHeroStocks(){
   const el=document.getElementById('heroStocks');if(!el)return;
   el.innerHTML=PSX.slice(0,5).map(s=>{
     const p=sp[s.sym],ch=sc[s.sym],pch=(ch/so[s.sym]*100),up=ch>=0;
-    return `<div class="srow"><div style="display:flex;align-items:center;gap:8px"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div class="sname">${s.sym}</div><div class="ssub">${s.name.slice(0,14)}</div></div></div><div class="sprice">${fmt(p)}</div><div class="schg" style="color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</div><div style="text-align:right"><span class="pill ${up?'pill-u':'pill-d'}">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></div></div>`;
+    return `<div class="srow"><div class="sco"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div class="sname">${s.sym}</div><div class="ssub">${s.name.slice(0,14)}</div></div></div><div class="sprice">${fmt(p)}</div><div class="schg" style="color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</div><div class="spct"><span class="pill ${up?'pill-u':'pill-d'}">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></div></div>`;
   }).join('');
 }
 

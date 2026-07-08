@@ -217,7 +217,17 @@ function onAuthed(){
     .catch(e=>{ console.warn(e); WORK=blank(); })
     .then(()=>{ if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard(); });
 }
-function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:d.hidden||{},order:d.order||{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
+/* Legacy market-panel hide keys → new column keys (also hide the matching header cell) */
+const HIDDEN_MIGRATE={
+  'sel:#heroStocks .sprice':'sel:#heroStocks .sprice, .pcard .sh-price',
+  'sel:#heroStocks .schg':'sel:#heroStocks .schg, .pcard .sh-chg',
+  'sel:#heroStocks .pill':'sel:#heroStocks .spct, .pcard .sh-pct'
+};
+function migrateHidden(hidden){ hidden=hidden||{};
+  for(const oldK in HIDDEN_MIGRATE){ if(oldK in hidden){ const v=hidden[oldK]; delete hidden[oldK]; hidden[HIDDEN_MIGRATE[oldK]]=v; } }
+  return hidden;
+}
+function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:migrateHidden(d.hidden||{}),order:d.order||{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
 
 /* ════════ DASHBOARD APP (fullscreen: sidebar + views) ════════ */
@@ -716,9 +726,9 @@ const PCARD_PARTS=[
   ['sel:.pcard .shdr','Company table header'],
   ['sel:#heroStocks','Company list'],
   ['sel:#heroStocks .slogo','Company logos'],
-  ['sel:#heroStocks .sprice','Prices'],
-  ['sel:#heroStocks .schg','Change values'],
-  ['sel:#heroStocks .pill','Percent pills'],
+  ['sel:#heroStocks .sprice, .pcard .sh-price','Prices (column)'],
+  ['sel:#heroStocks .schg, .pcard .sh-chg','Change values (column)'],
+  ['sel:#heroStocks .spct, .pcard .sh-pct','Percent pills (column)'],
   ['sel:.pcard .idxrow','Indices strip (KSE-30 · KMI-30 · ALLSHR)'],
 ];
 function widgetRoot(el){ for(const [sel] of WIDGETS){ const w=el.closest&&el.closest(sel); if(w)return w; } return null; }
