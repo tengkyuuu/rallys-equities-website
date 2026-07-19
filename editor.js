@@ -345,44 +345,56 @@ function renderEditors(){
     btn.disabled=true; btn.textContent='Sending…';
     Promise.resolve(Store.inviteEditor(e)).then(r=>{ btn.disabled=false; btn.textContent='Send invite'; em.value='';
       if(r&&r.link)showLink(r.link,e,r);
-      toast(r&&r.emailed?('Invite emailed to '+e):'Invite created — share the link', r&&r.emailed?undefined:'err'); loadList(); })
+      toast(r&&r.emailed?('Invite emailed to '+e):'Invite created — share the link', r&&r.emailed?undefined:'err'); loadList(false); })
       .catch(x=>{ err.textContent=x.message||'Could not create invite.'; btn.disabled=false; btn.textContent='Send invite'; });
   }
   em.addEventListener('keydown',e=>{ if(e.key==='Enter')create(); });
-  function loadList(){ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Loading…'));
+  /* readOnly → viewers (non-owners) see the roster but no Resend/Revoke controls */
+  function loadList(readOnly){ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Loading…'));
     Promise.resolve(Store.listInvites()).then(rows=>{ listWrap.innerHTML='';
-      if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},'No invites yet.')); return; }
+      if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},readOnly?'No editors yet.':'No invites yet.')); return; }
       rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
-        if(st!=='Accepted'){
-          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(); }).catch(x=>toast(x.message,'err')); }},icon('refresh',12),'Resend'));
-          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
+        if(!readOnly && st!=='Accepted'){
+          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false); }).catch(x=>toast(x.message,'err')); }},icon('refresh',12),'Resend'));
+          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
         }
         listWrap.append(h('div',{class:'re-inv-row'},
           h('span',{class:'re-inv-email',title:inv.email},inv.email),
           h('span',{class:'re-badge re-inv-'+st.toLowerCase()},st),
           h('span',{class:'re-inv-actions'},...acts)));
       });
-    }).catch(x=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load invites: '+x.message)); });
+    }).catch(x=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load the list: '+x.message)); });
   }
   const ownerUI=()=>{
     dashMain.append(h('div',{class:'re-card'},
       h('div',{class:'re-field'},h('label',{},'Their email'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
-    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',loadList)));
+    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',()=>loadList(false))));
     dashMain.append(listWrap);
     dashMain.append(h('p',{class:'re-footnote'},'Need to remove someone who already accepted? For now that’s done from the Supabase dashboard (Authentication → Users).'));
-    loadList();
+    loadList(false);
   };
-  /* Only the site owner may add/remove editors — enforced server-side; the UI
-     just reflects it. On a failed check we still show the UI (the server rejects). */
+  /* Non-owners: read-only roster — they can see who has access but can't change it.
+     Enforced server-side (invite/revoke return 403); the UI just reflects it. */
+  const viewerUI=(owners)=>{
+    dashMain.append(h('div',{class:'re-card re-set-card'},
+      h('div',{class:'re-set-h'},icon('eye',16),' View only'),
+      h('p',{class:'re-set-note',style:'margin:0'},'You can see who has access to the website. Only the site owner can add or remove editors.')));
+    if(owners&&owners.length){
+      const ow=h('div',{class:'re-inv-list'});
+      owners.forEach(email=>ow.append(h('div',{class:'re-inv-row'},
+        h('span',{class:'re-inv-email',title:email},email),
+        h('span',{class:'re-badge re-inv-accepted'},'Owner'))));
+      dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Owners')));
+      dashMain.append(ow);
+    }
+    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Editors'),iconBtn('refresh','Refresh',()=>loadList(true))));
+    dashMain.append(listWrap);
+    loadList(true);
+  };
   const gate=h('div',{class:'re-inv-empty'},'Loading…'); dashMain.append(gate);
   Promise.resolve(Store.myRole?Store.myRole():{owner:true}).then(r=>{
     gate.remove();
-    if(r&&r.owner===false){
-      dashMain.append(h('div',{class:'re-card re-set-card'},
-        h('div',{class:'re-set-h'},'Editor management is restricted'),
-        h('p',{class:'re-set-note',style:'margin:0'},'Only the site owner can add or remove editors. If you need a teammate added or removed, please ask the site owner to do it from their account.')));
-      return;
-    }
+    if(r&&r.owner===false){ viewerUI(r.owners||[]); return; }
     ownerUI();
   }).catch(()=>{ gate.remove(); ownerUI(); });
 }

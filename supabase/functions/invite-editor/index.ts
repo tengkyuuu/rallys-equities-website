@@ -127,10 +127,14 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const admin = createClient(SUPABASE_URL, SERVICE);
 
-    // Owner gate. `me` lets the admin UI check its own status; everything that
-    // adds or removes editors requires an owner (see isOwner / OWNER_EMAILS).
+    // Owner gate. `me` lets the admin UI check its own status and (for viewers)
+    // see who the owners are. Everything that adds/removes editors requires an owner.
     const owner = isOwner(user);
-    if (body.action === "me") return json({ owner });
+    if (body.action === "me") {
+      const rawOwners = (Deno.env.get("OWNER_EMAILS") || "").trim();
+      const owners = rawOwners ? rawOwners.split(/[,\s]+/).map((s: string) => s.toLowerCase()).filter(Boolean) : [];
+      return json({ owner, owners });
+    }
     if (!owner) return json({ error: "Only the site owner can add or remove editors." }, 403);
 
     // 2) Revoke an invite.
