@@ -34,6 +34,58 @@ async function findUser(admin: ReturnType<typeof createClient>, email: string) {
   return null;
 }
 
+const esc = (v: unknown) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
+// Send the invite as a branded email via Resend. Best-effort: returns an error
+// string on failure so the caller can still fall back to sharing the link.
+async function sendInviteEmail(email: string, link: string): Promise<string | null> {
+  const KEY = Deno.env.get("RESEND_API_KEY") || "";
+  // Reuse the submission-alert sender if a dedicated one isn't set; last resort is Resend's sandbox address.
+  const FROM = Deno.env.get("INVITE_FROM") || Deno.env.get("NOTIFY_FROM") || "Rallys Equities <onboarding@resend.dev>";
+  if (!KEY) return "RESEND_API_KEY secret is not set";
+  const subject = "You're invited to edit the Rallys Equities website";
+  const safeLink = esc(link);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#EAE6DB;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EAE6DB;padding:28px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #ECE5D4;border-radius:16px;overflow:hidden;">
+        <tr><td style="padding:26px 32px 6px;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:bold;color:#9A7B1F;">Rallys Equities</div>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9AA3AE;margin-top:4px;">Website editor invite</div>
+        </td></tr>
+        <tr><td style="padding:14px 32px 4px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:#172538;">
+          Hi,<br><br>You've been invited to help manage the Rallys Equities website. Click the button below to set your password and get started. This link is valid for about 24 hours.
+        </td></tr>
+        <tr><td style="padding:22px 32px;" align="left">
+          <a href="${safeLink}" style="display:inline-block;background:#0A6B4B;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;padding:13px 26px;border-radius:10px;">Set my password &rarr;</a>
+        </td></tr>
+        <tr><td style="padding:0 32px 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8A93A0;">
+          If the button doesn't work, copy and paste this link into your browser:<br>
+          <a href="${safeLink}" style="color:#0A6B4B;word-break:break-all;">${safeLink}</a>
+        </td></tr>
+        <tr><td style="padding:16px 32px 26px;border-top:1px solid #F0ECE0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9AA3AE;">
+          If you weren't expecting this invite, you can safely ignore this email.
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  const text = `You've been invited to help manage the Rallys Equities website.\n\nSet your password and get started (valid ~24 hours):\n${link}\n\nIf you weren't expecting this, you can ignore this email.`;
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: email, subject, html, text }),
+    });
+    if (!r.ok) return `Resend ${r.status}: ${(await r.text().catch(() => "")).slice(0, 200)}`;
+    return null;
+  } catch (e) {
+    return String((e as Error).message);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -92,7 +144,10 @@ Deno.serve(async (req) => {
       email, role: "editor", invited_by: user.id, auth_user_id: newUserId, expires_at,
     });
 
-    return json({ ok: true, email, link, expires_at });
+    // Email the invite (best-effort). On failure we still return the link so the
+    // admin can share it manually — the copy-link flow stays as a fallback.
+    const emailError = link ? await sendInviteEmail(email, link) : "No link was generated";
+    return json({ ok: true, email, link, expires_at, emailed: !emailError, emailError: emailError || undefined });
   } catch (e) {
     return json({ error: String((e as Error).message) }, 500);
   }

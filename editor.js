@@ -306,23 +306,29 @@ function renderOverview(){
   dashMain.append(list);
 }
 
-/* ── Editors (invite by link; Resend email needs a verified domain, so links are the flow) ── */
+/* ── Editors (invite by email via Resend; the shareable link stays as a fallback) ── */
 function inviteStatus(inv){ if(inv.accepted_at)return'Accepted'; if(inv.expires_at&&new Date(inv.expires_at)<=new Date())return'Expired'; return'Pending'; }
 function renderEditors(){
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Editors'),h('p',{},'Give a teammate access — create an invite link and send it over WhatsApp or email.')));
+  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Editors'),h('p',{},'Give a teammate access — they’ll get an email invite to set their own password. You can also copy the link and send it yourself.')));
   const err=h('div',{class:'re-err',role:'alert'});
   const em=h('input',{class:'re-input',type:'email',placeholder:'teammate@gmail.com','aria-label':'Teammate email'});
-  const btn=h('button',{class:'re-btn re-btn-pri',onclick:()=>create()},'Create invite link');
+  const btn=h('button',{class:'re-btn re-btn-pri',onclick:()=>create()},'Send invite');
   const linkBox=h('div',{class:'re-linkbox'});
   const listWrap=h('div',{class:'re-inv-list'});
   const cpy=(text,label,inp)=>{ if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast(label+' copied')).catch(()=>inp&&inp.select());}else if(inp){inp.select();} };
-  const showLink=(url,email)=>{
+  const showLink=(url,email,res)=>{
+    res=res||{}; const emailed=res.emailed;
     linkBox.innerHTML='';
+    linkBox.classList.toggle('re-linkbox-warn',!emailed);
     const inp=h('input',{class:'re-input re-linkinput',value:url,readonly:'readonly','aria-label':'Invite link'});
     const msg='Hi! You’ve been invited to help manage the Rallys Equities website. Tap this link to set your password and get started (valid ~24 hours):\n\n'+url;
     linkBox.append(
-      h('div',{class:'re-linkbox-h'},icon('check',14),'Invite link ready for '+email),
-      h('div',{class:'re-linkbox-note'},'Send it however you like — “Copy message” gives a friendly note plus the link, ready for WhatsApp or email. Valid ~24 hours.'),
+      emailed
+        ? h('div',{class:'re-linkbox-h'},icon('check',14),'Invite emailed to '+email)
+        : h('div',{class:'re-linkbox-h'},icon('alert',14),'Email didn’t send — share this link instead'),
+      h('div',{class:'re-linkbox-note'}, emailed
+        ? 'They’ll receive an email with a “Set my password” button. Prefer to send it yourself? Use the link below (valid ~24 hours).'
+        : ('The invite was created but the email couldn’t be sent'+(res.emailError?(' — '+res.emailError):'')+'. Copy the link or message and send it over WhatsApp or email.')),
       h('div',{class:'re-linkrow'},inp,
         h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>cpy(url,'Link',inp)},icon('copy',14),'Copy link'),
         h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>cpy(msg,'Message',inp)},icon('mail',14),'Copy message')));
@@ -330,10 +336,11 @@ function renderEditors(){
   };
   function create(){ err.textContent=''; const e=(em.value||'').trim();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Enter a valid email address.'; return; }
-    btn.disabled=true; btn.textContent='Creating…';
-    Promise.resolve(Store.inviteEditor(e)).then(r=>{ btn.disabled=false; btn.textContent='Create invite link'; em.value='';
-      if(r&&r.link)showLink(r.link,e); else toast('Invite created'); loadList(); })
-      .catch(x=>{ err.textContent=x.message||'Could not create invite.'; btn.disabled=false; btn.textContent='Create invite link'; });
+    btn.disabled=true; btn.textContent='Sending…';
+    Promise.resolve(Store.inviteEditor(e)).then(r=>{ btn.disabled=false; btn.textContent='Send invite'; em.value='';
+      if(r&&r.link)showLink(r.link,e,r);
+      toast(r&&r.emailed?('Invite emailed to '+e):'Invite created — share the link', r&&r.emailed?undefined:'err'); loadList(); })
+      .catch(x=>{ err.textContent=x.message||'Could not create invite.'; btn.disabled=false; btn.textContent='Send invite'; });
   }
   em.addEventListener('keydown',e=>{ if(e.key==='Enter')create(); });
   function loadList(){ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Loading…'));
@@ -341,7 +348,7 @@ function renderEditors(){
       if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},'No invites yet.')); return; }
       rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
         if(st!=='Accepted'){
-          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email); loadList(); }).catch(x=>toast(x.message,'err')); }},icon('refresh',12),'New link'));
+          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(); }).catch(x=>toast(x.message,'err')); }},icon('refresh',12),'Resend'));
           acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
         }
         listWrap.append(h('div',{class:'re-inv-row'},

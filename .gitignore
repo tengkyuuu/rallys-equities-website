@@ -8,4 +8,5 @@ scrape/
 .vercel/
 *.log
 .DS_Store
+supabase/.temp/
 Thumbs.db

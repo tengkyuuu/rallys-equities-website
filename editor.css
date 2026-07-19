@@ -317,7 +317,9 @@ body.re-dash-open{ overflow:hidden; }
 .re-invrow .re-input{ flex:1; }
 .re-invrow .re-btn{ flex:none; white-space:nowrap; }
 .re-linkbox{ display:none; margin-top:14px; padding:13px 14px; border:1px solid rgba(46,204,138,.35); border-radius:11px; background:rgba(46,204,138,.06); }
+.re-linkbox-warn{ border-color:var(--re-line); background:rgba(203,171,82,.08); }
 .re-linkbox-h{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--re-ok); margin-bottom:4px; }
+.re-linkbox-warn .re-linkbox-h{ color:var(--re-gd2); }
 .re-linkbox-note{ font-size:11.5px; color:var(--re-mt); line-height:1.5; margin-bottom:10px; }
 .re-linkrow{ display:flex; gap:8px; flex-wrap:wrap; }
 .re-linkinput{ flex:1 1 200px; font-size:12px; }

@@ -975,7 +975,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
         <svg class="ic-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
       </button>
       <button class="btn btn-ghost" onclick="showPage('account')">Log In</button>
-      <button class="btn btn-primary" onclick="showPage('account')">Open Account</button>
+      <button class="btn btn-primary" onclick="openAccount()">Open Account</button>
       <button class="ham" id="hamBtn" aria-label="Menu" onclick="toggleMnav()"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -1029,7 +1029,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div class="mnav-group"><a onclick="showPage('markets')" style="font-size:15px;color:var(--tx);font-weight:600">Markets</a></div>
   <div class="mnav-group"><a onclick="showPage('insights')" style="font-size:15px;color:var(--tx);font-weight:600">Insights</a></div>
   <div class="mnav-group"><a onclick="showPage('locations')" style="font-size:15px;color:var(--tx);font-weight:600">Contact Us</a></div>
-  <button class="bbig bbig-g" onclick="showPage('account')">Open Account — کھاتہ کھولیں</button>
+  <button class="bbig bbig-g" onclick="openAccount()">Open Account — کھاتہ کھولیں</button>
 </div>
 
 <!-- TICKER -->
@@ -1048,7 +1048,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="hero-tag" data-edit="home.hero.tagline">World-class services for Pakistan's capital markets</div>
     <p class="hero-p" data-edit="home.hero.paragraph">At Rallys Equities (Pvt) Ltd, we make investing in the Pakistan Stock Exchange (PSX) simple, secure, and transparent. As a licensed and SECP-regulated brokerage firm, we provide a full suite of trading and investment solutions backed by real-time research, expert advisory, and cutting-edge technology.</p>
     <div class="hero-acts">
-      <button class="bbig bbig-g" onclick="showPage('account')">Open Free Account</button>
+      <button class="bbig bbig-g" onclick="openAccount()">Open Free Account</button>
       <button class="bbig bbig-o" onclick="showPage('services')"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 4L9 6.5L5 9V4Z" fill="currentColor"/></svg>Our Services</button>
     </div>
     <div class="trust-row">
@@ -1147,7 +1147,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="rv rv-r">
       <h3 class="sh" style="font-size:28px;margin-bottom:10px">Why Investors <em>Choose</em> Rallys Equities</h3>
       <p class="sub" style="max-width:none">Licensed and regulated by SECP &amp; PSX, we combine 35+ years of combined market leadership with modern trading technology. Competitive brokerage rates, transparent pricing, dedicated relationship managers, and Shariah-compliant investing — every transaction handled with accuracy and accountability.</p>
-      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="showPage('account')">Open Free Account</button><button class="bbig bbig-o" onclick="showPage('about')">About Us</button></div>
+      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Free Account</button><button class="bbig bbig-o" onclick="showPage('about')">About Us</button></div>
     </div>
   </div>
   <div style="text-align:center;margin-top:60px"><div class="stag">Why Investors Choose Us</div><h2 class="sh">Built on <em>Trust &amp; Transparency</em></h2></div>
@@ -1231,7 +1231,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <span class="cta-urdu">آج ہی شروع کریں — پاکستان کے مستقبل میں سرمایہ لگائیں</span>
     <p>Invest with confidence through Rallys Equities — your trusted partner in smart investing. Open your PSX account online and trade with competitive brokerage rates.</p>
     <div class="cta-btns">
-      <button class="bbig bbig-g" onclick="showPage('account')">Open Your Account — کھاتہ کھولیں</button>
+      <button class="bbig bbig-g" onclick="openAccount()">Open Your Account — کھاتہ کھولیں</button>
       <button class="bbig bbig-o" onclick="showPage('locations')">Visit Our Office</button>
     </div>
     <div class="cta-note"><span>✓ SECP regulated</span><span>✓ PSX licensed</span><span>✓ Competitive rates</span><span>✓ Shariah-compliant investing</span></div>
@@ -1304,7 +1304,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
           <div class="sf"><div class="sfi"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--g3)" stroke-width="1.4"/><path d="M8 5L8 8L11 9" stroke="var(--g3)" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="sft"><h4>Periodic Reviews</h4><p>Portfolio construction with periodic reviews and rules-based investing education.</p></div></div>
           <div class="sf"><div class="sfi"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="var(--g3)" stroke-width="1.4"/><line x1="2" y1="7" x2="14" y2="7" stroke="var(--g3)" stroke-width=".8"/></svg></div><div class="sft"><h4>Purification Guidance</h4><p>Dividend-purification guidance where applicable, keeping your approach values-aligned.</p></div></div>
         </div>
-        <button class="bbig bbig-g" style="margin-top:22px" onclick="showPage('account')">Open Halal Account</button>
+        <button class="bbig bbig-g" style="margin-top:22px" onclick="openAccount()">Open Halal Account</button>
       </div>
       <div class="sdi" style="padding:28px">
         <svg viewBox="0 0 380 280" fill="none" width="100%">
@@ -1377,9 +1377,9 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <!-- MORE SERVICES -->
   <div style="margin-top:72px;text-align:center"><div class="stag">More Services</div><h3 class="sh" style="font-size:34px">Everything Else We <em>Offer</em></h3></div>
   <div class="svc-grid" style="grid-template-columns:repeat(2,1fr)">
-    <div class="svc-card" id="svc-corporate"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="9" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><path d="M9 9L9 6Q9 3 13 3Q17 3 17 6L17 9" stroke="var(--g3)" stroke-width="1.7" fill="none"/><circle cx="13" cy="15.5" r="2.2" stroke="var(--g3)" stroke-width="1.4"/></svg></div><div class="svc-title">Corporate &amp; Institutional Accounts</div><div class="svc-desc">Onboard companies, funds, and family offices with compliant documentation, board resolutions, and authorized trader lists. Enable multi-user access with maker-checker approvals and user-level permissions. We provide tailored reports — execution quality, exposure, corporate actions — and careful handling of larger tickets or blocks (where available).<br><br><strong style="color:var(--au)">What you get:</strong><br>• Corporate KYC &amp; documentation support<br>• Role-based access and approvals<br>• Custom reports (TCA, ledgers, actions)<br>• Dedicated desk and service SLAs</div><div class="svc-link" onclick="showPage('account')">Open Your Account →</div></div>
+    <div class="svc-card" id="svc-corporate"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="9" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><path d="M9 9L9 6Q9 3 13 3Q17 3 17 6L17 9" stroke="var(--g3)" stroke-width="1.7" fill="none"/><circle cx="13" cy="15.5" r="2.2" stroke="var(--g3)" stroke-width="1.4"/></svg></div><div class="svc-title">Corporate &amp; Institutional Accounts</div><div class="svc-desc">Onboard companies, funds, and family offices with compliant documentation, board resolutions, and authorized trader lists. Enable multi-user access with maker-checker approvals and user-level permissions. We provide tailored reports — execution quality, exposure, corporate actions — and careful handling of larger tickets or blocks (where available).<br><br><strong style="color:var(--au)">What you get:</strong><br>• Corporate KYC &amp; documentation support<br>• Role-based access and approvals<br>• Custom reports (TCA, ledgers, actions)<br>• Dedicated desk and service SLAs</div><div class="svc-link" onclick="openAccount()">Open Your Account →</div></div>
     <div class="svc-card" id="svc-research"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19L9 7L15 13L21 3" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="3" r="1.8" fill="var(--g3)"/><line x1="3" y1="22" x2="23" y2="22" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="svc-title">Market Research &amp; Insights</div><div class="svc-desc">Stay oriented with concise market summaries, sector snapshots, and earnings calendar highlights. We keep the language simple, focus on what moved markets, and explain why it mattered — useful for decision support without hype. Get regular updates, investor education pieces, and tools to interpret data responsibly.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Daily/weekly recaps and top movers<br>• Earnings dates and key takeaways<br>• Sector notes and simple explainers<br>• Opt-in email/WhatsApp alerts</div><div class="svc-link" onclick="showPage('markets')">See live markets →</div></div>
-    <div class="svc-card" id="svc-platforms"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="7" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><rect x="8" y="3" width="10" height="5" rx="1" stroke="var(--g3)" stroke-width="1.4"/><line x1="9" y1="13" x2="17" y2="13" stroke="var(--g3)" stroke-width="1.3"/><line x1="9" y1="16" x2="14" y2="16" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div class="svc-title">Online Trading Platforms</div><div class="svc-desc">Trade anywhere with stable web and mobile platforms. Build watchlists, set price alerts, and place market/limit/stop orders in a few taps. Review ledgers, contract notes, and P&amp;L with downloadable statements. Sign-in security and session controls help protect access, while our support team assists with platform setup and troubleshooting.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Live quotes, charts, and alerts<br>• Day/IOC/GTC (if supported) order validity<br>• Downloadable ledgers and contract notes<br>• 2FA and session-level security</div><div class="svc-link" onclick="showPage('account')">Open Your Account →</div></div>
+    <div class="svc-card" id="svc-platforms"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="7" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><rect x="8" y="3" width="10" height="5" rx="1" stroke="var(--g3)" stroke-width="1.4"/><line x1="9" y1="13" x2="17" y2="13" stroke="var(--g3)" stroke-width="1.3"/><line x1="9" y1="16" x2="14" y2="16" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div class="svc-title">Online Trading Platforms</div><div class="svc-desc">Trade anywhere with stable web and mobile platforms. Build watchlists, set price alerts, and place market/limit/stop orders in a few taps. Review ledgers, contract notes, and P&amp;L with downloadable statements. Sign-in security and session controls help protect access, while our support team assists with platform setup and troubleshooting.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Live quotes, charts, and alerts<br>• Day/IOC/GTC (if supported) order validity<br>• Downloadable ledgers and contract notes<br>• 2FA and session-level security</div><div class="svc-link" onclick="openAccount()">Open Your Account →</div></div>
     <div class="svc-card" id="svc-support"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="10" r="4" stroke="var(--g3)" stroke-width="1.7"/><path d="M4 22Q4 16 13 16Q22 16 22 22" stroke="var(--g3)" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg></div><div class="svc-title">Customer Support — Customer &amp; Investor Education</div><div class="svc-desc">Great brokerage is great service. Our desk helps with account opening, platform setup, order placement basics, reconciliations, and corporate actions. Reach us via phone, WhatsApp, or email during support hours; visit in person where available. For concerns, use our complaints &amp; grievances path so we can resolve issues quickly and transparently.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Onboarding and platform walkthroughs<br>• Order, statements, and actions support<br>• Phone/WhatsApp/email ticketing with SLAs<br>• Clear escalation/complaints pathway</div><div class="svc-link" onclick="showPage('locations')">Contact support →</div></div>
   </div>
 </section>
@@ -1389,11 +1389,11 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div style="text-align:center"><div class="stag">Account Types</div><h2 class="sh">Choose Your <em>Account</em> <span>Plan</span></h2><p class="sub" style="margin:0 auto;text-align:center">All accounts are SECP regulated with CDC asset protection. No hidden fees.</p></div>
   <div class="price-grid">
     <div class="prc"><div class="prc-name">Individual</div><div class="prc-price">Free</div><div class="prc-period">Account opening · Competitive rates</div><ul class="prc-features"><li>PSX equity trading</li><li>Real-time market data</li><li>Online trading platforms (mobile &amp; web)</li><li>Market research &amp; insights</li><li>Dedicated customer support</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Get Started</button></div>
-    <div class="prc feat"><div class="prc-badge">Most Popular</div><div class="prc-name">Shariah Compliant</div><div class="prc-price">Free</div><div class="prc-period">Values-aligned investing</div><ul class="prc-features"><li>Everything in Individual</li><li>Screened Shariah-compliant universes</li><li>Portfolio construction &amp; periodic reviews</li><li>Dividend-purification guidance</li><li>Rules-based investing education</li></ul><button class="bbig bbig-g" style="width:100%;justify-content:center" onclick="showPage('account')">Open Account</button></div>
+    <div class="prc feat"><div class="prc-badge">Most Popular</div><div class="prc-name">Shariah Compliant</div><div class="prc-price">Free</div><div class="prc-period">Values-aligned investing</div><ul class="prc-features"><li>Everything in Individual</li><li>Screened Shariah-compliant universes</li><li>Portfolio construction &amp; periodic reviews</li><li>Dividend-purification guidance</li><li>Rules-based investing education</li></ul><button class="bbig bbig-g" style="width:100%;justify-content:center" onclick="openAccount()">Open Account</button></div>
     <div class="prc"><div class="prc-name">Corporate</div><div class="prc-price" style="font-size:26px">Custom</div><div class="prc-period">For businesses &amp; institutions</div><ul class="prc-features"><li>Professional institutional guidance</li><li>Portfolio management framework</li><li>Dedicated relationship manager</li><li>Priority market research access</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Contact Us</button></div>
   </div>
 </section>
-<div class="cta-block" style="margin-top:72px"><div class="cta-inner"><h2>Ready to <em>Start</em> <span>Investing?</span></h2><p>Join thousands of Pakistanis who trust Rallys Equities with their financial future.</p><div class="cta-btns"><button class="bbig bbig-g" onclick="showPage('account')">Open Account Now</button><button class="bbig bbig-o" onclick="showPage('locations')">Visit Our Office</button></div></div></div>
+<div class="cta-block" style="margin-top:72px"><div class="cta-inner"><h2>Ready to <em>Start</em> <span>Investing?</span></h2><p>Join thousands of Pakistanis who trust Rallys Equities with their financial future.</p><div class="cta-btns"><button class="bbig bbig-g" onclick="openAccount()">Open Account Now</button><button class="bbig bbig-o" onclick="showPage('locations')">Visit Our Office</button></div></div></div>
 </div><!-- end services -->
 
 <!-- ══════ MARKETS PAGE ══════ -->
@@ -1414,7 +1414,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <th style="width:16%">Chg %</th><th style="width:12%">Volume</th><th style="width:10%">Sector</th>
     </tr></thead><tbody id="mktTbody"></tbody></table></div>
   </div>
-  <p style="font-size:11px;color:var(--mt2);margin-top:12px;line-height:1.6">Live prices for every PSX-listed company, sourced from the Pakistan Stock Exchange (delayed ~15 min) and sorted by most active. Use the search above to find any stock. For live, tradable quotes and execution, <a onclick="showPage('account')" style="color:var(--g3);cursor:pointer">open an account</a>.</p>
+  <p style="font-size:11px;color:var(--mt2);margin-top:12px;line-height:1.6">Live prices for every PSX-listed company, sourced from the Pakistan Stock Exchange (delayed ~15 min) and sorted by most active. Use the search above to find any stock. For live, tradable quotes and execution, <a onclick="openAccount()" style="color:var(--g3);cursor:pointer">open an account</a>.</p>
   <div style="margin-top:24px"><div style="font-size:13px;font-weight:700;color:var(--au);margin-bottom:14px">PKR Exchange Rates</div>
   <div class="cur-grid">
     <div class="cur-c"><div class="cur-p">USD / PKR</div><div class="cur-v">279.45</div><div class="cur-ch" style="color:var(--up)">+0.12</div></div>
@@ -1451,7 +1451,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       </div>
       <div class="ct-cta">
         <button class="bbig bbig-g" style="width:100%;display:block;text-align:center" onclick="showPage('account')">Book an appointment</button>
-        <button class="bbig bbig-o" style="width:100%;display:block;text-align:center" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open account online via eClear ↗</button>
+        <button class="bbig bbig-o" style="width:100%;display:block;text-align:center" onclick="openAccount()">Open account online via eClear ↗</button>
       </div>
     </div>
 
@@ -1526,7 +1526,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <p class="sub" style="max-width:none">With transparent reporting, reliable trade execution, and dedicated client support, Rallys Equities ensures that every transaction is handled with accuracy and accountability. We believe long-term success in the capital markets is built on consistency, governance, and investor confidence — principles that continue to guide our growth and relationships.</p>
   </div>
 </section>
-<div class="cta-block"><div class="cta-inner"><h2>Join the Rallys <em>Family</em></h2><p>Open your account today and become part of Pakistan's growing investor community.</p><div class="cta-btns"><button class="bbig bbig-g" onclick="showPage('account')">Open Free Account</button><button class="bbig bbig-o" onclick="showPage('locations')">Visit Us</button></div></div></div>
+<div class="cta-block"><div class="cta-inner"><h2>Join the Rallys <em>Family</em></h2><p>Open your account today and become part of Pakistan's growing investor community.</p><div class="cta-btns"><button class="bbig bbig-g" onclick="openAccount()">Open Free Account</button><button class="bbig bbig-o" onclick="showPage('locations')">Visit Us</button></div></div></div>
 </div><!-- end about -->
 
 <!-- ══════ ACCOUNT OPENING PAGE ══════ -->
@@ -1816,7 +1816,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="pol-chip"><span class="pn">06</span>Shariah Compliant Investing</div>
     </div>
   </div>
-  <div style="margin-top:48px;text-align:center"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button></div>
+  <div style="margin-top:48px;text-align:center"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button></div>
 </section>
 </div>
 
@@ -1911,7 +1911,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Shariah-Compliant Investments &mdash; Islamic equities, funds, Sukuk</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Portfolio Services &mdash; managed and advisory accounts</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: corporate -->
@@ -1927,7 +1927,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Custom reports (TCA, ledgers, actions)</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Dedicated desk and service SLAs</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: portfolio -->
@@ -1942,7 +1942,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Rebalance plans and periodic reviews</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Position-size and drawdown guidelines</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: research -->
@@ -1958,7 +1958,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Sector notes and simple explainers</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Opt-in email/WhatsApp alerts</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: shariah -->
@@ -1974,7 +1974,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Purification guidance where applicable</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Education focused on rules-based investing</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: platforms -->
@@ -1990,7 +1990,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Downloadable ledgers and contract notes</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>2FA and session-level security</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- SERVICE PAGE: support -->
@@ -2006,7 +2006,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Phone/WhatsApp/email ticketing with SLAs</h4></div></div>
       <div class="sf"><div class="sfi"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="var(--g3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sft"><h4>Clear escalation/complaints pathway</h4></div></div>
   </div>
-  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="window.open('https://aof.eclear.com.pk/repl','_blank')">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button><button class="bbig bbig-o" onclick="showPage('services')">All Services</button></div>
 </section>
 </div>
 <!-- INVESTOR PORTAL PAGE -->
@@ -2539,7 +2539,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       </div>
     </div>
     <div class="fc2"><h5>Services</h5><ul><li><a onclick="showPage('services')">Investment &amp; Trading</a></li><li><a onclick="showPage('services')">Portfolio Management</a></li><li><a onclick="showPage('services')">Corporate Accounts</a></li><li><a onclick="showPage('services')">Market Research &amp; Insights</a></li><li><a onclick="showPage('services')">Shariah Compliant Investing</a></li><li><a onclick="showPage('markets')">Live Markets</a></li></ul></div>
-    <div class="fc2"><h5>Company</h5><ul><li><a onclick="showPage('about')">About Us</a></li><li><a onclick="showPage('management')">Our Management</a></li><li><a onclick="showPage('locations')">Our Office</a></li><li><a onclick="showPage('account')">Open Account</a></li><li><a onclick="showPage('careers')">Careers</a></li><li><a onclick="showPage('locations')">Contact Us</a></li></ul></div>
+    <div class="fc2"><h5>Company</h5><ul><li><a onclick="showPage('about')">About Us</a></li><li><a onclick="showPage('management')">Our Management</a></li><li><a onclick="showPage('locations')">Our Office</a></li><li><a onclick="openAccount()">Open Account</a></li><li><a onclick="showPage('careers')">Careers</a></li><li><a onclick="showPage('locations')">Contact Us</a></li></ul></div>
     <div class="fc2"><h5>Resources</h5><ul><li><a onclick="showPage('markets')">PSX Market Data</a></li><li><a onclick="showPage('education')">Investor Education</a></li><li><a onclick="showPage('awareness')">Education &amp; Awareness</a></li><li><a onclick="goSec('education','ir-strategies')">Top Five Strategies</a></li><li><a onclick="showPage('faq')">FAQ</a></li><li><a onclick="showPage('cagr')">Investor Calculators</a></li><li><a href="https://aof.eclear.com.pk/repl" target="_blank" rel="noopener">eClear Account Opening</a></li></ul></div>
   </div>
   <div class="footer-bot">
@@ -2818,6 +2818,7 @@ const NAV_PARENT={
   faq:'misc',downloads:'misc',links:'misc',careers:'misc',complaints:'misc',feedback:'misc',
   post:'insights'
 };
+function openAccount(){ window.open('https://aof.eclear.com.pk/repl','_blank','noopener'); }
 function showPage(id){
   const target=document.getElementById('page-'+id);
   if(target&&target.classList.contains('re-hid')&&id!=='home'){ id='home'; } // deleted page → home
@@ -3394,6 +3395,12 @@ addEventListener('re-recolor',()=>{ try{drawChart();}catch(e){} });
 function cssEsc(s){ return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/["\\]/g,'\\$&'); }
 
 /* Allowlist sanitizer for edited HTML fragments (defense-in-depth; also runs in the editor) */
+/* URL guards — normalize the way browsers do (strip control chars + whitespace
+   that could smuggle a scheme, e.g. "java\nscript:"), then allowlist protocols. */
+function reScheme(v){ const norm=String(v==null?'':v).replace(/[\u0000-\u0020\u007f-\u009f]/g,'').toLowerCase(); const m=/^([a-z][a-z0-9+.\-]*):/.exec(norm); return m?m[1]:''; }
+function reSafeHref(v){ const raw=String(v==null?'':v).trim(); if(!raw)return null; const s=reScheme(raw); if(!s)return raw; /* relative / #anchor / ?query */ return /^(https?|mailto|tel)$/.test(s)?raw:null; }
+function reSafeImg(v){ const raw=String(v==null?'':v).trim(); if(!raw)return null; const s=reScheme(raw); if(!s)return raw; if(/^https?$/.test(s))return raw; if(s==='data'&&/^data:image\/(png|jpe?g|webp|gif|avif);/i.test(raw.replace(/\s/g,'')))return raw; return null; }
+function reHardenLink(n){ const href=n.getAttribute&&n.getAttribute('href'); if(href&&/^https?:/i.test(href.trim())){ n.setAttribute('rel','noopener noreferrer'); n.setAttribute('target','_blank'); } }
 function sanitizeFragment(html){
   const ALLOW={B:1,I:1,EM:1,STRONG:1,BR:1,SPAN:1,A:1,SUP:1,SUB:1,U:1};
   const onlyColor=v=>{const m=/(?:^|;)\s*color\s*:\s*([^;]+)/i.exec(v||'');return m?('color:'+m[1].trim()):'';};
@@ -3407,10 +3414,11 @@ function sanitizeFragment(html){
       if(!ALLOW[tag]){ const p=n.parentNode; while(n.firstChild)p.insertBefore(n.firstChild,n); p.removeChild(n); return; }
       [...n.attributes].forEach(a=>{
         const an=a.name.toLowerCase();
-        if(an==='href'&&tag==='A'){ if(/^\s*javascript:/i.test(a.value))n.removeAttribute(a.name); }
+        if(an==='href'&&tag==='A'){ const s=reSafeHref(a.value); if(s===null)n.removeAttribute(a.name); else n.setAttribute('href',s); }
         else if(an==='style'){ const s=onlyColor(a.value); s?n.setAttribute('style',s):n.removeAttribute('style'); }
         else n.removeAttribute(a.name);
       });
+      if(tag==='A')reHardenLink(n);
       walk(n);
     });
   })(tmp);
@@ -3568,11 +3576,13 @@ function sanitizePost(html){
       if(!ALLOW[tag]){ const p=n.parentNode; while(n.firstChild)p.insertBefore(n.firstChild,n); p.removeChild(n); return; }
       [...n.attributes].forEach(a=>{
         const an=a.name.toLowerCase();
-        if(an==='href'&&tag==='A'){ if(/^\s*javascript:/i.test(a.value))n.removeAttribute(a.name); }
-        else if(an==='src'&&tag==='IMG'){ if(/^\s*javascript:/i.test(a.value))n.removeAttribute(a.name); }
+        if(an==='href'&&tag==='A'){ const s=reSafeHref(a.value); if(s===null)n.removeAttribute(a.name); else n.setAttribute('href',s); }
+        else if(an==='src'&&tag==='IMG'){ const s=reSafeImg(a.value); if(s===null)n.removeAttribute(a.name); else n.setAttribute('src',s); }
         else if(an==='alt'||an==='loading'){ /* keep */ }
         else n.removeAttribute(a.name);
       });
+      if(tag==='A')reHardenLink(n);
+      if(tag==='IMG'&&!n.getAttribute('src')){ n.remove(); return; }  // drop images whose src was rejected
       walk(n);
     });
   })(tmp);
