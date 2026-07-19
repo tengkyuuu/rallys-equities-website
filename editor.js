@@ -13,6 +13,10 @@ const API = window.RE_API;
 if(!API){ console.warn('[editor] RE_API not found'); return; }
 /* invitee arriving from an email link → prompt them to set a password after auth */
 const INVITE_FLOW = /type=(invite|recovery)/.test(location.hash + location.search);
+/* Where invite emails land: the canonical live domain's set-password page (never the *.vercel.app host).
+   Falls back to the current origin for local/preview testing. */
+const CANON_ORIGIN = /rallysequities\.com$/.test(location.hostname) ? location.origin : 'https://www.rallysequities.com';
+const INVITE_REDIRECT = CANON_ORIGIN + '/set-password';
 
 /* ---------- tiny DOM helpers ---------- */
 const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
@@ -169,7 +173,7 @@ function supabaseStore(){
       if(!res.ok)throw new Error(j.error||('Request failed ('+res.status+')'));
       return j;
     },
-    async inviteEditor(email){ return await this._fn({email,redirectTo:location.origin+'/admin'}); },
+    async inviteEditor(email){ return await this._fn({email,redirectTo:INVITE_REDIRECT}); },
     async revokeInvite(id){ return await this._fn({action:'revoke',id}); },
     async listInvites(){ const{data,error}=await sb.from('invites').select('*').order('created_at',{ascending:false}); if(error)throw new Error(error.message); return data||[]; },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },

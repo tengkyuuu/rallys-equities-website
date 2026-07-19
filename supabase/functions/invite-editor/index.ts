@@ -46,29 +46,43 @@ async function sendInviteEmail(email: string, link: string): Promise<string | nu
   if (!KEY) return "RESEND_API_KEY secret is not set";
   const subject = "You're invited to edit the Rallys Equities website";
   const safeLink = esc(link);
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
-<body style="margin:0;padding:0;background:#EAE6DB;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EAE6DB;padding:28px 12px;">
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light"></head>
+<body style="margin:0;padding:0;background:#E9E4D8;-webkit-text-size-adjust:100%;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#E9E4D8;">Set your password to start managing the Rallys Equities website.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#E9E4D8;padding:34px 12px;">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #ECE5D4;border-radius:16px;overflow:hidden;">
-        <tr><td style="padding:26px 32px 6px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:bold;color:#9A7B1F;">Rallys Equities</div>
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9AA3AE;margin-top:4px;">Website editor invite</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;background:#ffffff;border:1px solid #E7DFC9;border-radius:18px;overflow:hidden;">
+        <tr><td style="height:5px;line-height:5px;font-size:0;background:#0A6B4B;">&nbsp;</td></tr>
+        <tr><td style="padding:32px 38px 0;">
+          <img src="https://www.rallysequities.com/assets/img/logo.png" width="48" height="48" alt="Rallys Equities" style="display:block;border:0;outline:none;text-decoration:none;border-radius:11px;margin-bottom:15px;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:bold;color:#9A7B1F;letter-spacing:.3px;line-height:1.1;">Rallys Equities</div>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#AAB1BB;margin-top:6px;">Website Editor Invite</div>
         </td></tr>
-        <tr><td style="padding:14px 32px 4px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:#172538;">
-          Hi,<br><br>You've been invited to help manage the Rallys Equities website. Click the button below to set your password and get started. This link is valid for about 24 hours.
+        <tr><td style="padding:22px 38px 4px;font-family:Arial,Helvetica,sans-serif;color:#243244;">
+          <p style="margin:0 0 12px;font-size:16px;line-height:1.65;">You've been invited to help manage the <b>Rallys Equities</b> website.</p>
+          <p style="margin:0;font-size:14px;line-height:1.7;color:#5B6674;">Set your password below and you're ready to edit content, publish posts, and update the site — no technical setup needed.</p>
         </td></tr>
-        <tr><td style="padding:22px 32px;" align="left">
-          <a href="${safeLink}" style="display:inline-block;background:#0A6B4B;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;padding:13px 26px;border-radius:10px;">Set my password &rarr;</a>
+        <tr><td style="padding:26px 38px 4px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:12px;background:#0A6B4B;">
+            <a href="${safeLink}" style="display:inline-block;padding:15px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:12px;">Set my password &rarr;</a>
+          </td></tr></table>
         </td></tr>
-        <tr><td style="padding:0 32px 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8A93A0;">
-          If the button doesn't work, copy and paste this link into your browser:<br>
+        <tr><td style="padding:4px 38px 22px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8A93A0;">
+          For your security, this invite expires in about 24 hours.
+        </td></tr>
+        <tr><td style="padding:0 38px;"><div style="border-top:1px solid #F1ECDF;font-size:0;line-height:0;">&nbsp;</div></td></tr>
+        <tr><td style="padding:16px 38px 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8A93A0;">
+          Button not working? Copy and paste this link into your browser:<br>
           <a href="${safeLink}" style="color:#0A6B4B;word-break:break-all;">${safeLink}</a>
         </td></tr>
-        <tr><td style="padding:16px 32px 26px;border-top:1px solid #F0ECE0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9AA3AE;">
-          If you weren't expecting this invite, you can safely ignore this email.
+        <tr><td style="padding:18px 38px 30px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#AAB1BB;">
+          If you weren't expecting this invite, you can safely ignore this email.<br>
+          <span style="color:#C3B27A;font-weight:bold;">Rallys Equities (Pvt) Ltd</span> · Lahore, Pakistan
         </td></tr>
       </table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;"><tr>
+        <td style="padding:16px 8px 0;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:10.5px;letter-spacing:.4px;color:#AEA890;">SECP-licensed brokerage · PSX TREC holder</td>
+      </tr></table>
     </td></tr>
   </table>
 </body></html>`;
