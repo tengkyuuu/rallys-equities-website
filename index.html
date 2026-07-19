@@ -483,6 +483,7 @@ footer{background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 1
 .lm-img img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 /* Stock logos in ticker / tables */
 .slogo{width:24px;height:24px;border-radius:50%;background:#fff;object-fit:contain;padding:2px;flex-shrink:0;border:1px solid rgba(255,255,255,.14)}
+.slogo-mono{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;letter-spacing:.01em;line-height:1;flex-shrink:0;border:1px solid rgba(0,0,0,.05);font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}
 .ti .slogo{width:16px;height:16px;padding:1.5px}
 .mkt-sym{display:flex;align-items:center;gap:9px}
 /* Regulator brand chips */
@@ -2708,11 +2709,21 @@ function renderHeroStocks(){
   const el=document.getElementById('heroStocks');if(!el)return;
   el.innerHTML=PSX.slice(0,5).map(s=>{
     const p=sp[s.sym],ch=sc[s.sym],pch=(ch/so[s.sym]*100),up=ch>=0;
-    return `<div class="srow"><div class="sco"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div class="sname">${s.sym}</div><div class="ssub">${s.name.slice(0,14)}</div></div></div><div class="sprice">${fmt(p)}</div><div class="schg" style="color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</div><div class="spct"><span class="pill ${up?'pill-u':'pill-d'}">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></div></div>`;
+    return `<div class="srow"><div class="sco"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${s.sym}',24)"><div><div class="sname">${s.sym}</div><div class="ssub">${s.name.slice(0,14)}</div></div></div><div class="sprice">${fmt(p)}</div><div class="schg" style="color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</div><div class="spct"><span class="pill ${up?'pill-u':'pill-d'}">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></div></div>`;
   }).join('');
 }
 
 function slogoSrc(sym){return `assets/img/stocks/${sym==='PSX'?'PSX-1':sym}.png`;}
+/* Fallback badge for companies without a logo file: a branded initials monogram.
+   Deterministic pastel per ticker. Real PNGs (if present) load first and win. */
+function reMono(sym,size){
+  sym=String(sym||'?').toUpperCase().replace(/[^A-Z0-9]/g,'')||'?';
+  size=size||24;
+  const init=sym.slice(0,size<20?2:3);
+  let hsh=0; for(let i=0;i<sym.length;i++)hsh=(hsh*31+sym.charCodeAt(i))>>>0;
+  const hue=hsh%360, fs=Math.max(7,Math.round(size*0.38));
+  return '<span class="slogo-mono" aria-hidden="true" style="width:'+size+'px;height:'+size+'px;font-size:'+fs+'px;background:hsl('+hue+',44%,90%);color:hsl('+hue+',52%,30%)">'+init+'</span>';
+}
 
 function mktSearchInput(){ mktDirty=true; renderMktTable(); }
 function renderMktTable(){
@@ -2730,7 +2741,7 @@ function renderMktTable(){
     el.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mt2);font-size:13px">No securities match “${escHtml(q)}”. Try a symbol like <strong style="color:var(--au)">MEBL</strong> or a sector like <strong style="color:var(--au)">banks</strong>.</td></tr>`;
   }else{
     el.innerHTML=f.map(s=>{const up=s.ch>=0;
-      return `<tr><td><div class="mkt-sym"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--au);font-size:12.5px">${escHtml(s.sym)}</div><div style="font-size:11px;color:var(--mt2)">${escHtml(s.name)}</div></div></div></td><td>${fmt(s.price)}</td><td style="font-weight:600;color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${(s.ch||0).toFixed(2)}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;background:${up?'rgba(46,204,138,.12)':'rgba(232,69,69,.11)'};color:${up?'var(--up)':'var(--dn)'};">${up?'▲':'▼'}${Math.abs(s.pch||0).toFixed(2)}%</span></td><td style="color:var(--mt)">${s.vol}</td><td style="font-size:11.5px;color:var(--mt2)">${escHtml(s.sector)}</td></tr>`;
+      return `<tr><td><div class="mkt-sym"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${s.sym}',24)"><div><div style="font-weight:700;color:var(--au);font-size:12.5px">${escHtml(s.sym)}</div><div style="font-size:11px;color:var(--mt2)">${escHtml(s.name)}</div></div></div></td><td>${fmt(s.price)}</td><td style="font-weight:600;color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${(s.ch||0).toFixed(2)}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;background:${up?'rgba(46,204,138,.12)':'rgba(232,69,69,.11)'};color:${up?'var(--up)':'var(--dn)'};">${up?'▲':'▼'}${Math.abs(s.pch||0).toFixed(2)}%</span></td><td style="color:var(--mt)">${s.vol}</td><td style="font-size:11.5px;color:var(--mt2)">${escHtml(s.sector)}</td></tr>`;
     }).join('');
   }
   mktDirty=false;
@@ -2771,14 +2782,14 @@ function buildTicker(){
     if(t.t==='idx'){const v=t.s==='KSE-100'?kse:k30;const d=t.s==='KSE-100'?(kse-kse0)/kse0*100:0.87;const u=d>=0;return`<div class="ti"><span class="ts">${t.s}</span><span class="tp">${fmtN(v)}</span><span class="${u?'tu':'td'}">${u?'+':''}${d.toFixed(2)}%</span></div>`;}
     const st=PSX.find(p=>p.sym===t.s);if(!st)return'';
     const p=sp[t.s]||st.base,ch=sc[t.s]||0,pch=(ch/so[t.s]*100),up=ch>=0;
-    return`<div class="ti"><img class="slogo" src="${slogoSrc(t.s)}" alt="" loading="lazy" onerror="this.style.display='none'"><span class="ts">${t.s}</span><span class="tp">${fmt(p)}</span><span class="${up?'tu':'td'}">${up?'+':''}${pch.toFixed(2)}%</span></div>`;
+    return`<div class="ti"><img class="slogo" src="${slogoSrc(t.s)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${t.s}',16)"><span class="ts">${t.s}</span><span class="tp">${fmt(p)}</span><span class="${up?'tu':'td'}">${up?'+':''}${pch.toFixed(2)}%</span></div>`;
   }).join('');
 }
 
 /* PSX performers logo wall (original "Power Your Portfolio" section) */
 function renderPerfGrid(){
   const el=document.getElementById('perfGrid');if(!el)return;
-  el.innerHTML=PSX.map(s=>`<div class="perf-chip" onclick="showPage('markets')" title="${s.name} — view live markets"><img src="${slogoSrc(s.sym)}" alt="${s.name}" loading="lazy" onerror="this.style.display='none'"><span class="pfs">${s.sym}</span><span class="pfn">${s.name}</span></div>`).join('');
+  el.innerHTML=PSX.map(s=>`<div class="perf-chip" onclick="showPage('markets')" title="${s.name} — view live markets"><img src="${slogoSrc(s.sym)}" alt="${s.name}" loading="lazy" onerror="this.outerHTML=reMono('${s.sym}',46)"><span class="pfs">${s.sym}</span><span class="pfn">${s.name}</span></div>`).join('');
 }
 
 /* Scroll-reveal — wow.js/animate.css equivalent of the original WordPress theme */
