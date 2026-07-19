@@ -145,6 +145,7 @@ function localStore(){
     changePassword(){ return Promise.reject(new Error('Password change works on the live site once you’re signed in.')); },
     inviteEditor(){ return Promise.reject(new Error('Inviting editors works on the live site.')); },
     revokeInvite(){ return Promise.reject(new Error('Works on the live site.')); },
+    myRole(){ return Promise.resolve({owner:true}); },
     listInvites(){ return Promise.resolve([]); },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
@@ -175,6 +176,7 @@ function supabaseStore(){
     },
     async inviteEditor(email){ return await this._fn({email,redirectTo:INVITE_REDIRECT}); },
     async revokeInvite(id){ return await this._fn({action:'revoke',id}); },
+    async myRole(){ return await this._fn({action:'me'}); },
     async listInvites(){ const{data,error}=await sb.from('invites').select('*').order('created_at',{ascending:false}); if(error)throw new Error(error.message); return data||[]; },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
@@ -313,7 +315,7 @@ function renderOverview(){
 /* ── Editors (invite by email via Resend; the shareable link stays as a fallback) ── */
 function inviteStatus(inv){ if(inv.accepted_at)return'Accepted'; if(inv.expires_at&&new Date(inv.expires_at)<=new Date())return'Expired'; return'Pending'; }
 function renderEditors(){
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Editors'),h('p',{},'Give a teammate access — they’ll get an email invite to set their own password. You can also copy the link and send it yourself.')));
+  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Editors'),h('p',{},'Manage who can edit the Rallys Equities website.')));
   const err=h('div',{class:'re-err',role:'alert'});
   const em=h('input',{class:'re-input',type:'email',placeholder:'teammate@gmail.com','aria-label':'Teammate email'});
   const btn=h('button',{class:'re-btn re-btn-pri',onclick:()=>create()},'Send invite');
@@ -362,12 +364,27 @@ function renderEditors(){
       });
     }).catch(x=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load invites: '+x.message)); });
   }
-  dashMain.append(h('div',{class:'re-card'},
-    h('div',{class:'re-field'},h('label',{},'Their email'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
-  dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',loadList)));
-  dashMain.append(listWrap);
-  dashMain.append(h('p',{class:'re-footnote'},'Need to remove someone who already accepted? For now that’s done from the Supabase dashboard (Authentication → Users).'));
-  loadList();
+  const ownerUI=()=>{
+    dashMain.append(h('div',{class:'re-card'},
+      h('div',{class:'re-field'},h('label',{},'Their email'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
+    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',loadList)));
+    dashMain.append(listWrap);
+    dashMain.append(h('p',{class:'re-footnote'},'Need to remove someone who already accepted? For now that’s done from the Supabase dashboard (Authentication → Users).'));
+    loadList();
+  };
+  /* Only the site owner may add/remove editors — enforced server-side; the UI
+     just reflects it. On a failed check we still show the UI (the server rejects). */
+  const gate=h('div',{class:'re-inv-empty'},'Loading…'); dashMain.append(gate);
+  Promise.resolve(Store.myRole?Store.myRole():{owner:true}).then(r=>{
+    gate.remove();
+    if(r&&r.owner===false){
+      dashMain.append(h('div',{class:'re-card re-set-card'},
+        h('div',{class:'re-set-h'},'Editor management is restricted'),
+        h('p',{class:'re-set-note',style:'margin:0'},'Only the site owner can add or remove editors. If you need a teammate added or removed, please ask the site owner to do it from their account.')));
+      return;
+    }
+    ownerUI();
+  }).catch(()=>{ gate.remove(); ownerUI(); });
 }
 
 /* ── Blog Posts — written here, shown on the site's “Insights” page. Go live on Publish. ── */

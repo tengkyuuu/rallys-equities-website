@@ -34,6 +34,16 @@ async function findUser(admin: ReturnType<typeof createClient>, email: string) {
   return null;
 }
 
+// Only the site owner(s) may add or remove editors. OWNER_EMAILS is a comma/space
+// separated allowlist. If unset, behaviour is unchanged (any signed-in editor) so
+// deploying can't lock anyone out — set it to actually restrict management.
+function isOwner(user: { email?: string | null }): boolean {
+  const raw = (Deno.env.get("OWNER_EMAILS") || "").trim();
+  if (!raw) return true;
+  const allow = raw.split(/[,\s]+/).map((s: string) => s.toLowerCase()).filter(Boolean);
+  return allow.includes((user.email || "").toLowerCase());
+}
+
 const esc = (v: unknown) =>
   String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
@@ -116,6 +126,12 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const admin = createClient(SUPABASE_URL, SERVICE);
+
+    // Owner gate. `me` lets the admin UI check its own status; everything that
+    // adds or removes editors requires an owner (see isOwner / OWNER_EMAILS).
+    const owner = isOwner(user);
+    if (body.action === "me") return json({ owner });
+    if (!owner) return json({ error: "Only the site owner can add or remove editors." }, 403);
 
     // 2) Revoke an invite.
     if (body.action === "revoke") {
