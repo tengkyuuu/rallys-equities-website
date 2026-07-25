@@ -219,6 +219,10 @@ function showLogin(){
 
 /* ════════ AFTER LOGIN ════════ */
 function onAuthed(){
+  /* Reconcile: any invited editor who is signed in has accepted — flip their
+     invite to accepted (idempotent; no-op for the owner). Self-heals rows that
+     were left "Pending". */
+  if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{});
   Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); })
     .catch(e=>{ console.warn(e); WORK=blank(); })
     .then(()=>{ if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard(); });
