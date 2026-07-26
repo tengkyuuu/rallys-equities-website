@@ -147,6 +147,7 @@ function localStore(){
     revokeInvite(){ return Promise.reject(new Error('Works on the live site.')); },
     myRole(){ return Promise.resolve({owner:true}); },
     listInvites(){ return Promise.resolve([]); },
+    subscribeInvites(){ return function(){}; },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
@@ -178,6 +179,9 @@ function supabaseStore(){
     async revokeInvite(id){ return await this._fn({action:'revoke',id}); },
     async myRole(){ return await this._fn({action:'me'}); },
     async listInvites(){ const{data,error}=await sb.from('invites').select('*').order('created_at',{ascending:false}); if(error)throw new Error(error.message); return data||[]; },
+    /* Live updates: fire cb whenever the invites table changes (e.g. someone accepts).
+       Needs the invites table in the supabase_realtime publication. Returns an unsubscribe fn. */
+    subscribeInvites(cb){ try{ const ch=sb.channel('re-invites-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'invites'},()=>{ try{cb();}catch(e){} }).subscribe(); return ()=>{ try{sb.removeChannel(ch);}catch(e){} }; }catch(e){ return function(){}; } },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
@@ -241,7 +245,8 @@ function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.
 function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
 
 /* ════════ DASHBOARD APP (fullscreen: sidebar + views) ════════ */
-let dashEl,dashMain,dashView='overview',blogEditId=null;
+let dashEl,dashMain,dashView='overview',blogEditId=null,viewTeardown=null;
+function teardownView(){ if(viewTeardown){ try{viewTeardown();}catch(e){} viewTeardown=null; } }
 
 function ensureDash(){
   if(dashEl)return;
@@ -272,11 +277,11 @@ function openDashboard(){
   dashEl.style.display='flex'; document.body.classList.add('re-dash-open');
   setActiveNav(); renderMain();
 }
-function closeDashboard(){ if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
+function closeDashboard(){ teardownView(); if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
 function dashVisible(){ return dashEl&&dashEl.style.display!=='none'; }
 function emptyState(msg,ic){ return h('div',{class:'re-empty'},icon(ic||'post',30),h('p',{},msg)); }
 
-function renderMain(){ if(!dashMain||!dashVisible())return; dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings}[dashView]||renderOverview)(); }
+function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings}[dashView]||renderOverview)(); }
 
 /* ── Overview ── */
 function kpi(label,value,ic,accent){ return h('div',{class:'re-kpi'+(accent?' on':'')}, h('span',{class:'re-kpi-ic'},icon(ic,18)), h('div',{class:'re-kpi-body'}, h('div',{class:'re-kpi-val'},String(value)), h('div',{class:'re-kpi-lbl'},label))); }
@@ -398,8 +403,14 @@ function renderEditors(){
   const gate=h('div',{class:'re-inv-empty'},'Loading…'); dashMain.append(gate);
   Promise.resolve(Store.myRole?Store.myRole():{owner:true}).then(r=>{
     gate.remove();
-    if(r&&r.owner===false){ viewerUI(r.owners||[]); return; }
-    ownerUI();
+    const ro=!!(r&&r.owner===false);
+    if(ro)viewerUI(r.owners||[]); else ownerUI();
+    /* Live: refresh the roster the instant an invite changes (e.g. someone accepts),
+       so the admin never has to reload. Realtime is the fast path; a slow poll is a fallback. */
+    const reload=()=>loadList(ro);
+    const unsub=Store.subscribeInvites?Store.subscribeInvites(reload):function(){};
+    const poll=setInterval(reload,15000);
+    viewTeardown=()=>{ try{unsub();}catch(e){} clearInterval(poll); };
   }).catch(()=>{ gate.remove(); ownerUI(); });
 }
 
@@ -795,18 +806,8 @@ function blockTarget(t){
 let elBar,elTarget,dragEl=null,dropParent=null,dropRef=null,dropLine=null,swapSrcImg=null;
 function ensureElBar(){
   if(elBar)return;
-  const grip=h('button',{class:'re-elbar-btn re-elbar-grip',draggable:'true',type:'button','aria-label':'Drag to reorder',title:'Drag to move within its area'},icon('grip',14));
-  grip.addEventListener('dragstart',e=>{
-    if(!elTarget){ e.preventDefault(); return; }
-    dragEl=elTarget; dropParent=dragEl.parentElement;
-    const pk=keyFor(dropParent); if(pk.indexOf('page:')!==0&&!dropParent.dataset.rekey)dropParent.dataset.rekey=pk;
-    API.sigStampKids(dropParent);
-    dragEl.classList.add('re-dragging');
-    e.dataTransfer.setData('text/re-move','1'); e.dataTransfer.effectAllowed='move';
-    try{ e.dataTransfer.setDragImage(dragEl,12,12); }catch(_){}
-    elBar.style.display='none';
-  });
-  grip.addEventListener('dragend',()=>finishDrag());
+  const grip=h('button',{class:'re-elbar-btn re-elbar-grip',type:'button','aria-label':'Drag to reorder',title:'Drag to move within its area'},icon('grip',14));
+  grip.addEventListener('mousedown',e=>{ if(!elTarget)return; e.preventDefault(); e.stopPropagation(); startElDrag(elTarget); });
   elBar=h('div',{class:'re-elbar re-ui'},grip,
     h('button',{class:'re-elbar-btn',type:'button','aria-label':'Select parent block',title:'Select the parent block',onclick:()=>{ const p=elTarget&&elTarget.parentElement; if(p&&p!==document.body&&!p.classList.contains('page')&&!p.closest('.re-ui'))setElTarget(p); }},icon('up',14)),
     h('button',{class:'re-elbar-btn re-elbar-del',type:'button','aria-label':'Hide element',title:'Hide (restore from Site → Hidden elements)',onclick:()=>hideElement(elTarget)},icon('trash',14)));
@@ -841,33 +842,64 @@ function hideElement(el){
   if(sitePanel&&sitePanel.classList.contains('open'))renderSite();
   toast('Hidden — restore it in Site → Hidden elements, or Ctrl+Z');
 }
-/* sibling reorder while dragging via the grip */
+/* sibling reorder — pointer-based (native HTML5 DnD on a <button> is unreliable) */
+let dropValid=false;
 function ensureDropLine(){ if(!dropLine){ dropLine=h('div',{class:'re-dropline re-ui'}); document.body.append(dropLine); } }
-function finishDrag(){
-  if(dragEl)dragEl.classList.remove('re-dragging');
-  dragEl=null; dropParent=null; dropRef=null;
-  if(dropLine)dropLine.style.display='none';
+function hideDropLine(){ if(dropLine)dropLine.style.display='none'; }
+function startElDrag(el){
+  dragEl=el; dropParent=el.parentElement; dropRef=null; dropValid=false;
+  const pk=keyFor(dropParent); if(pk.indexOf('page:')!==0&&!dropParent.dataset.rekey)dropParent.dataset.rekey=pk;
+  API.sigStampKids(dropParent);
+  dragEl.classList.add('re-dragging');
+  document.body.classList.add('re-dragging-active');
+  if(elBar)elBar.style.display='none';
 }
-document.addEventListener('dragover',e=>{
-  /* element reorder */
-  if(dragEl&&dropParent){
-    e.preventDefault(); e.dataTransfer.dropEffect='move';
-    const under=document.elementFromPoint(e.clientX,e.clientY);
-    let sib=under;
-    while(sib&&sib.parentElement!==dropParent)sib=sib.parentElement;
-    if(!sib||sib===dragEl){ if(dropLine)dropLine.style.display='none'; dropRef=sib===dragEl?dropRef:null; return; }
-    const st=getComputedStyle(dropParent);
-    const horiz=(st.display.indexOf('flex')>-1&&st.flexDirection.indexOf('row')===0)||(st.display.indexOf('grid')>-1&&st.gridTemplateColumns.split(' ').length>1);
-    const r=sib.getBoundingClientRect();
-    const before=horiz?(e.clientX<r.left+r.width/2):(e.clientY<r.top+r.height/2);
-    dropRef=before?sib:sib.nextElementSibling;
-    ensureDropLine();
-    dropLine.style.display='block';
-    if(horiz){ dropLine.style.width='3px'; dropLine.style.height=r.height+'px'; dropLine.style.left=(before?r.left-2:r.right-1)+'px'; dropLine.style.top=(r.top+window.scrollY)+'px'; }
-    else{ dropLine.style.height='3px'; dropLine.style.width=r.width+'px'; dropLine.style.left=r.left+'px'; dropLine.style.top=((before?r.top:r.bottom)+window.scrollY-1)+'px'; }
-    return;
+function positionDrop(x,y){
+  const wasHidden=dragEl.style.pointerEvents; dragEl.style.pointerEvents='none';   // so elementFromPoint sees what's under, not the dragged block
+  const under=document.elementFromPoint(x,y);
+  dragEl.style.pointerEvents=wasHidden;
+  let sib=under;
+  while(sib&&sib.parentElement!==dropParent)sib=sib.parentElement;
+  if(!sib||sib===dragEl){ hideDropLine(); return; }
+  const st=getComputedStyle(dropParent);
+  const horiz=(st.display.indexOf('flex')>-1&&st.flexDirection.indexOf('row')===0)||(st.display.indexOf('grid')>-1&&st.gridTemplateColumns.split(' ').length>1);
+  const r=sib.getBoundingClientRect();
+  const before=horiz?(x<r.left+r.width/2):(y<r.top+r.height/2);
+  dropRef=before?sib:sib.nextElementSibling; dropValid=true;
+  ensureDropLine(); dropLine.style.display='block';
+  if(horiz){ dropLine.style.width='3px'; dropLine.style.height=r.height+'px'; dropLine.style.left=(before?r.left-2:r.right-1)+'px'; dropLine.style.top=(r.top+window.scrollY)+'px'; }
+  else{ dropLine.style.height='3px'; dropLine.style.width=r.width+'px'; dropLine.style.left=r.left+'px'; dropLine.style.top=((before?r.top:r.bottom)+window.scrollY-1)+'px'; }
+}
+function endElDrag(){
+  if(dragEl)dragEl.classList.remove('re-dragging');
+  document.body.classList.remove('re-dragging-active');
+  hideDropLine();
+  dragEl=null; dropParent=null; dropRef=null; dropValid=false;
+  if(elTarget){ elTarget.classList.remove('re-elsel'); elTarget=null; }  // let the hover toolbar re-show on the next move
+}
+function commitElDrag(){
+  if(dragEl&&dropParent&&dropValid&&dropRef!==dragEl){
+    const prevList=[...dropParent.children].map(c=>c.dataset.rekey).filter(Boolean);
+    dropParent.insertBefore(dragEl,(dropRef&&dropRef.parentElement===dropParent)?dropRef:null);
+    const cur=[...dropParent.children].map(c=>c.dataset.rekey).filter(Boolean);
+    if(cur.join('|')!==prevList.join('|')){
+      const pkey=keyFor(dropParent);
+      const prevSaved=WORK.order[pkey]||null;
+      WORK.order[pkey]=cur;
+      undo.push({kind:'order',key:pkey,prevSaved,prevList});
+      markDirty('order:'+pkey);
+      toast('Moved — publish to make it permanent');
+    }
   }
-  /* image swap / file-drop targets */
+  endElDrag();
+}
+document.addEventListener('mousemove',e=>{ if(dragEl&&dropParent){ e.preventDefault(); positionDrop(e.clientX,e.clientY); } });
+document.addEventListener('mouseup',()=>{ if(dragEl)commitElDrag(); });
+window.addEventListener('blur',()=>{ if(dragEl)endElDrag(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&dragEl){ e.preventDefault(); endElDrag(); } });
+
+/* image swap / OS file-drop — kept on native DnD (file drops require it) */
+document.addEventListener('dragover',e=>{
   if(!editing)return;
   const overImg=e.target.closest&&e.target.closest('img');
   const files=e.dataTransfer&&[...(e.dataTransfer.types||[])].indexOf('Files')>-1;
@@ -878,21 +910,6 @@ document.addEventListener('dragover',e=>{
   }
 });
 document.addEventListener('drop',e=>{
-  /* commit element reorder */
-  if(dragEl&&dropParent){
-    e.preventDefault();
-    const prevList=[...dropParent.children].map(c=>c.dataset.rekey).filter(Boolean);
-    dropParent.insertBefore(dragEl,dropRef||null);
-    const pkey=keyFor(dropParent);
-    const prevSaved=WORK.order[pkey]||null;
-    WORK.order[pkey]=[...dropParent.children].map(c=>c.dataset.rekey).filter(Boolean);
-    undo.push({kind:'order',key:pkey,prevSaved,prevList});
-    markDirty('order:'+pkey);
-    finishDrag();
-    toast('Moved — publish to make it permanent');
-    return;
-  }
-  /* image drop: swap with another image, or replace with a dropped file */
   if(!editing)return;
   const overImg=e.target.closest&&e.target.closest('img');
   document.querySelectorAll('img.re-droptgt').forEach(i=>i.classList.remove('re-droptgt'));

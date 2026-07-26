@@ -18,3 +18,9 @@ drop policy if exists "accept own invite" on public.invites;
 create policy "accept own invite" on public.invites for update to authenticated
   using (lower(email) = lower(auth.jwt() ->> 'email'))
   with check (lower(email) = lower(auth.jwt() ->> 'email'));
+
+-- Realtime: let the admin's Editors list update live when an invite changes
+-- (e.g. someone accepts). Safe to re-run.
+do $$ begin
+  alter publication supabase_realtime add table public.invites;
+exception when duplicate_object then null; end $$;

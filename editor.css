@@ -348,6 +348,7 @@ body.re-dash-open{ overflow:hidden; }
 .re-elbar-del:hover{ color:var(--re-dn2); }
 body.re-editing .re-elsel{ outline:1.5px dashed var(--re-gd)!important; outline-offset:3px; }
 .re-dragging{ opacity:.35; }
+body.re-dragging-active, body.re-dragging-active *{ cursor:grabbing!important; user-select:none!important; }
 .re-dropline{ position:absolute; z-index:99983; background:var(--re-ac2); border-radius:2px; pointer-events:none;
   box-shadow:0 0 10px rgba(30,212,154,.7); }
 img.re-droptgt{ outline:3px solid var(--re-ac)!important; outline-offset:2px; }
