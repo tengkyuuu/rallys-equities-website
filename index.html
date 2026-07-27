@@ -3664,8 +3664,9 @@ window.RE_API={
 /* /admin (or ?edit=1) → load the visual editor (admin only; activates after login). Public bundle never references it. */
 if(new URLSearchParams(location.search).has('edit')||/^\/admin\/?$/.test(location.pathname)){
   const link=document.createElement('link'); link.rel='stylesheet'; link.href='editor.css'; document.head.appendChild(link);
-  const loadEditor=()=>{ const s=document.createElement('script'); s.src='editor.js'; document.body.appendChild(s); };
-  if(window.RE_SUPABASE_READY){ const sb=document.createElement('script'); sb.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sb.onload=loadEditor; sb.onerror=loadEditor; document.body.appendChild(sb); }
+  let edLoaded=false; const loadEditor=()=>{ if(edLoaded)return; edLoaded=true; const s=document.createElement('script'); s.src='editor.js'; document.body.appendChild(s); };
+  if(window.RE_SUPABASE_READY){ const sb=document.createElement('script'); sb.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sb.onload=loadEditor; sb.onerror=loadEditor; document.body.appendChild(sb);
+    setTimeout(loadEditor,8000); }   // if the CDN stalls, load the editor anyway so the login still appears
   else loadEditor();
 }
 

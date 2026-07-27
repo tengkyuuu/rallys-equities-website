@@ -236,9 +236,12 @@ function onAuthed(){
      invite to accepted (idempotent; no-op for the owner). Self-heals rows that
      were left "Pending". */
   if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{});
-  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); })
-    .catch(e=>{ console.warn(e); WORK=blank(); })
-    .then(()=>{ if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard(); });
+  /* Show the admin IMMEDIATELY — never gate it on a network call. If a Supabase
+     request stalls, the visitor would otherwise be left staring at the live site. */
+  if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard();
+  /* Then load the saved draft in the background and refresh once it arrives. */
+  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); if(dashVisible())renderMain(); })
+    .catch(e=>{ console.warn('[editor] could not load draft',e); });
 }
 /* Legacy market-panel hide keys → new column keys (also hide the matching header cell) */
 const HIDDEN_MIGRATE={
@@ -417,7 +420,7 @@ function renderEditors(){
       h('div',{class:'re-field'},h('label',{},'Their email'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
     dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',()=>loadList(false))));
     dashMain.append(listWrap);
-    dashMain.append(h('p',{class:'re-footnote'},'Need to remove someone who already accepted? For now that’s done from the Supabase dashboard (Authentication → Users).'));
+    dashMain.append(h('p',{class:'re-footnote'},''));
     loadList(false);
   };
   /* Non-owners: read-only roster — they can see who has access but can't change it.
@@ -1405,5 +1408,10 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ════════ start ════════ */
-Promise.resolve(Store.init()).then(authed=>{ if(authed)onAuthed(); else showLogin(); });
+let booted=false;
+function boot(authed){ if(booted)return; booted=true; if(authed)onAuthed(); else showLogin(); }
+Promise.resolve(Store.init()).then(boot).catch(function(){ boot(false); });
+/* Safety net: if the session check ever stalls (flaky network / token refresh),
+   still show the login within a few seconds instead of leaving the bare site. */
+setTimeout(function(){ if(!booted)boot(false); }, 6000);
 })();
