@@ -29,6 +29,7 @@ const ICONS={
   image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
   palette:'<circle cx="13.5" cy="6.5" r=".8"/><circle cx="17.5" cy="10.5" r=".8"/><circle cx="8.5" cy="7.5" r=".8"/><circle cx="6.5" cy="12.5" r=".8"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.66h1.99c3.05 0 5.55-2.5 5.55-5.55C22 6 17.5 2 12 2z"/>',
   users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
   search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
   refresh:'<path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>',
   trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
@@ -149,6 +150,9 @@ function localStore(){
     listInvites(){ return Promise.resolve([]); },
     subscribeInvites(){ return function(){}; },
     reconcileInvites(){ return Promise.resolve({reconciled:0}); },
+    removeEditor(){ return Promise.reject(new Error('Removing editors works on the live site.')); },
+    getProfile(){ return Promise.resolve({email:'you@rallysequities.com',name:''}); },
+    saveProfileName(){ return Promise.resolve(); },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
@@ -184,6 +188,9 @@ function supabaseStore(){
        Needs the invites table in the supabase_realtime publication. Returns an unsubscribe fn. */
     subscribeInvites(cb){ try{ const ch=sb.channel('re-invites-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'invites'},()=>{ try{cb();}catch(e){} }).subscribe(); return ()=>{ try{sb.removeChannel(ch);}catch(e){} }; }catch(e){ return function(){}; } },
     async reconcileInvites(){ return await this._fn({action:'reconcile'}); },
+    async removeEditor(inv){ return await this._fn({action:'remove',id:inv&&inv.id,email:inv&&inv.email}); },
+    async getProfile(){ const{data:{user}}=await sb.auth.getUser(); const md=(user&&user.user_metadata)||{}; return {email:(user&&user.email)||'',name:md.name||md.full_name||''}; },
+    async saveProfileName(name){ const{error}=await sb.auth.updateUser({data:{name}}); if(error)throw new Error(error.message); },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
@@ -266,6 +273,7 @@ function ensureDash(){
       navItem('','sliders','Site settings',()=>enterStudio({edit:false,panel:'site'})),
       navItem('','external','View live site',()=>window.open(location.origin+'/','_blank'))),
     h('div',{class:'re-side-foot'},
+      navItem('profile','user','Profile',()=>go('profile')),
       navItem('settings','gear','Settings',()=>go('settings')),
       navItem('','logout','Log out',doLogout)));
   dashMain=h('div',{class:'re-main-inner'});
@@ -283,7 +291,33 @@ function closeDashboard(){ teardownView(); if(dashEl)dashEl.style.display='none'
 function dashVisible(){ return dashEl&&dashEl.style.display!=='none'; }
 function emptyState(msg,ic){ return h('div',{class:'re-empty'},icon(ic||'post',30),h('p',{},msg)); }
 
-function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings}[dashView]||renderOverview)(); }
+function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile}[dashView]||renderOverview)(); }
+/* ── Profile — the signed-in user's own account (email, role, display name, password) ── */
+function renderProfile(){
+  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Profile'),h('p',{},'Your account details.')));
+  const card=h('div',{class:'re-card re-set-card'}); dashMain.append(card);
+  card.append(h('div',{class:'re-inv-empty'},'Loading…'));
+  const row=(title,desc,ctl)=>h('div',{class:'re-setrow'},h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),desc?h('div',{class:'re-setrow-d'},desc):''),ctl);
+  Promise.all([
+    Store.getProfile?Promise.resolve(Store.getProfile()):Promise.resolve({email:'',name:''}),
+    Store.myRole?Promise.resolve(Store.myRole()):Promise.resolve({owner:true})
+  ]).then(([prof,role])=>{
+    prof=prof||{}; role=role||{};
+    card.innerHTML='';
+    card.append(h('div',{class:'re-set-h'},'Account'));
+    card.append(row('Email','The address you sign in with.',h('span',{class:'re-profile-email'},prof.email||'—')));
+    card.append(row('Role','',h('span',{class:'re-badge '+(role.owner?'re-inv-accepted':'re-inv-pending')},role.owner?'Owner':'Editor')));
+    const nameInp=h('input',{class:'re-input',value:prof.name||'',placeholder:'e.g. Sikandar Khan',style:'max-width:220px','aria-label':'Display name'});
+    const saveName=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
+      saveName.disabled=true; saveName.textContent='Saving…';
+      Promise.resolve(Store.saveProfileName(nameInp.value.trim())).then(()=>toast('Name saved'))
+        .catch(x=>toast(x.message||'Could not save','err')).then(()=>{ saveName.disabled=false; saveName.textContent='Save'; });
+    }},'Save');
+    nameInp.addEventListener('keydown',e=>{ if(e.key==='Enter')saveName.click(); });
+    card.append(row('Display name','A friendly name for your account.',h('div',{style:'display:flex;gap:8px;align-items:center'},nameInp,saveName)));
+    card.append(row('Password','Change the password you use to sign in.',h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>openChangePassword()},'Change password')));
+  }).catch(()=>{ card.innerHTML=''; card.append(h('p',{class:'re-set-note',style:'margin:0'},'Couldn’t load your profile just now.')); });
+}
 
 /* ── Overview ── */
 function kpi(label,value,ic,accent){ return h('div',{class:'re-kpi'+(accent?' on':'')}, h('span',{class:'re-kpi-ic'},icon(ic,18)), h('div',{class:'re-kpi-body'}, h('div',{class:'re-kpi-val'},String(value)), h('div',{class:'re-kpi-lbl'},label))); }
@@ -368,6 +402,8 @@ function renderEditors(){
         if(!readOnly && st!=='Accepted'){
           acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false); }).catch(x=>{ toast(x.message,'err'); loadList(false); }); }},icon('refresh',12),'Resend'));
           acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
+        } else if(!readOnly && st==='Accepted'){
+          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Remove '+inv.email+' as an editor? This deletes their login — they lose access immediately.',{title:'Remove editor?',okLabel:'Remove',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.removeEditor(inv)).then(()=>{ toast('Editor removed'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},icon('trash',12),'Remove'));
         }
         listWrap.append(h('div',{class:'re-inv-row'},
           h('span',{class:'re-inv-email',title:inv.email},inv.email),

@@ -404,6 +404,7 @@ textarea.re-input{ resize:vertical; min-height:56px; font-family:inherit; line-h
 .re-set-gold{ border-color:var(--re-line); }
 .re-set-danger{ border-color:rgba(232,85,78,.35); }
 .re-set-danger .re-set-h{ color:var(--re-dn2); }
+.re-profile-email{ font-size:13px; font-weight:600; color:var(--re-tx); word-break:break-all; }
 
 /* ════════ IMAGE EDITOR ════════ */
 .re-imged{ max-width:760px; }

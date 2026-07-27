@@ -170,6 +170,23 @@ Deno.serve(async (req) => {
       return json({ ok: true, reconciled });
     }
 
+    // 2d) Remove an editor entirely — delete their login AND invite row. Owner-only.
+    // Guards: can't remove yourself, and can't remove an owner (manage owners via OWNER_EMAILS).
+    if (body.action === "remove") {
+      let email = String(body.email || "").trim().toLowerCase();
+      if (!email && body.id) {
+        const { data: inv } = await admin.from("invites").select("email").eq("id", body.id).maybeSingle();
+        email = String((inv && inv.email) || "").toLowerCase();
+      }
+      if (!email) return json({ error: "Which editor? Missing email." }, 400);
+      if (email === String(user.email || "").toLowerCase()) return json({ error: "You can't remove your own account." }, 400);
+      if (isOwner({ email })) return json({ error: "Owners can't be removed here — update the OWNER_EMAILS setting instead." }, 400);
+      const u = await findUser(admin, email);
+      if (u) await admin.auth.admin.deleteUser(u.id).catch(() => {});
+      await admin.from("invites").delete().eq("email", email);
+      return json({ ok: true });
+    }
+
     // 3) Create (or refresh) an invite and return the link.
     const email = String(body.email || "").trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
