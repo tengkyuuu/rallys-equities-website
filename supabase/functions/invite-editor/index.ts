@@ -147,6 +147,29 @@ Deno.serve(async (req) => {
       return json({ ok: true });
     }
 
+    // 2b) Reconcile: mark accepted any pending invite whose auth user is already
+    // confirmed (fixes rows accepted before accepted_at was tracked). Owner-only.
+    if (body.action === "reconcile") {
+      const { data: pend } = await admin.from("invites").select("id,email").is("accepted_at", null);
+      let reconciled = 0;
+      if (pend && pend.length) {
+        const confirmed = new Set<string>();
+        for (let page = 1; page <= 10; page++) {
+          const { data } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+          if (!data?.users?.length) break;
+          for (const u of data.users) if (u.email && (u.email_confirmed_at || u.confirmed_at)) confirmed.add(u.email.toLowerCase());
+          if (data.users.length < 200) break;
+        }
+        for (const inv of pend) {
+          if (confirmed.has((inv.email || "").toLowerCase())) {
+            await admin.from("invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
+            reconciled++;
+          }
+        }
+      }
+      return json({ ok: true, reconciled });
+    }
+
     // 3) Create (or refresh) an invite and return the link.
     const email = String(body.email || "").trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -154,8 +177,11 @@ Deno.serve(async (req) => {
 
     const existing = await findUser(admin, email);
     if (existing) {
-      if (existing.email_confirmed_at || existing.confirmed_at)
-        return json({ error: "That email is already an active editor." }, 409);
+      if (existing.email_confirmed_at || existing.confirmed_at) {
+        // Already a real editor — heal a possibly-stale invite row so the UI shows Accepted.
+        await admin.from("invites").update({ accepted_at: new Date().toISOString() }).eq("email", email).is("accepted_at", null);
+        return json({ error: "That email is already an active editor — their status has been updated to Accepted.", alreadyEditor: true }, 409);
+      }
       // orphaned unconfirmed invitee → remove so we can issue a fresh link
       await admin.auth.admin.deleteUser(existing.id).catch(() => {});
     }

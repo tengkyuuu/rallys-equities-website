@@ -148,6 +148,7 @@ function localStore(){
     myRole(){ return Promise.resolve({owner:true}); },
     listInvites(){ return Promise.resolve([]); },
     subscribeInvites(){ return function(){}; },
+    reconcileInvites(){ return Promise.resolve({reconciled:0}); },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
@@ -182,6 +183,7 @@ function supabaseStore(){
     /* Live updates: fire cb whenever the invites table changes (e.g. someone accepts).
        Needs the invites table in the supabase_realtime publication. Returns an unsubscribe fn. */
     subscribeInvites(cb){ try{ const ch=sb.channel('re-invites-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'invites'},()=>{ try{cb();}catch(e){} }).subscribe(); return ()=>{ try{sb.removeChannel(ch);}catch(e){} }; }catch(e){ return function(){}; } },
+    async reconcileInvites(){ return await this._fn({action:'reconcile'}); },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
@@ -364,7 +366,7 @@ function renderEditors(){
       if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},readOnly?'No editors yet.':'No invites yet.')); return; }
       rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
         if(!readOnly && st!=='Accepted'){
-          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false); }).catch(x=>toast(x.message,'err')); }},icon('refresh',12),'Resend'));
+          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false); }).catch(x=>{ toast(x.message,'err'); loadList(false); }); }},icon('refresh',12),'Resend'));
           acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
         }
         listWrap.append(h('div',{class:'re-inv-row'},
@@ -404,7 +406,11 @@ function renderEditors(){
   Promise.resolve(Store.myRole?Store.myRole():{owner:true}).then(r=>{
     gate.remove();
     const ro=!!(r&&r.owner===false);
-    if(ro)viewerUI(r.owners||[]); else ownerUI();
+    if(ro){ viewerUI(r.owners||[]); }
+    else { ownerUI();
+      /* heal invites that were accepted before we tracked it (e.g. from the old site) */
+      if(Store.reconcileInvites)Promise.resolve(Store.reconcileInvites()).then(res=>{ if(res&&res.reconciled)loadList(false); }).catch(()=>{});
+    }
     /* Live: refresh the roster the instant an invite changes (e.g. someone accepts),
        so the admin never has to reload. Realtime is the fast path; a slow poll is a fallback. */
     const reload=()=>loadList(ro);
