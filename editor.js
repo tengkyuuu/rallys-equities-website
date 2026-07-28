@@ -496,15 +496,19 @@ function postState(p){
 }
 /* Everything shares one draft, so any publish pushes the whole draft live.
    Spell that out instead of surprising the user. */
+function pendingEdits(){ return [...dirty].filter(k=>k.indexOf('posts:')!==0).length; }
 function otherPending(exceptId){
   const posts=(WORK.posts||[]).filter(p=>p.id!==exceptId&&postState(p).act).length;
-  const edits=[...dirty].filter(k=>k.indexOf('posts:')!==0).length;
+  const edits=pendingEdits();
   const bits=[];
   if(posts)bits.push(posts+' other post'+(posts===1?'':'s'));
   if(edits)bits.push(edits+' website edit'+(edits===1?'':'s'));
   if(!bits.length)return '';
   return ' '+bits.join(' and ')+' waiting in your draft '+(posts+edits===1?'goes':'go')+' live at the same time.';
 }
+/* Same note for actions that clear the posts anyway — only the site edits are worth mentioning. */
+function pendingEditsNote(){ const n=pendingEdits();
+  return n?(' '+n+' website edit'+(n===1?'':'s')+' waiting in your draft '+(n===1?'goes':'go')+' live too.'):''; }
 function renderBlogAdmin(){ if(blogEditId)renderPostEditor(); else renderPostList(); }
 function renderPostList(){
   const posts=[...(WORK.posts||[])].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
@@ -538,10 +542,19 @@ function postRow(p,st){
       h('div',{class:'re-post-hint'},st.hint)),
     st.act?h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll(p)},'Publish'):'',
     h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{ blogEditId=p.id; go('blog'); }},'Edit'),
+    /* Delete has to mean deleted. A post that's on the website can't just leave the
+       draft — the row would vanish and take the only "publish this removal" button
+       with it, leaving the post live forever. So deleting a live post publishes the
+       removal too. */
     h('button',{class:'re-sub-del','aria-label':'Delete post',onclick:async()=>{
-      if(!(await reConfirm('Delete “'+(p.title||'Untitled')+'”?'+(livePost(p.id)?' It stays on the website until you publish.':''),{title:'Delete post?',okLabel:'Delete',danger:true})))return;
-      WORK.posts=WORK.posts.filter(x=>x.id!==p.id); markDirty('posts:'+p.id); API.setOverrides(WORK);
-      saveDraft('Post deleted'+(livePost(p.id)?' — publish to remove it from the website':''));
+      const lv=livePost(p.id), onSite=!!lv&&lv.published!==false;
+      if(!(await reConfirm('Delete “'+(p.title||'Untitled')+'”?'+
+          (onSite?(' It comes off the website straight away.'+otherPending(p.id)):' It was never on the website.'),
+          {title:'Delete post?',okLabel:'Delete',danger:true})))return;
+      WORK.posts=(WORK.posts||[]).filter(x=>x.id!==p.id); markDirty('posts:'+p.id); API.setOverrides(WORK);
+      if(onSite)doPublish('Deleted — and taken off the website')
+        .catch(e=>toast('Deleted from your draft, but the website still shows it: '+e.message,'err'));
+      else saveDraft('Post deleted');
     }},icon('trash',13),'Delete'));
 }
 
@@ -551,6 +564,7 @@ function renderSettings(){
   const row=(title,desc,ctl)=>h('div',{class:'re-setrow'},h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),h('div',{class:'re-setrow-d'},desc)),ctl);
   const n=dirty.size;
   const waiting=(WORK.posts||[]).filter(p=>postState(p).act).length;
+  const nLive=(WORK.posts||[]).filter(p=>{ const lv=livePost(p.id); return lv&&lv.published!==false; }).length;
   dashMain.append(h('div',{class:'re-card re-set-card'},
     h('div',{class:'re-set-h'},'Publishing'),
     row('Waiting to go live',
@@ -590,10 +604,13 @@ function renderSettings(){
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>doReset(what,desc,mut)},'Reset')))));
   dashMain.append(h('div',{class:'re-card re-set-card re-set-danger'},
     h('div',{class:'re-set-h'},'Danger zone'),
-    row('Delete all blog posts','Removes all '+(WORK.posts||[]).length+' posts from your draft.',
+    row('Delete all blog posts','Removes all '+(WORK.posts||[]).length+' posts.'+(nLive?(' '+nLive+' of them '+(nLive===1?'is':'are')+' on the website.'):''),
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
-        reConfirm('Delete all '+(WORK.posts||[]).length+' blog posts? They disappear from the website on your next publish.',{title:'Delete all posts?',okLabel:'Delete all',danger:true}).then(ok=>{ if(!ok)return;
-          WORK.posts=[]; markDirty('posts:all'); API.setOverrides(WORK); saveDraft('All posts removed — publish to update the website'); });
+        reConfirm('Delete all '+(WORK.posts||[]).length+' blog posts?'+(nLive?(' The '+nLive+' on the website come off straight away.'+pendingEditsNote()):''),{title:'Delete all posts?',okLabel:'Delete all',danger:true}).then(ok=>{ if(!ok)return;
+          WORK.posts=[]; markDirty('posts:all'); API.setOverrides(WORK);
+          if(nLive)doPublish('All posts deleted — and taken off the website')
+            .catch(e=>toast('Deleted from your draft, but the website still shows them: '+e.message,'err'));
+          else saveDraft('All posts removed'); });
       }},'Delete all')),
     row('Factory reset','Colors, text, images, layout, and hidden items all reset in one go. Blog posts are kept.',
       h('button',{class:'re-btn re-btn-danger re-btn-sm',onclick:()=>doReset('the whole design','Everything except your blog posts returns to the original website.',()=>{
