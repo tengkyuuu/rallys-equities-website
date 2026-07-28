@@ -127,6 +127,10 @@ function pwWrap(inp){
 /* ---------- working state ---------- */
 const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{},fonts:{},hidden:{},order:{},posts:[]});
 let WORK=blank();          // full working overrides (loaded from draft)
+let LIVE=blank();          // last known *published* snapshot — what visitors see right now
+/* Seed it from the cache the site itself keeps, so post statuses are right on the
+   first paint; the fetch in onAuthed() then confirms it. */
+try{ const c=localStorage.getItem('re-content'); if(c)LIVE=normalize(JSON.parse(c)); }catch(e){}
 const dirty=new Set();     // "kind:key" changed this session
 const undo=[];             // {kind,key,prev}
 let editing=false;
@@ -155,6 +159,7 @@ function localStore(){
     saveProfileName(){ return Promise.resolve(); },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
+    getPublished(){ return Promise.resolve(get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
     uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); }
@@ -193,6 +198,7 @@ function supabaseStore(){
     async saveProfileName(name){ const{error}=await sb.auth.updateUser({data:{name}}); if(error)throw new Error(error.message); },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
+    async getPublished(){return await rowData('published');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
     async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;}
@@ -240,8 +246,12 @@ function onAuthed(){
      request stalls, the visitor would otherwise be left staring at the live site. */
   if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard();
   /* Then load the saved draft in the background and refresh once it arrives. */
-  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); if(dashVisible())renderMain(); })
+  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); })
     .catch(e=>{ console.warn('[editor] could not load draft',e); });
+  /* …and the published snapshot, so every screen can say what is actually on the
+     website right now vs. what is still only in the draft. */
+  if(Store.getPublished)Promise.resolve(Store.getPublished()).then(d=>{ LIVE=normalize(d); softRefresh(); })
+    .catch(e=>{ console.warn('[editor] could not load the published snapshot',e); });
 }
 /* Legacy market-panel hide keys → new column keys (also hide the matching header cell) */
 const HIDDEN_MIGRATE={
@@ -295,6 +305,9 @@ function dashVisible(){ return dashEl&&dashEl.style.display!=='none'; }
 function emptyState(msg,ic){ return h('div',{class:'re-empty'},icon(ic||'post',30),h('p',{},msg)); }
 
 function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile}[dashView]||renderOverview)(); }
+/* Background refresh (a fetch landed, a save finished): never redraw over a half-written
+   post — the post form is the one view with unsaved input in the DOM. */
+function softRefresh(){ if(blogEditId)return; renderMain(); }
 /* ── Profile — the signed-in user's own account (email, role, display name, password) ── */
 function renderProfile(){
   dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Profile'),h('p',{},'Your account details.')));
@@ -330,19 +343,23 @@ function qa(ic,title,desc,fn){ return h('button',{class:'re-qa',onclick:fn},
   h('span',{class:'re-qa-go'},icon('chevr',16))); }
 function renderOverview(){
   const posts=WORK.posts||[];
-  const live=posts.filter(p=>p.published!==false).length;
+  const states=posts.map(postState);
+  const onSite=states.filter(s=>s.label==='Live'||s.label==='Edited').length;
+  const waiting=states.filter(s=>s.act).length;
   const pagesAll=[...document.querySelectorAll('.page')].filter(p=>p.id!=='page-post').length;
   const pagesHidden=Object.keys(WORK.hidden||{}).filter(k=>k.indexOf('page:')===0).length;
   dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Dashboard'),h('p',{},'Your website at a glance.')));
-  if(dirty.size)dashMain.append(h('div',{class:'re-banner'},
+  if(dirty.size||waiting)dashMain.append(h('div',{class:'re-banner'},
     icon('alert',18),
-    h('span',{class:'re-banner-tx'},h('b',{},dirty.size+' unsaved change'+(dirty.size===1?'':'s')),' — private until you publish.'),
+    h('span',{class:'re-banner-tx'},h('b',{},waiting&&!dirty.size?(waiting+' post'+(waiting===1?'':'s')+' not on the website yet')
+        :(dirty.size+' unsaved change'+(dirty.size===1?'':'s'))),
+      ' — nothing reaches visitors until you publish.'),
     h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>enterStudio({edit:true})},'Continue editing'),
-    h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:publish},'Publish now')));
+    h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish now')));
   dashMain.append(h('div',{class:'re-kpis'},
     kpi('Blog posts',posts.length,'post'),
-    kpi('Live on the site',live,'check',live>0),
-    kpi('Drafts',posts.length-live,'edit'),
+    kpi('On the website',onSite,'check',onSite>0),
+    kpi('Waiting to publish',waiting,'clock'),
     kpi('Visible pages',pagesAll-pagesHidden,'grid')));
   dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Manage the website')));
   dashMain.append(h('div',{class:'re-qas'},
@@ -459,33 +476,72 @@ function renderEditors(){
   }).catch(()=>{ gate.remove(); ownerUI(); });
 }
 
-/* ── Blog Posts — written here, shown on the site's “Insights” page. Go live on Publish. ── */
+/* ── Blog Posts — written here, shown on the site's “Insights” page ──
+   Three separate facts decide what a visitor sees, and mixing them up is what makes
+   publishing confusing. So we always resolve them into one plain status:
+     · what the post says in your draft   (p.published)
+     · what the website is actually serving (LIVE.posts — the published snapshot)
+     · whether the two copies are identical (postSig) */
 function postDateFmt(d){ const t=Date.parse(d||''); return t?new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):(d||''); }
+const postSig=p=>p?JSON.stringify([p.title||'',p.date||'',p.cover||'',p.excerpt||'',p.body||'',p.published!==false]):'';
+function livePost(id){ return (LIVE.posts||[]).find(x=>x.id===id); }
+function postState(p){
+  const lv=livePost(p.id), onSite=!!(lv&&lv.published!==false), want=p.published!==false;
+  if(want&&onSite)return postSig(lv)===postSig(p)
+    ? {label:'Live',cls:'re-inv-accepted',hint:'Everyone can read it on the website.'}
+    : {label:'Edited',cls:'re-inv-pending',hint:'Your edits aren’t on the website yet.',act:'Publish edits'};
+  if(want&&!onSite)return {label:'Not published',cls:'re-inv-pending',hint:'Ready to go — publish to put it on the website.',act:'Publish now'};
+  if(!want&&onSite)return {label:'Draft',cls:'re-inv-pending',hint:'Still on the website until you publish.',act:'Publish to remove it'};
+  return {label:'Draft',cls:'',hint:'Only visible here in the admin.'};
+}
+/* Everything shares one draft, so any publish pushes the whole draft live.
+   Spell that out instead of surprising the user. */
+function otherPending(exceptId){
+  const posts=(WORK.posts||[]).filter(p=>p.id!==exceptId&&postState(p).act).length;
+  const edits=[...dirty].filter(k=>k.indexOf('posts:')!==0).length;
+  const bits=[];
+  if(posts)bits.push(posts+' other post'+(posts===1?'':'s'));
+  if(edits)bits.push(edits+' website edit'+(edits===1?'':'s'));
+  if(!bits.length)return '';
+  return ' '+bits.join(' and ')+' waiting in your draft '+(posts+edits===1?'goes':'go')+' live at the same time.';
+}
 function renderBlogAdmin(){ if(blogEditId)renderPostEditor(); else renderPostList(); }
 function renderPostList(){
   const posts=[...(WORK.posts||[])].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-  const nPub=posts.filter(p=>p.published!==false).length;
+  const states=posts.map(postState);
+  const onSite=states.filter(s=>s.label==='Live'||s.label==='Edited').length;
+  const waiting=states.filter(s=>s.act).length;
   dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Blog Posts'),
-    h('p',{},'Shown on the website’s “Insights” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+nPub+' live')));
+    h('p',{},'Shown on the website’s “Insights” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+onSite+' on the website')));
+  if(waiting||dirty.size)dashMain.append(h('div',{class:'re-banner'},
+    icon('alert',18),
+    h('span',{class:'re-banner-tx'},
+      h('b',{},waiting?(waiting+' post'+(waiting===1?'':'s')+' not on the website yet')
+                     :(dirty.size+' unsaved change'+(dirty.size===1?'':'s'))),
+      ' — publishing puts your whole draft live.'),
+    h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish now')));
   dashMain.append(h('div',{class:'re-blog-tools'},
-    h('button',{class:'re-btn re-btn-pri',onclick:()=>{ blogEditId='new'; renderMain(); }},icon('plus',15),'New post'),
-    dirty.size?h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:publish},'Publish changes'):''));
+    h('button',{class:'re-btn re-btn-pri',onclick:()=>{ blogEditId='new'; renderMain(); }},'Write a new post')));
   const list=h('div',{class:'re-sub-list'}); dashMain.append(list);
   if(!posts.length){ list.append(emptyState('No posts yet — write your first market insight.')); return; }
-  posts.forEach(p=>list.append(postRow(p)));
+  posts.forEach((p,i)=>list.append(postRow(p,states[i])));
 }
-function postRow(p){
+function postRow(p,st){
+  st=st||postState(p);
   const cover=p.cover?h('img',{class:'re-post-cover',src:p.cover,alt:''}):h('span',{class:'re-post-cover'},icon('image',18));
   return h('div',{class:'re-post-row'},cover,
     h('div',{class:'re-post-meta'},
       h('div',{class:'re-post-title'},p.title||'Untitled'),
       h('div',{class:'re-post-sub'},
-        h('span',{class:'re-badge '+(p.published!==false?'re-inv-accepted':'re-inv-pending')},p.published!==false?'Live':'Draft'),
-        h('span',{},postDateFmt(p.date)))),
+        h('span',{class:'re-badge '+st.cls},st.label),
+        h('span',{},postDateFmt(p.date))),
+      h('div',{class:'re-post-hint'},st.hint)),
+    st.act?h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll(p)},'Publish'):'',
     h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{ blogEditId=p.id; go('blog'); }},'Edit'),
     h('button',{class:'re-sub-del','aria-label':'Delete post',onclick:async()=>{
-      if(!(await reConfirm('Delete “'+(p.title||'Untitled')+'”? This removes it from the website on your next publish.',{title:'Delete post?',okLabel:'Delete',danger:true})))return;
-      WORK.posts=WORK.posts.filter(x=>x.id!==p.id); markDirty('posts:'+p.id); API.setOverrides(WORK); renderMain(); toast('Post deleted — publish to update the site');
+      if(!(await reConfirm('Delete “'+(p.title||'Untitled')+'”?'+(livePost(p.id)?' It stays on the website until you publish.':''),{title:'Delete post?',okLabel:'Delete',danger:true})))return;
+      WORK.posts=WORK.posts.filter(x=>x.id!==p.id); markDirty('posts:'+p.id); API.setOverrides(WORK);
+      saveDraft('Post deleted'+(livePost(p.id)?' — publish to remove it from the website':''));
     }},icon('trash',13),'Delete'));
 }
 
@@ -494,13 +550,17 @@ function renderSettings(){
   dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Settings'),h('p',{},'Publishing, your account, and reset options if things get messy.')));
   const row=(title,desc,ctl)=>h('div',{class:'re-setrow'},h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),h('div',{class:'re-setrow-d'},desc)),ctl);
   const n=dirty.size;
+  const waiting=(WORK.posts||[]).filter(p=>postState(p).act).length;
   dashMain.append(h('div',{class:'re-card re-set-card'},
     h('div',{class:'re-set-h'},'Publishing'),
-    row('Unsaved changes',n?(n+' change'+(n===1?'':'s')+' waiting — drafts stay private until you publish.'):'Everything is saved. Publishing pushes your latest draft live.',
+    row('Waiting to go live',
+      n?(n+' unsaved change'+(n===1?'':'s')+' — drafts stay private until you publish.')
+       :(waiting?(waiting+' blog post'+(waiting===1?'':'s')+' saved but not on the website yet.')
+                :'Everything is saved and published. Nothing is waiting.'),
       h('div',{class:'re-setbtns'},
-        n?h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{saveDraft();setTimeout(renderMain,400);}},'Save draft'):'',
+        n?h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>saveDraft()},'Save draft'):'',
         n?h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:discardAll},'Discard'):'',
-        h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:publish},'Publish')))));
+        h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish')))));
   dashMain.append(h('div',{class:'re-card re-set-card'},
     h('div',{class:'re-set-h'},'Account & admin'),
     row('Password','Change the password you use to sign in here.',
@@ -533,7 +593,7 @@ function renderSettings(){
     row('Delete all blog posts','Removes all '+(WORK.posts||[]).length+' posts from your draft.',
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
         reConfirm('Delete all '+(WORK.posts||[]).length+' blog posts? They disappear from the website on your next publish.',{title:'Delete all posts?',okLabel:'Delete all',danger:true}).then(ok=>{ if(!ok)return;
-          WORK.posts=[]; markDirty('posts:all'); API.setOverrides(WORK); renderMain(); toast('All posts removed from the draft'); });
+          WORK.posts=[]; markDirty('posts:all'); API.setOverrides(WORK); saveDraft('All posts removed — publish to update the website'); });
       }},'Delete all')),
     row('Factory reset','Colors, text, images, layout, and hidden items all reset in one go. Blog posts are kept.',
       h('button',{class:'re-btn re-btn-danger re-btn-sm',onclick:()=>doReset('the whole design','Everything except your blog posts returns to the original website.',()=>{
@@ -548,15 +608,15 @@ function renderPostEditor(){
   dashMain.append(h('div',{class:'re-main-head'},
     h('button',{class:'re-linkbtn',onclick:()=>{ blogEditId=null; renderMain(); }},'← All posts'),
     h('h1',{},isNew?'New post':'Edit post')));
+  /* Where this post stands right now — stated, not toggled. The buttons at the
+     bottom are what changes it, so there's only ever one way to publish. */
+  const st=isNew?{label:'Draft',cls:'',hint:'Nothing is published until you press “Publish”.'}:postState(p);
+  const wasOnSite=!isNew&&!!livePost(p.id)&&livePost(p.id).published!==false;
+  dashMain.append(h('div',{class:'re-poststat'},
+    h('span',{class:'re-badge '+st.cls},st.label),
+    h('span',{class:'re-poststat-tx'},st.hint)));
   const title=h('input',{class:'re-input',value:p.title||'',placeholder:'e.g. KSE-100 outlook for Q3','aria-label':'Post title'});
   const date=h('input',{class:'re-input',type:'date',value:(p.date||'').slice(0,10),'aria-label':'Post date',style:'max-width:200px'});
-  let published=p.published!==false&&!isNew;
-  const pubSw=h('button',{class:'re-toggle re-siterow'+(published?' on':''),type:'button','aria-pressed':String(published),
-    onclick:()=>{ published=!published; pubSw.classList.toggle('on',published); pubSw.setAttribute('aria-pressed',String(published));
-      pubLbl.textContent=published?'Live on the website (after you publish)':'Draft — only visible here'; }},
-    pubLbl=h('span',{class:'re-siterow-lbl'},published?'Live on the website (after you publish)':'Draft — only visible here'),
-    h('span',{class:'re-switch'}));
-  var pubLbl;
   let coverUrl=p.cover||'';
   const coverImg=h('img',{class:'re-cover-thumb',src:coverUrl||'',alt:'',style:coverUrl?'':'display:none'});
   const coverInp=h('input',{type:'file',accept:'image/png,image/jpeg,image/webp',style:'display:none',onchange:e=>{
@@ -588,28 +648,69 @@ function renderPostEditor(){
       Store.uploadImage(file).then(u=>{ body.focus(); document.execCommand('insertImage',false,u); toast('Image added'); }).catch(x=>toast('Upload failed: '+x.message,'err'));
     });
   }});
-  const save=h('button',{class:'re-btn re-btn-pri',onclick:()=>{
-    if(!title.value.trim()){ toast('Give the post a title','err'); title.focus(); return; }
-    const rec={id:p.id,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:API.sanitizePost(body.innerHTML),published};
+  /* One writer for the record; the caller decides whether it's a draft or goes live. */
+  const collect=pub=>{
+    if(!title.value.trim()){ toast('Give the post a title','err'); title.focus(); return null; }
+    const rec={id:p.id,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:API.sanitizePost(body.innerHTML),published:pub};
     const i=(WORK.posts||[]).findIndex(x=>x.id===p.id);
     if(i<0)WORK.posts.push(rec); else WORK.posts[i]=rec;
     markDirty('posts:'+p.id);
     API.setOverrides(WORK);
-    blogEditId=null; renderMain();
-    toast(published?'Saved — hit Publish to put it on the website':'Draft saved');
-  }},'Save post');
+    return rec;
+  };
+  const busy=(b,txt)=>{ b.disabled=true; b._t=b.textContent; b.textContent=txt; };
+  const idle=b=>{ b.disabled=false; if(b._t)b.textContent=b._t; };
+  /* Save only — stays private. Writes straight to the stored draft so a closed tab
+     can never lose the post. Saving a live post keeps it live (the website simply
+     keeps serving the older copy) — “Unpublish” is the only way to take it down. */
+  const saveBtn=h('button',{class:'re-btn re-btn-ghost',onclick:()=>{
+    if(!collect(wasOnSite))return;
+    busy(saveBtn,'Saving…');
+    saveDraft(wasOnSite?'Saved — the website still shows the published version'
+                       :'Draft saved — only you can see it').then(ok=>{
+      idle(saveBtn); if(ok){ blogEditId=null; renderMain(); }
+    });
+  }},wasOnSite?'Save without publishing':'Save as draft');
+  /* Publish — saves AND puts it on the website. The one button that "publishes". */
+  const pubBtn=h('button',{class:'re-btn re-btn-gd',onclick:()=>{
+    if(!collect(true))return;
+    reConfirm('“'+title.value.trim()+'” goes on the website’s Insights page for everyone to read.'+otherPending(p.id),
+      {title:wasOnSite?'Publish your edits?':'Publish this post?',okLabel:'Publish'}).then(ok=>{
+        if(!ok)return;
+        busy(pubBtn,'Publishing…');
+        blogEditId=null;
+        doPublish(wasOnSite?'Updated — your edits are live':'Published — the post is on the website now')
+          .catch(e=>{ toast('Publish failed: '+e.message,'err'); blogEditId=p.id; })
+          .then(()=>{ idle(pubBtn); renderMain(); });
+      });
+  }},wasOnSite?'Publish edits':'Publish');
+  /* Take a live post down — needs a publish to reach the website, so do both here. */
+  const unpubBtn=wasOnSite?h('button',{class:'re-btn re-btn-ghost',onclick:()=>{
+    reConfirm('Readers will no longer see “'+(p.title||'Untitled')+'” on the website. It stays here as a draft.'+otherPending(p.id),
+      {title:'Take it off the website?',okLabel:'Unpublish'}).then(ok=>{
+        if(!ok)return;
+        if(!collect(false))return;
+        busy(unpubBtn,'Removing…');
+        blogEditId=null;
+        doPublish('Removed from the website — kept here as a draft')
+          .catch(e=>{ toast('Could not update the website: '+e.message,'err'); blogEditId=p.id; })
+          .then(()=>{ idle(unpubBtn); renderMain(); });
+      });
+  }},'Unpublish'):'';
   dashMain.append(h('div',{class:'re-card re-post-form'},
     h('div',{class:'re-field'},h('label',{},'Title'),title),
     h('div',{class:'re-post-cols'},
-      h('div',{class:'re-field'},h('label',{},'Date'),date),
-      h('div',{class:'re-field re-field-grow'},h('label',{},'Status'),pubSw)),
+      h('div',{class:'re-field'},h('label',{},'Date'),date)),
     h('div',{class:'re-field'},h('label',{},'Cover image'),
       h('div',{class:'re-cover-wrap'},coverImg,coverInp,
         h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>coverInp.click()},icon('upload',14),coverUrl?'Replace':'Upload'),
         coverUrl?h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{ coverUrl=''; coverImg.style.display='none'; }},'Remove'):'')),
     h('div',{class:'re-field'},h('label',{},'Excerpt'),excerpt),
     h('div',{class:'re-field'},h('label',{},'Body'),fmtRow,body,bodyImgInp),
-    h('div',{class:'re-modal-foot'},h('button',{class:'re-btn re-btn-ghost',onclick:()=>{ blogEditId=null; renderMain(); }},'Cancel'),save)));
+    h('div',{class:'re-post-acts'},
+      h('button',{class:'re-btn re-btn-ghost',onclick:()=>{ blogEditId=null; renderMain(); }},'Cancel'),
+      h('span',{class:'re-spacer'}),
+      unpubBtn, saveBtn, pubBtn)));
 }
 
 /* ════════ SITE EDITOR (the live site + one toolbar) ════════ */
@@ -621,7 +722,7 @@ function buildBar(){
   barEls.preview=tool('eye','Preview',togglePreview);
   barEls.chip=h('span',{class:'re-count'});
   barEls.discard=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:discardAll},'Discard');
-  barEls.save=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:saveDraft},'Save draft');
+  barEls.save=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>saveDraft()},'Save draft');
   barEls.publish=h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:publish},'Publish');
   bar=h('div',{class:'re-bar re-ui'},
     tool('back','Dashboard',exitStudio),
@@ -635,6 +736,10 @@ function buildBar(){
     barEls.chip, barEls.discard, barEls.save, barEls.publish);
   document.body.append(bar);
 }
+/* The studio isn't a separate URL (both surfaces live at /admin), but the browser's
+   Back button should still leave it — so opening it pushes one history entry that
+   exiting consumes. The URL never changes; only the entry does. */
+let studioHist=false;
 function enterStudio(opts){
   opts=opts||{};
   closeDashboard();
@@ -649,16 +754,27 @@ function enterStudio(opts){
   if(opts.panel==='site')openSite();
   updateSaveBar();
   maybeCoach();
+  if(!studioHist){ try{ history.pushState({reStudio:1},''); studioHist=true; }catch(e){} }
 }
-function exitStudio(){
-  setEditing(false);
-  document.body.classList.remove('re-on','re-preview');
-  closePanels(); hideFmtBar(); clearImgBtn();
-  if(bar)bar.style.display='none';
-  clearElBar(); finishDrag();
+/* Tear the studio down and show the dashboard. Never let a failing step here strand
+   the visitor on the bare site — the dashboard must come back no matter what. */
+function closeStudio(){
+  try{
+    setEditing(false);
+    document.body.classList.remove('re-on','re-preview');
+    closePanels(); hideFmtBar(); clearImgBtn();
+    if(bar)bar.style.display='none';
+    clearElBar(); endElDrag();
+  }catch(e){ console.warn('[editor] studio teardown',e); }
   if(dirty.size)toast(dirty.size+' unsaved change'+(dirty.size===1?'':'s')+' kept — publish or discard anytime');
   openDashboard();
 }
+function exitStudio(){
+  closeStudio();
+  if(studioHist){ studioHist=false; try{ history.back(); }catch(e){} }  // drop our history entry
+}
+/* Browser Back while the studio is open → back to the dashboard, not off the page. */
+window.addEventListener('popstate',()=>{ studioHist=false; if(document.body.classList.contains('re-on'))closeStudio(); });
 function closePanels(){ [photosPanel,colorPanel,sitePanel].forEach(p=>p&&p.classList.remove('open')); }
 function setEditing(v){
   editing=v;
@@ -1379,10 +1495,40 @@ function updateSaveBar(){
   barEls.save.disabled=!n;
 }
 function cleanWork(){ return JSON.parse(JSON.stringify(WORK)); }
-function afterSaveRefresh(){ updateSaveBar(); if(dashVisible())renderMain(); }
-function saveDraft(){ Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{dirty.clear();afterSaveRefresh();toast('Draft saved (not yet public)');}).catch(e=>toast('Save failed: '+e.message,'err')); }
+function afterSaveRefresh(){ updateSaveBar(); softRefresh(); }
+/* Save the draft (private). Resolves true/false so callers can react. */
+function saveDraft(msg){
+  if(typeof msg!=='string')msg=null;   // guard: also wired to a click handler
+  return Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ dirty.clear(); afterSaveRefresh(); toast(msg||'Draft saved (not yet public)'); return true; })
+    .catch(e=>{ toast('Save failed: '+e.message,'err'); return false; });
+}
+/* Push the whole draft live. LIVE tracks it so every screen can show what's on the
+   website without another round-trip. Rejects on failure — callers report it. */
+function doPublish(msg){
+  const snap=cleanWork();
+  return Promise.resolve(Store.publish(snap)).then(()=>{
+    try{localStorage.setItem('re-content',JSON.stringify(snap));}catch(e){}
+    LIVE=normalize(snap); dirty.clear(); afterSaveRefresh();
+    toast(msg||'Published! Your changes are now live.');
+  });
+}
+/* Publish, optionally framed around one post the user pointed at. The message has to
+   match what that post's pending change actually does — putting it up, updating it,
+   or taking it down. */
+function publishAll(p){
+  const t='“'+((p&&p.title)||'Untitled')+'”';
+  const act=p?postState(p).act:null;
+  const what=!p?'Everything waiting in your draft goes on the website for everyone to see.'
+    :(act==='Publish edits'?('Your edits to '+t+' replace the version readers see now.')
+     :act==='Publish to remove it'?(t+' comes off the website. It stays here as a draft.')
+     :(t+' goes on the website’s Insights page for everyone to read.'))+otherPending(p.id);
+  const done=!p?null:(act==='Publish edits'?'Updated — your edits are live'
+    :act==='Publish to remove it'?'Removed from the website':'Published — it’s on the website now');
+  reConfirm(what,{title:'Publish now?',okLabel:'Publish'}).then(ok=>{ if(!ok)return;
+    doPublish(done).catch(e=>toast('Publish failed: '+e.message,'err')); });
+}
 function publish(){ reConfirm('This makes your changes live for everyone visiting the website.',{title:'Publish changes?',okLabel:'Publish'}).then(ok=>{ if(!ok)return;
-  Promise.resolve(Store.publish(cleanWork())).then(()=>{ try{localStorage.setItem('re-content',JSON.stringify(cleanWork()));}catch(e){} dirty.clear();afterSaveRefresh();toast('Published! Your changes are now live.'); }).catch(e=>toast('Publish failed: '+e.message,'err')); }); }
+  doPublish().catch(e=>toast('Publish failed: '+e.message,'err')); }); }
 function discardAll(){ reConfirm('This throws away every change since your last save.',{title:'Discard changes?',okLabel:'Discard',danger:true}).then(ok=>{ if(!ok)return;
   const structural=[...dirty].some(k=>k.indexOf('order:')===0||k.indexOf('hidden:')===0);
   if(structural){ location.reload(); return; }   // reordered/hidden DOM needs a clean slate
