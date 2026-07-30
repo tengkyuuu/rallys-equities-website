@@ -65,7 +65,11 @@ const ICONS={
   shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
   lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   circle:'<circle cx="12" cy="12" r="9"/>',
-  cloud:'<path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.78A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 5 19z"/><path d="m9 14 3-3 3 3"/><path d="M12 11v6"/>'
+  cloud:'<path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.78A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 5 19z"/><path d="m9 14 3-3 3 3"/><path d="M12 11v6"/>',
+  chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  briefcase:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>',
+  phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>'
 };
 function icon(name,size){ size=size||20; return h('span',{class:'re-ic',html:'<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'}); }
 const iconBtn=(name,label,fn,cls)=>h('button',{class:'re-iconbtn'+(cls?' '+cls:''),type:'button','aria-label':label,title:label,onclick:fn},icon(name,16));
@@ -267,7 +271,11 @@ function localStore(){
     getPublished(){ return Promise.resolve(get('re-content')||blank()); },
     saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
-    uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); }
+    uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); },
+    listSubmissions(){ return Promise.resolve([]); },
+    signedUrl(){ return Promise.resolve(null); },
+    setHandled(){ return Promise.resolve(); },
+    deleteSubmission(){ return Promise.resolve(); }
   };
 }
 function supabaseStore(){
@@ -326,7 +334,11 @@ function supabaseStore(){
     async getPublished(){return await rowData('published');},
     async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
     async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);},
-    async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;}
+    async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
+    async listSubmissions(){const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).limit(300);if(error)throw new Error(error.message);return data||[];},
+    async signedUrl(path){const{data,error}=await sb.storage.from('form-uploads').createSignedUrl(path,3600);return error?null:data.signedUrl;},
+    async setHandled(id,val){await sb.from('form_submissions').update({handled:val}).eq('id',id);},
+    async deleteSubmission(id){const{error}=await sb.from('form_submissions').delete().eq('id',id);if(error)throw new Error(error.message);}
   };
 }
 const Store = (window.RE_SUPABASE_READY && window.supabase) ? supabaseStore() : localStore();
@@ -415,6 +427,18 @@ function doLogout(){
 
 /* ════════ DASHBOARD APP (fullscreen: sidebar + views) ════════ */
 let dashEl,dashMain,dashView='overview',blogEditId=null,viewTeardown=null;
+/* ── Submissions state: messages/complaints/feedback/careers/applications from the
+   public forms (reSubmit() in index.html writes to form_submissions; RLS lets the
+   public only insert, so reads/deletes only happen here). ── */
+let subsData=[],subsQuery='',subsFilter='all',subsLoading=false,subsLoadedOnce=false;
+const SUB_FILTERS=[['all','All'],['unhandled','New'],['contact','Contact'],['complaint','Complaint'],['feedback','Feedback'],['career','Career'],['application','Applications']];
+const SUB_KIND_META={
+  contact:{label:'Contact',icon:'mail'},
+  complaint:{label:'Complaint',icon:'alert'},
+  feedback:{label:'Feedback',icon:'chat'},
+  career:{label:'Career',icon:'briefcase'},
+  application:{label:'Account application',icon:'userplus'}
+};
 function teardownView(){ if(viewTeardown){ try{viewTeardown();}catch(e){} viewTeardown=null; } }
 
 /* ── who's signed in ──
@@ -463,7 +487,7 @@ function updateSideStatus(){
 }
 function ensureDash(){
   if(dashEl)return;
-  const navItem=(id,ic,label,fn)=>h('button',{class:'re-nav-item','data-nav':id||'',onclick:fn}, icon(ic,18), h('span',{class:'re-nav-lbl'},label));
+  const navItem=(id,ic,label,fn,badge)=>h('button',{class:'re-nav-item','data-nav':id||'',onclick:fn}, icon(ic,18), h('span',{class:'re-nav-lbl'},label), badge?h('span',{class:'re-nav-badge'}):'');
   sideEls.statusIc=h('span',{},icon('check',15));
   sideEls.statusT=h('span',{class:'re-side-status-t'},'Website up to date');
   sideEls.statusD=h('span',{class:'re-side-status-d'},'Everything is published');
@@ -477,6 +501,7 @@ function ensureDash(){
     h('div',{class:'re-side-brand'},brandMark({label:'Website Admin'})),
     h('nav',{class:'re-side-nav','aria-label':'Admin navigation'},
       navItem('overview','grid','Dashboard',()=>go('overview')),
+      navItem('submissions','inbox','Submissions',()=>go('submissions'),true),
       navItem('blog','post','Blog Posts',()=>{ blogEditId=null; go('blog'); }),
       navItem('editors','users','Editors',()=>go('editors')),
       h('div',{class:'re-side-cap'},'Website'),
@@ -493,12 +518,13 @@ function ensureDash(){
   document.body.append(dashEl);
   paintMe(); updateSideStatus(); loadMe();
 }
-function go(view){ dashView=view; setActiveNav(); renderMain(); dashEl.querySelector('.re-main').scrollTop=0; }
+function go(view){ dashView=view; setActiveNav(); renderMain(); dashEl.querySelector('.re-main').scrollTop=0; if(view==='submissions')reloadSubs(); }
 function setActiveNav(){ dashEl&&dashEl.querySelectorAll('.re-nav-item[data-nav]').forEach(b=>{const on=b.getAttribute('data-nav')===dashView;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}); }
 function openDashboard(){
   ensureDash();
   dashEl.style.display='flex'; document.body.classList.add('re-dash-open');
   setActiveNav(); renderMain();
+  reloadSubs();
 }
 function closeDashboard(){ teardownView(); if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
 function dashVisible(){ return dashEl&&dashEl.style.display!=='none'; }
@@ -513,7 +539,7 @@ function viewSig(){
 }
 let lastViewSig='';
 function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; updateSideStatus(); lastViewSig=viewSig();
-  ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile}[dashView]||renderOverview)(); }
+  ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile,submissions:renderSubs}[dashView]||renderOverview)(); }
 /* Background refresh (a fetch landed, a save finished): never redraw over a half-written
    post — the post form is the one view with unsaved input in the DOM. */
 function softRefresh(){
@@ -622,6 +648,7 @@ function renderOverview(){
     kpi('Visible pages',pagesAll-pagesHidden,'grid')));
   dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Manage the website')));
   dashMain.append(h('div',{class:'re-qas'},
+    qa('inbox','Check submissions','See messages, complaints, feedback and applications from visitors.',()=>go('submissions')),
     qa('edit','Edit content','Click text to rewrite it; drag anything to move it; hide what you don’t need.',()=>enterStudio({edit:true})),
     qa('post','Write a blog post','Publish market insights to the site’s Insights section.',()=>{ blogEditId='new'; go('blog'); }),
     qa('image','Photos','Swap any photo — click it, or drag one photo onto another.',()=>enterStudio({edit:false,panel:'photos'})),
@@ -634,6 +661,130 @@ function renderOverview(){
   if(!recent.length)list.append(emptyState('No posts yet — write your first market insight.'));
   else recent.forEach(p=>list.append(postRow(p)));
   dashMain.append(list);
+}
+
+/* ── Submissions — messages, complaints, feedback, careers & applications sent through
+   the public site's forms (reSubmit() in index.html inserts into form_submissions;
+   RLS lets the public only INSERT, so reading/deleting only happens here). ── */
+async function reloadSubs(){
+  if(Store.mode!=='supabase'){ subsData=[]; subsLoadedOnce=true; updateNavBadge(); if(dashView==='submissions')renderMain(); return; }
+  subsLoading=true; if(dashView==='submissions')renderMain();
+  try{ subsData=await Store.listSubmissions(); }catch(e){ console.warn('[submissions] load failed',e); }
+  subsLoading=false; subsLoadedOnce=true; updateNavBadge();
+  if(dashView==='submissions')renderMain();
+}
+function subsStats(){ const wk=Date.now()-7*864e5; let unhandled=0,week=0; const byKind={}; subsData.forEach(r=>{ if(!r.handled)unhandled++; byKind[r.kind]=(byKind[r.kind]||0)+1; const t=Date.parse(r.created_at||''); if(t&&t>=wk)week++; }); return {total:subsData.length,unhandled,week,byKind}; }
+function subFilterCount(k){ const s=subsStats(); if(k==='all')return s.total; if(k==='unhandled')return s.unhandled; return s.byKind[k]||0; }
+function filteredSubs(){ const q=subsQuery.trim().toLowerCase(); return subsData.filter(r=>{ if(subsFilter==='unhandled'){ if(r.handled)return false; } else if(subsFilter!=='all' && r.kind!==subsFilter)return false; if(!q)return true; return (JSON.stringify(r.data||{})+' '+(r.reference||'')).toLowerCase().includes(q); }); }
+function updateNavBadge(){ const b=dashEl&&dashEl.querySelector('[data-nav="submissions"] .re-nav-badge'); if(!b)return; const n=subsStats().unhandled; b.textContent=n>99?'99+':(n||''); b.style.display=n?'inline-flex':'none'; }
+function prettyLabel(k){return k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());}
+/* These get a dedicated spot in the card header/meta/message — leave them out of the
+   generic "extra details" list below so nothing is shown twice. */
+const SUB_PROMINENT=new Set(['name','firstName','lastName','email','phone','mobile','message','subject','category','reference','source']);
+function fieldRows(obj,exclude){
+  const order=['name','firstName','lastName','email','phone','mobile','subject','category','position','message','coverLetter','reference','cnic','dob','gender','address','city','province','employment','employer','income','sourceOfFunds','bank','iban','experience','objective','accountType','riskTolerance','language','services','source'];
+  const has=k=>obj[k]!=null&&String(obj[k]).trim()!==''&&!(exclude&&exclude.has(k));
+  const keys=[...order.filter(has),...Object.keys(obj).filter(k=>order.indexOf(k)<0&&has(k))];
+  return keys.map(k=>h('div',{class:'re-sub-row'},h('span',{class:'re-sub-k'},prettyLabel(k)),h('span',{class:'re-sub-v'},String(obj[k]))));
+}
+/* Relative time in the list ("2h ago"); the exact timestamp is one hover away. */
+function timeAgo(iso){
+  const t=Date.parse(iso||''); if(!t)return '—';
+  const s=Math.max(0,Math.floor((Date.now()-t)/1000));
+  if(s<60)return 'just now';
+  const m=Math.floor(s/60); if(m<60)return m+'m ago';
+  const hh=Math.floor(m/60); if(hh<24)return hh+'h ago';
+  const d=Math.floor(hh/24); if(d<7)return d+'d ago';
+  return new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+}
+function subCard(r){
+  const d=r.data||{};
+  const meta=SUB_KIND_META[r.kind]||{label:prettyLabel(r.kind||'Other'),icon:'inbox'};
+  const name=d.name||[d.firstName,d.lastName].filter(Boolean).join(' ')||d.email||'Anonymous';
+  const when=(r.created_at||'').replace('T',' ').slice(0,16);
+  const card=h('div',{class:'re-sub2'+(r.handled?' done':' new')});
+
+  let swLbl;
+  const sw=h('button',{class:'re-toggle re-sub2-sw'+(r.handled?' on':''),type:'button','aria-pressed':String(!!r.handled),
+    onclick:()=>{ const val=!r.handled; Store.setHandled(r.id,val); r.handled=val;
+      card.classList.toggle('done',val); card.classList.toggle('new',!val);
+      sw.classList.toggle('on',val); swLbl.textContent=val?'Handled':'Mark as handled';
+      updateNavBadge(); }},
+    swLbl=h('span',{class:'re-siterow-lbl'},r.handled?'Handled':'Mark as handled'),
+    h('span',{class:'re-switch'}));
+
+  const metaBits=[];
+  if(d.email)metaBits.push(h('a',{class:'re-sub2-metabit',href:'mailto:'+d.email},icon('mail',12),d.email));
+  const phone=d.phone||d.mobile;
+  if(phone)metaBits.push(h('a',{class:'re-sub2-metabit',href:'tel:'+phone},icon('phone',12),phone));
+  if(d.source)metaBits.push(h('span',{class:'re-sub2-metabit re-sub2-src'},'via '+d.source));
+
+  const tags=[];
+  if(d.subject)tags.push(h('span',{class:'re-sub2-tag'},d.subject));
+  if(d.category)tags.push(h('span',{class:'re-sub2-tag'},d.category));
+
+  const rows=fieldRows(d,SUB_PROMINENT);
+  const fields=h('div',{class:'re-sub-fields'});
+  if(rows.length>4){
+    rows.slice(0,3).forEach(x=>fields.append(x));
+    const more=h('div',{class:'re-sub-more'}); rows.slice(3).forEach(x=>more.append(x));
+    const lbl=h('span',{},'Show all '+rows.length+' details');
+    const tog=h('button',{class:'re-sub-expand',onclick:()=>{ const open=more.classList.toggle('open'); tog.classList.toggle('open',open); lbl.textContent=open?'Show less':'Show all '+rows.length+' details'; }},icon('chevron',14),lbl);
+    fields.append(more,tog);
+  } else rows.forEach(x=>fields.append(x));
+  const files=(r.files||[]).map(f=>h('button',{class:'re-file',onclick:async ev=>{ev.preventDefault();const b=ev.currentTarget;const old=b.textContent;b.textContent='opening…';const u=await Store.signedUrl(f.path);b.textContent=old;if(u)window.open(u,'_blank');else toast('Could not open file','err');}}, icon('download',13), (f.field||'file')));
+
+  card.append(
+    h('div',{class:'re-sub2-ic re-k-'+r.kind},icon(meta.icon,18)),
+    h('div',{class:'re-sub2-body'},
+      h('div',{class:'re-sub2-top'},
+        h('span',{class:'re-sub2-name'},name),
+        h('span',{class:'re-badge re-k-'+r.kind},meta.label),
+        r.reference?h('span',{class:'re-sub-ref',title:'Reference'},r.reference):'',
+        h('span',{class:'re-sub2-when',title:when},timeAgo(r.created_at))),
+      metaBits.length?h('div',{class:'re-sub2-meta'},...metaBits):'',
+      tags.length?h('div',{class:'re-sub2-tags'},...tags):'',
+      d.message?h('blockquote',{class:'re-sub2-msg'},d.message):'',
+      rows.length?fields:'',
+      files.length?h('div',{class:'re-sub-files'},h('span',{class:'re-sub-k'},'Files'),h('span',{},...files)):'',
+      h('div',{class:'re-sub2-foot'},
+        sw,
+        h('div',{class:'re-sub2-foot-r'},
+          d.email?h('a',{class:'re-btn re-btn-ghost re-btn-sm',href:'mailto:'+d.email+'?subject='+encodeURIComponent('Re: your message to Rallys Equities')},icon('mail',13),'Reply'):'',
+          h('button',{class:'re-sub-del',onclick:async()=>{ if(!(await reConfirm('This permanently deletes this submission.',{title:'Delete submission?',okLabel:'Delete',danger:true})))return; try{ await Store.deleteSubmission(r.id); card.remove(); subsData=subsData.filter(x=>x.id!==r.id); updateNavBadge(); toast('Submission deleted'); }catch(e){ toast('Delete failed: '+e.message,'err'); } }}, icon('trash',13),'Delete')))));
+  return card;
+}
+function renderSubs(){
+  const s=subsStats();
+  dashMain.append(pageHead('Website inbox','Submissions',
+    (subsLoading&&!subsLoadedOnce)?'Loading…':(s.total+' total · '+s.unhandled+' new'),
+    [h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:reloadSubs},icon('refresh',14),'Refresh')]));
+  if(Store.mode!=='supabase'){
+    dashMain.append(h('div',{class:'re-empty'},icon('inbox',30),h('p',{},'Submissions need the live Supabase connection — this local preview has none to show.')));
+    return;
+  }
+  dashMain.append(h('div',{class:'re-kpis'},
+    kpi('Total',s.total,'inbox'),
+    kpi('New',s.unhandled,'clock',s.unhandled>0),
+    kpi('This week',s.week,'refresh')));
+  const inp=h('input',{class:'re-search-input',type:'search',placeholder:'Search name, email, message…',value:subsQuery,'aria-label':'Search submissions'});
+  inp.addEventListener('input',()=>{ subsQuery=inp.value; drawList(); });
+  dashMain.append(h('div',{class:'re-subs-tools'},h('div',{class:'re-search'},icon('search',16),inp)));
+  const tabs=h('div',{class:'re-filters'});
+  SUB_FILTERS.forEach(([k,lbl])=>{
+    const b=h('button',{class:'re-filter'+(subsFilter===k?' on':''),onclick:()=>{ subsFilter=k; tabs.querySelectorAll('.re-filter').forEach(x=>x.classList.remove('on')); b.classList.add('on'); drawList(); }},lbl+' ('+subFilterCount(k)+')');
+    tabs.append(b);
+  });
+  dashMain.append(tabs);
+  const listWrap=h('div',{class:'re-sub-list'}); dashMain.append(listWrap);
+  function drawList(){
+    listWrap.innerHTML='';
+    if(subsLoading&&!subsLoadedOnce){ listWrap.append(skelRows(3,false)); return; }
+    const rows=filteredSubs();
+    if(!rows.length){ listWrap.append(emptyState(subsData.length?'Nothing matches this filter.':'No submissions yet. When a visitor sends a form, it appears here.','inbox')); return; }
+    rows.forEach(r=>listWrap.append(subCard(r)));
+  }
+  drawList();
 }
 
 /* ── Editors (invite by email via Resend; the shareable link stays as a fallback) ── */

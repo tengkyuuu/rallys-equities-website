@@ -149,10 +149,10 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .jp-note{font-size:11.5px;color:var(--mt2);line-height:1.7;max-width:540px;margin:16px auto 0}
 @media(max-width:640px){.jp-logo img{height:54px}.jp-logo{padding:11px 16px}}
 /* bottom-of-site feedback + complaint pair */
-.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:42px;max-width:1040px;margin-left:auto;margin-right:auto}
+.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:42px;max-width:1160px;margin-left:auto;margin-right:auto}
 .fbc-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--au);margin-bottom:12px}
 .fbc-ic{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;background:color-mix(in srgb, var(--au) 16%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent)}
-.fbc-card{border:1px solid var(--gb);border-radius:18px;padding:26px;background:var(--gl)}
+.fbc-card{border:1px solid var(--gb);border-radius:18px;padding:34px;background:var(--gl)}
 .fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:30px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
 .svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
 .svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent);opacity:0;transition:opacity .3s}
@@ -263,6 +263,17 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .fprev:hover{border-color:var(--au);color:var(--au)}
 .fnext{background:linear-gradient(135deg,var(--g),var(--g3));border:none;color:#fff;padding:11px 28px;border-radius:9px;font-size:13px;font-weight:700;box-shadow:0 4px 18px color-mix(in srgb, var(--g) 35%, transparent);transition:all .2s;font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}
 .fnext:hover{transform:translateY(-1px);box-shadow:0 8px 24px color-mix(in srgb, var(--g) 50%, transparent)}
+
+/* Complaints & Feedback forms — sized up on request: bigger fields, taller message
+   boxes, roomier cards. Scoped to these forms only so the account-opening and
+   contact forms (which share the same base .finput/.ftarea classes) stay unchanged. */
+#page-complaints .fgrid,#page-feedback .fgrid,#home-feedback .fgrid{gap:22px;margin-bottom:22px}
+#page-complaints .fg,#page-feedback .fg,#home-feedback .fg{gap:8px}
+#page-complaints .flbl,#page-feedback .flbl,#home-feedback .flbl{font-size:13px}
+#page-complaints .finput,#page-feedback .finput,#home-feedback .finput,
+#page-complaints .fselect,#page-feedback .fselect,#home-feedback .fselect{padding:15px 18px;font-size:15px;border-radius:11px}
+#page-complaints .ftarea,#page-feedback .ftarea,#home-feedback .ftarea{padding:15px 18px;font-size:15px;border-radius:11px;min-height:160px}
+#page-complaints .fnext,#page-feedback .fnext,#home-feedback .fnext{padding:15px 30px;font-size:15px}
 .prog-bar{height:3px;background:rgba(255,255,255,.08);border-radius:100px;margin-bottom:26px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--g3));border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1)}
 .rv-sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 20px;margin-bottom:16px}
@@ -428,14 +439,18 @@ body.light .foot-mark{color:color-mix(in srgb,var(--au) 7%,transparent)}
 .aval-icon{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb, var(--g) 25%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .aval h4{font-size:13px;font-weight:700;margin-bottom:3px}.aval p{font-size:11px;color:var(--mt)}
 
-/* NAV DROPDOWNS */
+/* NAV DROPDOWNS — mega-menu style: a wide card with column groups, each carrying
+   its own small label, echoing the grouped multi-column mega-menus used by peer
+   PSX brokerage sites (labelled clusters instead of one long flat list). */
 .nav-links{gap:22px}
 .nav-links>li{position:relative}
 .nav-links .ddt::after{content:' ▾';font-size:8px;opacity:.7}
 .dd{position:absolute;top:100%;left:-14px;padding-top:12px;display:none;z-index:300}
 .nav-links>li:hover .dd{display:block}
-.dd-inner{background:color-mix(in srgb, var(--nv) 98%, transparent);border:1px solid var(--gb);border-radius:12px;padding:8px 0;min-width:230px;backdrop-filter:blur(28px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
-.dd-inner a{display:block;padding:9px 18px;font-size:11px;color:var(--mt);letter-spacing:.04em;text-transform:none;border-bottom:none!important;transition:all .15s;white-space:nowrap}
+.dd-inner{background:color-mix(in srgb, var(--nv) 98%, transparent);border:1px solid var(--gb);border-radius:14px;padding:20px 24px;backdrop-filter:blur(28px);box-shadow:0 24px 60px rgba(0,0,0,.55);display:flex;gap:32px}
+.dd-col{display:flex;flex-direction:column;min-width:200px}
+.dd-col-lbl{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--au);padding:2px 8px 10px;margin:0 0 6px;border-bottom:1px solid var(--gb);white-space:nowrap}
+.dd-inner a{display:block;padding:7px 8px;border-radius:8px;font-size:11.5px;color:var(--mt);letter-spacing:.02em;text-transform:none;border-bottom:none!important;transition:all .15s;white-space:nowrap}
 .dd-inner a:hover{color:var(--au);background:color-mix(in srgb, var(--g) 12%, transparent)}
 
 /* MOBILE NAV */
@@ -1079,7 +1094,9 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 .post-more-h{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:24px;color:var(--au);margin-bottom:20px}
 </style>
 </head>
-<body class="light">
+<body>
+<script>/* Dark is the default theme; apply a saved "light" choice before first paint so there's no flash. */
+try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('light');}catch(e){}</script>
 
 <!-- IMMERSIVE OVERLAYS -->
 <div id="preloader" aria-hidden="true">
@@ -1114,57 +1131,80 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     </div>
     <ul class="nav-links">
       <li><a id="nav-home" onclick="showPage('home')">Home</a></li>
-      <li><a id="nav-about" class="ddt" onclick="showPage('about')">About Us</a>
-        <div class="dd"><div class="dd-inner">
-          <a onclick="showPage('mission')">Mission &amp; Vision</a>
-          <a onclick="showPage('management')">Our Management</a>
-          <a onclick="showPage('rating')">Management Rating</a>
-          <a onclick="showPage('governance')">Corporate Governance</a>
-        </div></div>
-      </li>
+      <li><a id="nav-markets" onclick="showPage('markets')">Markets</a></li>
       <li><a id="nav-services" class="ddt" onclick="showPage('services')">Services</a>
         <div class="dd"><div class="dd-inner">
-          <a onclick="showPage('trading')">Investment &amp; Trading</a>
-          <a onclick="showPage('corporate')">Corporate Accounts</a>
-          <a onclick="showPage('portfolio')">Portfolio Management</a>
-          <a onclick="showPage('research')">Market Research</a>
-          <a onclick="showPage('shariah')">Shariah Compliant Investing</a>
-          <a onclick="showPage('platforms')">Online Trading Platforms</a>
-          <a onclick="showPage('support')">Customer Support</a>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Trading &amp; Investment</div>
+            <a onclick="showPage('trading')">Investment &amp; Trading</a>
+            <a onclick="showPage('portfolio')">Portfolio Management</a>
+            <a onclick="showPage('corporate')">Corporate Accounts</a>
+            <a onclick="showPage('research')">Market Research</a>
+          </div>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Platforms &amp; Support</div>
+            <a onclick="showPage('shariah')">Shariah Compliant Investing</a>
+            <a onclick="showPage('platforms')">Online Trading Platforms</a>
+            <a onclick="showPage('support')">Customer Support</a>
+          </div>
         </div></div>
       </li>
       <li><a id="nav-investors" class="ddt" onclick="showPage('portal')">Investor Relations</a>
         <div class="dd"><div class="dd-inner">
-          <a onclick="showPage('portal')">Investor Portal</a>
-          <a onclick="showPage('education')">Investor Education</a>
-          <a onclick="showPage('awareness')">Investor Education &amp; Awareness</a>
-          <a onclick="showPage('financial')">Financial Highlights</a>
-          <a onclick="showPage('policies')">Policies and Procedures</a>
-        </div></div>
-      </li>
-      <li><a id="nav-tools" class="ddt" onclick="showPage('cagr')">Tools</a>
-        <div class="dd"><div class="dd-inner">
-          <a onclick="showPage('cagr')">CAGR Calculator</a>
-          <a onclick="showPage('sip')">SIP Calculator</a>
-          <a onclick="showPage('invest')">Investment Calculator</a>
-          <a onclick="showPage('depr')">Depreciation Calculator</a>
-          <a onclick="showPage('xrate')">X Rate Calculator</a>
-          <a onclick="showPage('dcf')">DCF Calculator</a>
-          <a onclick="showPage('fcf')">Projected FCF &amp; Cash Calculator</a>
-          <a onclick="showPage('drawdown')">Drawdown Calculator</a>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Investor Relations</div>
+            <a onclick="showPage('portal')">Investor Portal</a>
+            <a onclick="showPage('education')">Investor Education</a>
+            <a onclick="showPage('financial')">Financial Highlights</a>
+            <a onclick="showPage('policies')">Policies and Procedures</a>
+          </div>
         </div></div>
       </li>
       <li><a id="nav-misc" class="ddt" onclick="showPage('faq')">Miscellaneous</a>
         <div class="dd"><div class="dd-inner">
-          <a onclick="showPage('faq')">FAQ</a>
-          <a onclick="showPage('downloads')">Useful Downloads</a>
-          <a onclick="showPage('links')">Useful Links</a>
-          <a onclick="showPage('careers')">Careers</a>
-          <a onclick="showPage('complaints')">Complaints</a>
-          <a onclick="showPage('feedback')">Feedback</a>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Resources</div>
+            <a onclick="showPage('faq')">FAQ</a>
+            <a onclick="showPage('downloads')">Useful Downloads</a>
+            <a onclick="showPage('links')">Useful Links</a>
+          </div>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Support</div>
+            <a onclick="showPage('careers')">Careers</a>
+            <a onclick="showPage('complaints')">Complaints</a>
+            <a onclick="showPage('feedback')">Feedback</a>
+          </div>
         </div></div>
       </li>
-      <li><a id="nav-markets" onclick="showPage('markets')">Markets</a></li>
+      <li><a id="nav-about" class="ddt" onclick="showPage('about')">About Us</a>
+        <div class="dd"><div class="dd-inner">
+          <div class="dd-col">
+            <div class="dd-col-lbl">About Us</div>
+            <a onclick="showPage('mission')">Mission &amp; Vision</a>
+            <a onclick="showPage('management')">Our Management</a>
+            <a onclick="showPage('rating')">Management Rating</a>
+            <a onclick="showPage('governance')">Corporate Governance</a>
+          </div>
+        </div></div>
+      </li>
+      <li><a id="nav-tools" class="ddt" onclick="showPage('cagr')">Tools</a>
+        <div class="dd"><div class="dd-inner">
+          <div class="dd-col">
+            <div class="dd-col-lbl">Growth Calculators</div>
+            <a onclick="showPage('cagr')">CAGR Calculator</a>
+            <a onclick="showPage('sip')">SIP Calculator</a>
+            <a onclick="showPage('invest')">Investment Calculator</a>
+            <a onclick="showPage('depr')">Depreciation Calculator</a>
+          </div>
+          <div class="dd-col">
+            <div class="dd-col-lbl">Valuation Calculators</div>
+            <a onclick="showPage('xrate')">X Rate Calculator</a>
+            <a onclick="showPage('dcf')">DCF Calculator</a>
+            <a onclick="showPage('fcf')">Projected FCF &amp; Cash Calculator</a>
+            <a onclick="showPage('drawdown')">Drawdown Calculator</a>
+          </div>
+        </div></div>
+      </li>
       <li><a id="nav-insights" onclick="showPage('insights')">Insights</a></li>
       <li><a id="nav-locations" onclick="showPage('locations')">Contact Us</a></li>
     </ul>
@@ -1184,18 +1224,12 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 <!-- MOBILE MENU -->
 <div class="mnav" id="mnav">
   <div class="mnav-group"><a onclick="showPage('home')" style="font-size:15px;color:var(--tx);font-weight:600">Home</a></div>
-  <div class="mnav-group"><span>About Us</span>
-    <a onclick="showPage('about')">About Rallys Equities</a>
-    <a onclick="showPage('mission')">Mission &amp; Vision</a>
-    <a onclick="showPage('management')">Our Management</a>
-    <a onclick="showPage('rating')">Management Rating</a>
-    <a onclick="showPage('governance')">Corporate Governance</a>
-  </div>
+  <div class="mnav-group"><a onclick="showPage('markets')" style="font-size:15px;color:var(--tx);font-weight:600">Markets</a></div>
   <div class="mnav-group"><span>Services</span>
     <a onclick="showPage('services')">All Services</a>
     <a onclick="showPage('trading')">Investment &amp; Trading</a>
-    <a onclick="showPage('corporate')">Corporate Accounts</a>
     <a onclick="showPage('portfolio')">Portfolio Management</a>
+    <a onclick="showPage('corporate')">Corporate Accounts</a>
     <a onclick="showPage('research')">Market Research</a>
     <a onclick="showPage('shariah')">Shariah Compliant Investing</a>
     <a onclick="showPage('platforms')">Online Trading Platforms</a>
@@ -1204,9 +1238,23 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div class="mnav-group"><span>Investor Relations</span>
     <a onclick="showPage('portal')">Investor Portal</a>
     <a onclick="showPage('education')">Investor Education</a>
-    <a onclick="showPage('awareness')">Investor Education &amp; Awareness</a>
     <a onclick="showPage('financial')">Financial Highlights</a>
     <a onclick="showPage('policies')">Policies and Procedures</a>
+  </div>
+  <div class="mnav-group"><span>Miscellaneous</span>
+    <a onclick="showPage('faq')">FAQ</a>
+    <a onclick="showPage('downloads')">Useful Downloads</a>
+    <a onclick="showPage('links')">Useful Links</a>
+    <a onclick="showPage('careers')">Careers</a>
+    <a onclick="showPage('complaints')">Complaints</a>
+    <a onclick="showPage('feedback')">Feedback</a>
+  </div>
+  <div class="mnav-group"><span>About Us</span>
+    <a onclick="showPage('about')">About Rallys Equities</a>
+    <a onclick="showPage('mission')">Mission &amp; Vision</a>
+    <a onclick="showPage('management')">Our Management</a>
+    <a onclick="showPage('rating')">Management Rating</a>
+    <a onclick="showPage('governance')">Corporate Governance</a>
   </div>
   <div class="mnav-group"><span>Tools</span>
     <a onclick="showPage('cagr')">CAGR Calculator</a>
@@ -1218,15 +1266,6 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <a onclick="showPage('fcf')">Projected FCF &amp; Cash Calculator</a>
     <a onclick="showPage('drawdown')">Drawdown Calculator</a>
   </div>
-  <div class="mnav-group"><span>Miscellaneous</span>
-    <a onclick="showPage('faq')">FAQ</a>
-    <a onclick="showPage('downloads')">Useful Downloads</a>
-    <a onclick="showPage('links')">Useful Links</a>
-    <a onclick="showPage('careers')">Careers</a>
-    <a onclick="showPage('complaints')">Complaints</a>
-    <a onclick="showPage('feedback')">Feedback</a>
-  </div>
-  <div class="mnav-group"><a onclick="showPage('markets')" style="font-size:15px;color:var(--tx);font-weight:600">Markets</a></div>
   <div class="mnav-group"><a onclick="showPage('insights')" style="font-size:15px;color:var(--tx);font-weight:600">Insights</a></div>
   <div class="mnav-group"><a onclick="showPage('locations')" style="font-size:15px;color:var(--tx);font-weight:600">Contact Us</a></div>
   <button class="bbig bbig-g" onclick="openAccount()">Open Account — کھاتہ کھولیں</button>
@@ -2328,7 +2367,8 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
       <div class="svc-card"><div class="svc-title">Goal-Aligned</div><div class="svc-desc">Chosen to match your objectives — income, growth, or capital preservation — over your chosen time horizon.</div></div>
       <div class="svc-card"><div class="svc-title">Risk-Managed</div><div class="svc-desc">Diversification and discipline keep downside in check while you pursue long-term wealth growth.</div></div>
     </div></div>
-    <div class="imgwrap rv" style="max-width:860px;margin-top:36px"><img src="assets/img/stock-exchange-psx.webp" alt="PSX data portal review session" loading="lazy"></div>
+    <p class="sub" style="margin-top:24px;font-size:12.5px">Want to understand your rights as a shareholder too? Read the <a onclick="showPage('awareness')" style="color:var(--g3);cursor:pointer;text-decoration:underline">Investor Awareness &amp; Shareholders' Rights guide →</a></p>
+    <div class="imgwrap rv" style="max-width:860px;margin-top:24px"><img src="assets/img/stock-exchange-psx.webp" alt="PSX data portal review session" loading="lazy"></div>
   </div>
 
 
@@ -2343,19 +2383,23 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div style="margin-top:8px" id="ir-financial">
     <div class="stag">Financial Highlights</div>
     <h3 class="sh" style="font-size:30px">Timely <em>Financial Disclosure</em></h3>
-    <div class="imgwrap rv" style="max-width:760px;margin-top:24px"><img src="assets/img/bg-4-1.webp" alt="Financial highlights coming soon" loading="lazy"></div>
-    <div style="margin-top:24px;border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:26px;background:color-mix(in srgb, var(--au) 5%, transparent);max-width:760px">
-      <p class="sub" style="max-width:none;margin-bottom:12px">Rallys Equities (Pvt) Ltd is committed to transparency and timely financial disclosure.</p>
-      <p class="sub" style="max-width:none">The quarterly financial report for 2026 will be published here once finalized and approved.</p>
-    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start;margin-top:28px;max-width:1080px">
+      <div class="imgwrap rv"><img src="assets/img/bg-4-1.webp" alt="Financial highlights coming soon" loading="lazy" style="height:100%;object-fit:cover"></div>
+      <div>
+        <div style="border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:26px;background:color-mix(in srgb, var(--au) 5%, transparent)">
+          <p class="sub" style="max-width:none;margin-bottom:12px">Rallys Equities (Pvt) Ltd is committed to transparency and timely financial disclosure.</p>
+          <p class="sub" style="max-width:none">The quarterly financial report for 2026 will be published here once finalized and approved.</p>
+        </div>
 
-    <!-- QUARTERLY REPORT 2026 — download slot; swap the placeholder for a linked chip when the PDF lands -->
-    <div style="margin-top:44px" id="ir-quarterly">
-      <div style="font-size:12px;font-weight:700;color:var(--au);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Quarterly Report 2026</div>
-      <div class="pol-grid" style="max-width:820px">
-        <div class="pol-chip" style="opacity:.62;cursor:default"><span class="pn">Q1</span><span style="flex:1">Quarterly Report 2026 — Q1</span><span class="pdf-tag" style="color:var(--mt2)">AWAITING APPROVAL</span></div>
+        <!-- QUARTERLY REPORT 2026 — download slot; swap the placeholder for a linked chip when the PDF lands -->
+        <div style="margin-top:32px" id="ir-quarterly">
+          <div style="font-size:12px;font-weight:700;color:var(--au);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Quarterly Report 2026</div>
+          <div class="pol-grid">
+            <div class="pol-chip" style="opacity:.62;cursor:default"><span class="pn">Q1</span><span style="flex:1">Quarterly Report 2026 — Q1</span><span class="pdf-tag" style="color:var(--mt2)">AWAITING APPROVAL</span></div>
+          </div>
+          <p class="sub" style="margin-top:16px;font-size:12px">Download links appear here as each report is finalized and approved. For an earlier copy, email <strong style="color:var(--g3)">hello@rallysequities.com</strong>.</p>
+        </div>
       </div>
-      <p class="sub" style="margin-top:16px;font-size:12px">Download links appear here as each report is finalized and approved. For an earlier copy, email <strong style="color:var(--g3)">hello@rallysequities.com</strong>.</p>
     </div>
   </div>
 
@@ -2689,10 +2733,10 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 <!-- ══════ COMPLAINTS PAGE ══════ -->
 <div class="page" id="page-complaints">
 <section class="phero"><div class="stag">Support</div><h1>Submit Your <em>Complaint</em></h1><p>We resolve concerns quickly and transparently. Tell us what happened.</p></section>
-<section class="sec" style="max-width:980px;margin:0 auto">
-  <div class="ctc-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:start">
+<section class="sec" style="max-width:1160px;margin:0 auto">
+  <div class="ctc-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:start">
     <div>
-      <div style="border:1px solid var(--gb);border-radius:18px;padding:30px;background:var(--gl)" id="cmpBox">
+      <div style="border:1px solid var(--gb);border-radius:18px;padding:42px;background:var(--gl)" id="cmpBox">
         <div class="fgrid">
           <div class="fg"><label class="flbl">Full Name <span class="req">*</span></label><input type="text" class="finput" id="cmp-name" placeholder="Enter your full name"></div>
           <div class="fg"><label class="flbl">Email Address <span class="req">*</span></label><input type="email" class="finput" id="cmp-email" placeholder="Email address"></div>
@@ -2719,6 +2763,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
         <a class="svc-link" href="mailto:hello@rallysequities.com">Email: hello@rallysequities.com →</a>
       </div>
       <div style="margin-top:16px;font-size:11px;color:var(--mt2);line-height:1.8">Office # 408, 4th Floor, Lahore Stock Exchange Building, Khayaban-e-Aiwan-e-Iqbal, Lahore<br>📞 042-36366667 · 0316-9991907</div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--gb);font-size:11.5px;color:var(--mt)">Just have general feedback? <a onclick="showPage('feedback')" style="color:var(--g3);cursor:pointer;text-decoration:underline">Use the feedback form →</a></div>
     </div>
   </div>
 </section>
@@ -2772,23 +2817,36 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 <!-- ══════ FEEDBACK PAGE ══════ -->
 <div class="page" id="page-feedback">
 <section class="phero"><div class="stag">Support</div><h1>Submit Your <em>Feedback</em></h1><p>Your input helps us improve. Tell us about your experience.</p></section>
-<section class="sec" style="max-width:720px;margin:0 auto">
-  <div style="border:1px solid var(--gb);border-radius:18px;padding:30px;background:var(--gl)" id="fbBox">
-    <div class="fgrid">
-      <div class="fg"><label class="flbl">Full Name <span class="req">*</span></label><input type="text" class="finput" id="fb-name" placeholder="Enter your full name"></div>
-      <div class="fg"><label class="flbl">Email Address <span class="req">*</span></label><input type="email" class="finput" id="fb-email" placeholder="Email address"></div>
+<section class="sec" style="max-width:1160px;margin:0 auto">
+  <div class="ctc-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:start">
+    <div>
+      <div style="border:1px solid var(--gb);border-radius:18px;padding:42px;background:var(--gl)" id="fbBox">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Full Name <span class="req">*</span></label><input type="text" class="finput" id="fb-name" placeholder="Enter your full name"></div>
+          <div class="fg"><label class="flbl">Email Address <span class="req">*</span></label><input type="email" class="finput" id="fb-email" placeholder="Email address"></div>
+        </div>
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Phone (optional)</label><input type="tel" class="finput" id="fb-phone" placeholder="+92-3XX-XXXXXXX"></div>
+          <div class="fg"><label class="flbl">Feedback Category <span class="req">*</span></label><select class="fselect" id="fb-cat"><option value="">Select category</option><option>General Feedback</option><option>Service Quality</option><option>Trading Platform Experience</option><option>Customer Support Experience</option><option>Account Opening Process</option><option>Website Usability</option><option>Investment &amp; Research Tools</option><option>Suggestions for Improvement</option><option>Other</option></select></div>
+        </div>
+        <div class="fg" style="margin-bottom:16px"><label class="flbl">Feedback Details <span class="req">*</span></label><textarea class="ftarea" id="fb-msg" placeholder="Share your feedback in detail"></textarea></div>
+        <button class="fnext" style="width:100%" onclick="submitFeedback()">Submit Feedback</button>
+      </div>
+      <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:24px;text-align:center" id="fbDone">
+        <div style="font-size:28px;margin-bottom:8px">✓</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">Feedback received</div>
+        <div style="font-size:12px;color:var(--mt)">Thank you for helping us improve. We read every submission.</div>
+      </div>
     </div>
-    <div class="fgrid">
-      <div class="fg"><label class="flbl">Phone (optional)</label><input type="tel" class="finput" id="fb-phone" placeholder="+92-3XX-XXXXXXX"></div>
-      <div class="fg"><label class="flbl">Feedback Category <span class="req">*</span></label><select class="fselect" id="fb-cat"><option value="">Select category</option><option>General Feedback</option><option>Service Quality</option><option>Trading Platform Experience</option><option>Customer Support Experience</option><option>Account Opening Process</option><option>Website Usability</option><option>Investment &amp; Research Tools</option><option>Suggestions for Improvement</option><option>Other</option></select></div>
+    <div class="svc-card" style="align-self:start">
+      <div class="svc-title" style="color:var(--au)">Have a complaint instead?</div>
+      <div class="svc-desc">This form is for general feedback and suggestions. If you have a formal complaint that needs a compliance response, use our dedicated complaint form instead.</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        <a class="svc-link" onclick="showPage('complaints')">Submit a Complaint →</a>
+        <a class="svc-link" href="mailto:hello@rallysequities.com">Email: hello@rallysequities.com →</a>
+      </div>
+      <div style="margin-top:16px;font-size:11px;color:var(--mt2);line-height:1.8">Office # 408, 4th Floor, Lahore Stock Exchange Building, Khayaban-e-Aiwan-e-Iqbal, Lahore<br>📞 042-36366667 · 0316-9991907</div>
     </div>
-    <div class="fg" style="margin-bottom:16px"><label class="flbl">Feedback Details <span class="req">*</span></label><textarea class="ftarea" id="fb-msg" placeholder="Share your feedback in detail"></textarea></div>
-    <button class="fnext" style="width:100%" onclick="submitFeedback()">Submit Feedback</button>
-  </div>
-  <div style="display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:36px;background:color-mix(in srgb, var(--up) 7%, transparent);margin-top:24px;text-align:center" id="fbDone">
-    <div style="font-size:28px;margin-bottom:8px">✓</div>
-    <div style="font-size:15px;font-weight:700;margin-bottom:6px">Feedback received</div>
-    <div style="font-size:12px;color:var(--mt)">Thank you for helping us improve. We read every submission.</div>
   </div>
 </section>
 </div>
@@ -2902,7 +2960,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
        76px tall against a 461×109 source, so it is still being downscaled and stays crisp. -->
   <div class="jp-band">
     <div class="jp-eyebrow">Investor Education Partner</div>
-    <a class="jp-logo" href="https://jamapunji.pk/" target="_blank" rel="noopener" aria-label="Jama Punji — the SECP investor education portal (opens in a new tab)">
+    <a class="jp-logo" href="https://jamapunji.pk/financial-planning/financial-basics-0" target="_blank" rel="noopener" aria-label="Jama Punji — Financial Basics, the SECP investor education portal (opens in a new tab)">
       <img src="assets/img/jamapunji.png" alt="Jama Punji — the Securities and Exchange Commission of Pakistan's investor education portal" width="461" height="109" loading="lazy">
     </a>
     <p class="jp-note">Learn the fundamentals of investing at <strong style="color:var(--mt)">jamapunji.pk</strong> — the Securities &amp; Exchange Commission of Pakistan's official investor education portal.</p>
@@ -3837,7 +3895,8 @@ function toggleTheme(){
   try{localStorage.setItem('re-theme',light?'light':'dark');}catch(e){}
   setTimeout(()=>{try{drawChart();}catch(e){}},60); // redraw hero chart for the new palette
 }
-try{if(localStorage.getItem('re-theme')==='dark')document.body.classList.remove('light');}catch(e){}
+/* The dark/light class itself is applied inline right after <body> opens (before first
+   paint, to avoid a flash) — see the inline script there. */
 
 /* ══════════════════════════════════════════════════════════════
    CONTENT-OVERRIDE ENGINE (powers the visual editor)
