@@ -59,7 +59,7 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 
 /* SECTIONS */
 .sec{padding:80px 52px}.sec-sm{padding:52px 52px}.sec-alt{background:var(--nv2)}
-.stag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g3);margin-bottom:12px;padding:3px 13px;border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);border-radius:100px;background:color-mix(in srgb, var(--g3) 7%, transparent)}
+.stag{display:inline-flex;align-items:center;gap:8px;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g3);margin-bottom:12px;padding:6px 15px;border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);border-radius:4px;background:color-mix(in srgb, var(--g3) 7%, transparent);cursor:default}
 .sh{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:44px;font-weight:700;line-height:1.08;margin-bottom:14px}
 .sh em{font-style:italic;color:var(--g3)}.sh span{color:var(--au)}
 .sub{font-size:14px;color:var(--mt);line-height:1.78;font-weight:300;max-width:520px}
@@ -149,11 +149,18 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .jp-note{font-size:11.5px;color:var(--mt2);line-height:1.7;max-width:540px;margin:16px auto 0}
 @media(max-width:640px){.jp-logo img{height:54px}.jp-logo{padding:11px 16px}}
 /* bottom-of-site feedback + complaint pair */
-.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:42px;max-width:1160px;margin-left:auto;margin-right:auto}
-.fbc-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--au);margin-bottom:12px}
-.fbc-ic{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;background:color-mix(in srgb, var(--au) 16%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent)}
-.fbc-card{border:1px solid var(--gb);border-radius:18px;padding:34px;background:var(--gl)}
-.fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:30px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
+.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;max-width:1160px;margin-left:auto;margin-right:auto}
+.fbc-head{display:flex;align-items:center;gap:13px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--au);margin-bottom:20px}
+.fbc-head.cx{color:var(--dn)}
+.fbc-ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.fbc-ic-fb{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);color:var(--g3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6)}
+.fbc-ic-cx{background:linear-gradient(145deg,color-mix(in srgb, var(--dn) 26%, transparent),color-mix(in srgb, var(--dn) 6%, transparent));
+  border:1px solid color-mix(in srgb, var(--dn) 32%, transparent);color:var(--dn);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6)}
+.fbc-card{border:1px solid var(--gb);border-radius:20px;padding:38px;background:var(--gl)}
+.fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:20px;padding:34px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
 .svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
 .svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent);opacity:0;transition:opacity .3s}
 .svc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}.svc-card:hover::before{opacity:1}
@@ -670,13 +677,17 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 .snum{filter:drop-shadow(0 0 16px color-mix(in srgb, var(--au) 22%, transparent))}
 .sh em,.phero h1 em,.cta-inner h2 em{text-shadow:0 0 26px color-mix(in srgb, var(--g3) 28%, transparent)}
 
-/* Refined section tag — glass pill with gradient hairline + glow dot */
-.stag{position:relative;background:linear-gradient(180deg,color-mix(in srgb, var(--g3) 12%, transparent),color-mix(in srgb, var(--g3) 4%, transparent));
+/* Refined section tag — glass label with a softened edge + a live glow dot.
+   Purely decorative (not a button), so no hover/lift affordance. */
+.stag{background:linear-gradient(180deg,color-mix(in srgb, var(--g3) 12%, transparent),color-mix(in srgb, var(--g3) 4%, transparent));
   border-color:color-mix(in srgb, var(--g3) 35%, transparent);box-shadow:0 0 0 1px color-mix(in srgb, var(--g3) 6%, transparent),0 6px 18px -8px color-mix(in srgb, var(--g3) 40%, transparent);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.stag::before{content:'';width:5px;height:5px;flex:none;border-radius:50%;background:var(--g3);
+  box-shadow:0 0 7px 1px color-mix(in srgb, var(--g3) 70%, transparent);animation:blink 2.2s infinite}
+@media(prefers-reduced-motion:reduce){.stag::before{animation:none}}
 
 /* ── GLASS CARDS — frosted depth + gradient gold border + hover glow ── */
-.svc-card,.testi,.calc-card,.reg-card,.ctc-card,.loc-card,.faq-item{
+.svc-card,.testi,.calc-card,.reg-card,.ctc-card,.loc-card,.faq-item,.fbc-card{
   background:
     linear-gradient(158deg,color-mix(in srgb, var(--nv3) 50%, transparent),color-mix(in srgb, var(--nv2) 32%, transparent)) padding-box,
     linear-gradient(150deg,color-mix(in srgb, var(--au) 40%, transparent),color-mix(in srgb, var(--g3) 14%, transparent) 42%,color-mix(in srgb, var(--au) 5%, transparent) 80%) border-box;
@@ -684,7 +695,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
   -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
   box-shadow:0 20px 46px -20px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.045);
   transition:transform .45s var(--lux-ease),box-shadow .45s var(--lux-ease),background .45s var(--lux-ease)}
-.svc-card:hover,.testi:hover,.reg-card:hover,.ctc-card:hover,.loc-card:hover{
+.svc-card:hover,.testi:hover,.reg-card:hover,.ctc-card:hover,.loc-card:hover,.fbc-card:hover{
   transform:translateY(-7px);
   background:
     linear-gradient(158deg,color-mix(in srgb, var(--nv3) 62%, transparent),color-mix(in srgb, var(--nv2) 40%, transparent)) padding-box,
@@ -936,10 +947,10 @@ body.light .skyline svg circle[r="14"]{fill:#EFE9DC}
 body.light .lt-main{background:linear-gradient(100deg,#8C6E18,#B8922A,#8C6E18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 body.light .btn-ghost{border-color:color-mix(in srgb, var(--tx) 22%, transparent)!important;color:var(--tx)}
 /* white cards */
-body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item,body.light .ct-panel,body.light .ct-formcard{
+body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item,body.light .ct-panel,body.light .ct-formcard,body.light .fbc-card{
   background:var(--nv3)!important;border:1px solid color-mix(in srgb, var(--tx) 10%, transparent)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
   box-shadow:0 16px 36px -20px color-mix(in srgb, var(--tx) 22%, transparent),0 2px 6px -2px color-mix(in srgb, var(--tx) 6%, transparent)!important}
-body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover{
+body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover,body.light .fbc-card:hover{
   background:var(--nv3)!important;border-color:color-mix(in srgb, var(--au) 50%, transparent)!important;transform:translateY(-6px);
   box-shadow:0 26px 50px -22px color-mix(in srgb, var(--tx) 30%, transparent),0 0 22px -10px color-mix(in srgb, var(--g) 25%, transparent)!important}
 body.light .svc-card::after{background:radial-gradient(circle,color-mix(in srgb, var(--g) 10%, transparent),transparent 70%)}
@@ -1489,7 +1500,7 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
   <div class="fbc-grid">
     <!-- FEEDBACK -->
     <div>
-      <div class="fbc-head"><span class="fbc-ic">✦</span>Share your feedback</div>
+      <div class="fbc-head"><span class="fbc-ic fbc-ic-fb"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>Share your feedback</div>
       <div class="fbc-card" id="hfbBox">
         <div class="fgrid">
           <div class="fg"><label class="flbl">Name <span class="req">*</span></label><input type="text" class="finput" id="hfb-name" placeholder="Your full name"></div>
@@ -1508,7 +1519,7 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
     </div>
     <!-- COMPLAINT -->
     <div>
-      <div class="fbc-head"><span class="fbc-ic" style="color:var(--dn)">!</span>Lodge a complaint</div>
+      <div class="fbc-head cx"><span class="fbc-ic fbc-ic-cx"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>Lodge a complaint</div>
       <div class="fbc-card" id="hcmpBox">
         <div class="fgrid">
           <div class="fg"><label class="flbl">Name <span class="req">*</span></label><input type="text" class="finput" id="hcmp-name" placeholder="Your full name"></div>
