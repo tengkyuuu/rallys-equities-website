@@ -137,6 +137,23 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 
 /* SERVICES */
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+/* two-up grid for the investor-portal statutory disclosures */
+.disc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+/* Jama Punji band — its own row at the very bottom, kept apart from the regulator strip.
+   The mark is dark ink, so it sits on a light plate to stay legible on the navy footer. */
+.jp-band{text-align:center;padding:34px 20px 30px;border-top:1px solid var(--gb)}
+.jp-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mt2);font-weight:600;margin-bottom:16px}
+.jp-logo{display:inline-block;background:#fff;border:1px solid color-mix(in srgb, var(--au) 26%, transparent);border-radius:14px;padding:14px 22px;box-shadow:0 10px 30px -18px rgba(0,0,0,.5);transition:transform .3s var(--lux-ease),box-shadow .3s var(--lux-ease)}
+.jp-logo:hover{transform:translateY(-2px);box-shadow:0 18px 44px -18px rgba(0,0,0,.6)}
+.jp-logo img{display:block;height:76px;width:auto;max-width:100%}
+.jp-note{font-size:11.5px;color:var(--mt2);line-height:1.7;max-width:540px;margin:16px auto 0}
+@media(max-width:640px){.jp-logo img{height:54px}.jp-logo{padding:11px 16px}}
+/* bottom-of-site feedback + complaint pair */
+.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:42px;max-width:1040px;margin-left:auto;margin-right:auto}
+.fbc-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--au);margin-bottom:12px}
+.fbc-ic{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;background:color-mix(in srgb, var(--au) 16%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent)}
+.fbc-card{border:1px solid var(--gb);border-radius:18px;padding:26px;background:var(--gl)}
+.fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:18px;padding:30px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
 .svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
 .svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent);opacity:0;transition:opacity .3s}
 .svc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}.svc-card:hover::before{opacity:1}
@@ -278,6 +295,11 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .testi-auth{display:flex;align-items:center;gap:10px}
 .testi-av{width:38px;height:38px;border-radius:50%;background:color-mix(in srgb, var(--g) 28%, transparent);border:1px solid color-mix(in srgb, var(--g3) 30%, transparent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display,'Cormorant Garamond',serif);font-size:13px;font-weight:700;color:var(--g3)}
 .testi-name{font-size:12px;font-weight:700}.testi-role{font-size:10px;color:var(--mt2)}
+/* the .testi card is reused for leadership bios — these are biographies, not quotes, so drop the italic */
+#page-management .testi-q{font-style:normal}
+/* leadership portrait — placeholder until real photos land; swappable from /admin via data-edit-img */
+.lead-photo{width:96px;height:96px;border-radius:18px;overflow:hidden;margin-bottom:16px;background:color-mix(in srgb, var(--g) 12%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent);box-shadow:0 10px 26px -14px rgba(0,0,0,.55)}
+.lead-photo img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* HOW IT WORKS */
 .how-steps{display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr;align-items:center;max-width:860px;margin:44px auto 0}
@@ -333,20 +355,72 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .cur-ch{font-size:11px;margin-top:2px;font-weight:600}
 
 /* FOOTER */
-footer{background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);padding:52px 52px 36px}
-.footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:52px;margin-bottom:40px}
-.fb p{font-size:12px;color:var(--mt);line-height:1.75;margin-top:12px;max-width:265px}
-.fb-urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:var(--mt2);direction:rtl;margin-top:5px;display:block;line-height:2}
-.fc2 h5{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--au);margin-bottom:13px}
-.fc2 ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-.fc2 a{font-size:12px;color:var(--mt);transition:color .2s;cursor:pointer}
-.fc2 a:hover{color:var(--g3)}
-.footer-bot{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px}
-.footer-bot p{font-size:11px;color:var(--mt2)}
-.footer-leg{display:flex;gap:20px}
-.footer-leg a{font-size:11px;color:var(--mt2);transition:color .2s;cursor:pointer}
+/* ══════ FOOTER ══════ */
+/* bottom padding clears the fixed WhatsApp / back-to-top buttons so the legal row is never
+   sitting underneath them when the visitor is scrolled to the end of the page */
+footer{position:relative;overflow:hidden;background:var(--nv2);padding:0 52px 76px;isolation:isolate}
+/* signature gold hairline across the very top — same edge the invite email and login card carry */
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--au) 62%,transparent) 22%,color-mix(in srgb,var(--g3) 52%,transparent) 50%,color-mix(in srgb,var(--au) 62%,transparent) 78%,transparent)}
+/* oversized clipped wordmark — decorative only */
+/* sits low enough that the legal text at the bottom stays comfortably readable over it */
+.foot-mark{position:absolute;left:-2vw;bottom:-5.5vw;z-index:-1;pointer-events:none;user-select:none;white-space:nowrap;
+  font-family:var(--font-display,'Cormorant Garamond',serif);font-size:19vw;line-height:.78;font-weight:700;letter-spacing:-.02em;
+  color:color-mix(in srgb,var(--au) 5%,transparent)}
+body.light .foot-mark{color:color-mix(in srgb,var(--au) 7%,transparent)}
+
+.foot-top{display:grid;grid-template-columns:1.55fr 3fr;gap:56px;padding:56px 0 44px}
+.foot-lock{display:flex;align-items:center;gap:11px}
+.foot-say{font-size:12.5px;color:var(--mt);line-height:1.85;margin-top:15px;max-width:31ch}
+.fb-urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:var(--mt2);direction:rtl;margin-top:6px;display:block;line-height:2}
+/* social icon buttons */
+.foot-soc{display:flex;gap:9px;margin-top:20px}
+.fsoc{width:36px;height:36px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;color:var(--mt);
+  border:1px solid color-mix(in srgb,var(--au) 22%,transparent);background:color-mix(in srgb,var(--au) 5%,transparent);
+  transition:color .28s var(--lux-ease),transform .28s var(--lux-ease),border-color .28s,box-shadow .28s}
+.fsoc:hover{color:var(--au);transform:translateY(-3px);border-color:color-mix(in srgb,var(--au) 58%,transparent);
+  box-shadow:0 10px 22px -12px color-mix(in srgb,var(--au) 60%,transparent)}
+
+.foot-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:34px}
+.fc2 h5{position:relative;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--au);margin-bottom:16px;padding-bottom:10px}
+.fc2 h5::after{content:'';position:absolute;left:0;bottom:0;width:20px;height:1px;background:color-mix(in srgb,var(--au) 50%,transparent)}
+.fc2 ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+/* animated gold underline on hover */
+.fc2 a{position:relative;display:inline-block;font-size:12px;color:var(--mt);cursor:pointer;transition:color .22s,transform .22s var(--lux-ease)}
+.fc2 a::after{content:'';position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:var(--au);transform:scaleX(0);transform-origin:left;transition:transform .32s var(--lux-ease)}
+.fc2 a:hover{color:var(--tx);transform:translateX(2px)}
+.fc2 a:hover::after{transform:scaleX(1)}
+
+/* contact strip */
+.foot-contact{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px 0;
+  border-top:1px solid color-mix(in srgb,var(--au) 13%,transparent);border-bottom:1px solid color-mix(in srgb,var(--au) 13%,transparent)}
+.fct{display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:13px;cursor:pointer;text-decoration:none;
+  border:1px solid transparent;transition:background .28s,border-color .28s,transform .28s var(--lux-ease)}
+.fct:hover{background:color-mix(in srgb,var(--au) 6%,transparent);border-color:color-mix(in srgb,var(--au) 22%,transparent);transform:translateY(-2px)}
+.fct-ic{width:36px;height:36px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--au);
+  background:color-mix(in srgb,var(--au) 11%,transparent);border:1px solid color-mix(in srgb,var(--au) 24%,transparent)}
+.fct-tx{min-width:0}
+.fct-tx b{display:block;font-size:12.5px;font-weight:600;color:var(--tx);line-height:1.4}
+.fct-tx em{display:block;font-style:normal;font-size:10.5px;color:var(--mt2);line-height:1.5;margin-top:3px}
+
+/* bottom bar */
+.footer-bot{display:flex;justify-content:space-between;align-items:center;padding-top:26px;flex-wrap:wrap;gap:18px}
+.foot-cred{display:flex;align-items:center;gap:14px}
+.foot-psx{padding:7px 12px;flex:none}
+.footer-bot p{font-size:11px;color:var(--mt);line-height:1.7}
+.footer-bot p span{color:var(--mt2);font-size:10px;letter-spacing:.05em}
+.footer-leg{display:flex;gap:22px;flex-wrap:wrap}
+.footer-leg a{position:relative;font-size:11px;color:var(--mt2);cursor:pointer;transition:color .22s}
+.footer-leg a::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:var(--au);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--lux-ease)}
 .footer-leg a:hover{color:var(--au)}
-.footer-dis{font-size:10px;color:var(--mt2);line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.footer-leg a:hover::after{transform:scaleX(1)}
+.footer-dis{font-size:10px;color:var(--mt2);line-height:1.7;margin-top:20px;padding-top:16px;border-top:1px solid color-mix(in srgb,var(--au) 9%,transparent)}
+
+@media(max-width:1100px){.foot-top{grid-template-columns:1fr;gap:40px}.foot-cols{grid-template-columns:repeat(2,1fr);gap:30px}}
+@media(max-width:820px){.foot-contact{grid-template-columns:1fr;gap:4px;padding:14px 0}.fct{padding:11px 12px}}
+@media(max-width:640px){footer{padding:0 18px 96px}.foot-top{padding:40px 0 32px}.foot-mark{font-size:26vw;bottom:-4.5vw}
+  .footer-bot{flex-direction:column;align-items:flex-start;gap:16px}.footer-leg{gap:16px}}
+@media(prefers-reduced-motion:reduce){.fsoc,.fct,.fc2 a,.fc2 a::after,.footer-leg a::after{transition:none}}
 
 /* ABOUT */
 .about-vals{display:flex;flex-direction:column;gap:14px}
@@ -421,6 +495,30 @@ footer{background:var(--nv2);border-top:1px solid color-mix(in srgb, var(--au) 1
 .pol-chip{display:flex;align-items:center;gap:11px;padding:13px 16px;border:1px solid var(--gb);border-radius:11px;background:var(--gl);font-size:12px;transition:all .2s}
 .pol-chip:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 7%, transparent)}
 .pol-chip .pn{width:24px;height:24px;border-radius:6px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--g3);flex-shrink:0}
+/* affordance on policy/document chips */
+.pdf-tag{flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:.09em;color:var(--g3);opacity:.75;white-space:nowrap;transition:opacity .2s}
+a.pol-chip:hover .pdf-tag,button.pol-chip:hover .pdf-tag{opacity:1}
+/* policy chips are <button> now (no href to right-click-save), so reset UA button styling */
+button.pol-chip{width:100%;font-family:inherit;font-size:12px;text-align:left;color:var(--tx);cursor:pointer}
+
+/* ══════ VIEW-ONLY DOCUMENT VIEWER ══════
+   Opens policies in-page instead of a new tab so the browser's own PDF toolbar (with its
+   download and print buttons) never appears. Chrome/Edge honour #toolbar=0; Firefox's
+   viewer does not, so the deterrent is partial by design — see docs. */
+.doc-ov{position:fixed;inset:0;z-index:100050;display:none;background:rgba(4,10,18,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .28s ease}
+.doc-ov.open{display:flex;flex-direction:column}
+.doc-ov.in{opacity:1}
+.doc-bar{flex:none;display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--nv2);border-bottom:1px solid var(--gb)}
+.doc-ttl{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-x{flex:none;width:34px;height:34px;border-radius:9px;border:1px solid var(--gb);background:transparent;color:var(--mt);font-size:17px;line-height:1;cursor:pointer;transition:all .2s}
+.doc-x:hover{color:var(--tx);background:color-mix(in srgb, var(--tx) 8%, transparent)}
+.doc-body{flex:1;min-height:0;position:relative;background:#2b2b2b}
+.doc-body iframe{width:100%;height:100%;border:0;display:block}
+.doc-foot{flex:none;padding:10px 20px;background:var(--nv2);border-top:1px solid var(--gb);font-size:11px;color:var(--mt2);text-align:center;line-height:1.6}
+/* deter casual copying inside the viewer */
+.doc-ov,.doc-ov *{-webkit-user-select:none;user-select:none}
+@media(max-width:640px){.doc-bar{padding:11px 13px;gap:10px}.doc-ttl{font-size:12px}}
+@media print{.doc-ov{display:none!important}}
 
 /* WHATSAPP BUBBLE */
 .wa-fab{position:fixed;bottom:26px;right:26px;z-index:400;display:flex;align-items:center;gap:10px;text-decoration:none}
@@ -689,7 +787,8 @@ body.light #preloader{background:radial-gradient(ellipse 58% 52% at 50% 40%,var(
   background:conic-gradient(from 180deg,transparent 0%,color-mix(in srgb, var(--g3) 50%, transparent) 50%,transparent 100%);
   animation:plSpin 3.4s linear infinite reverse}
 @keyframes plSpin{to{transform:rotate(360deg)}}
-.pl-logo{position:relative;width:86px;height:86px;border-radius:21px;background:#F6F2EA;display:flex;align-items:center;justify-content:center;padding:11px;
+/* plate matches the logo's real 140:99 proportions — a square left dead air either side */
+.pl-logo{position:relative;width:100px;height:71px;border-radius:17px;background:#F6F2EA;display:flex;align-items:center;justify-content:center;padding:8px 11px;
   box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 72px -10px color-mix(in srgb, var(--au) 70%, transparent);animation:plPulse 2.2s var(--lux-ease) infinite}
 .pl-logo img{width:100%;height:100%;object-fit:contain}
 @keyframes plPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 60px -10px color-mix(in srgb, var(--au) 55%, transparent)}
@@ -708,6 +807,35 @@ body.light #preloader{background:radial-gradient(ellipse 58% 52% at 50% 40%,var(
   background:linear-gradient(90deg,transparent,var(--au2) 35%,#fff6df 50%,var(--au2) 65%,transparent);animation:plBar 1.25s var(--lux-ease) infinite}
 @keyframes plBar{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}
 @keyframes plEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── Admin takeover ──
+   On /admin the preloader does NOT dismiss at 650ms. It stays up and narrates the
+   real boot (editor bundle → auth check → dashboard), because otherwise the visitor
+   watches the public homepage for a second or two — or much longer on a bad network —
+   before the admin appears. Same gilding, one extra status line and a real bar. */
+#preloader.pl-admin{gap:22px}
+.pl-status{min-height:14px;margin-top:-14px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  color:color-mix(in srgb, var(--au2) 82%, transparent);opacity:0;transform:translateY(6px);
+  transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease)}
+.pl-status.in{opacity:1;transform:none}
+/* On ivory (the site's default theme, so what most admins actually see) the stock
+   gilding washes out. The admin curtain gets a deeper vignette and full-strength
+   gold so the wordmark and the status line stay legible. */
+body.light #preloader.pl-admin{background:radial-gradient(ellipse 62% 56% at 50% 38%,#FCF9F2 0%,#F1EADA 55%,#E4DAC3 100%)}
+/* background-image, NOT the `background` shorthand — the shorthand resets
+   background-clip:text and the gilded wordmark collapses into a solid gold bar */
+body.light #preloader.pl-admin .pl-name{background-image:linear-gradient(100deg,#8A6A14 0%,#B08C2C 26%,#D8B75C 50%,#B08C2C 74%,#8A6A14 100%);background-size:220% auto}
+body.light #preloader.pl-admin .pl-sub{color:#9A7B1F}
+body.light #preloader.pl-admin .pl-status{color:#87681A}
+/* determinate: width is set from the actual boot stage, never a fake timer */
+.pl-bar.det{width:248px}
+.pl-bar.det i{width:0;animation:none;transition:width .8s var(--lux-ease);
+  background:linear-gradient(90deg,var(--au) 0%,var(--au2) 62%,#fff6df 100%);
+  box-shadow:0 0 14px -2px color-mix(in srgb, var(--au) 75%, transparent)}
+.pl-bar.det::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb, #fff6df 55%, transparent),transparent);
+  transform:translateX(-100%);animation:plWait 1.9s var(--lux-ease) infinite}
+@keyframes plWait{to{transform:translateX(100%)}}
 
 /* Scroll progress bar */
 #scrollProg{position:fixed;top:0;left:0;height:3px;width:0;z-index:300;background:linear-gradient(90deg,var(--g3),var(--au2));box-shadow:0 0 12px color-mix(in srgb, var(--au) 55%, transparent)}
@@ -844,14 +972,14 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   .mkt-table-wrap{overflow-x:auto}.mkt-table table{min-width:560px}
   .stats-band,.feat-band{grid-template-columns:repeat(2,1fr)}
   .sec,.sec-sm{padding:52px 18px}
-  .svc-grid,.testi-grid,.reg-grid{grid-template-columns:1fr}
+  .svc-grid,.testi-grid,.reg-grid,.disc-grid,.fbc-grid{grid-template-columns:1fr}
   .how-steps{grid-template-columns:1fr}.how-arrow{display:none}
   .sdg,.loc-grid,.ctc-grid,.price-grid,.ao-wrap{grid-template-columns:1fr}
   .ao-side{display:none}.ao-main{padding:24px 18px}
   .fgrid{grid-template-columns:1fr}
   .nxt-steps{grid-template-columns:1fr}
   .cta-block{margin:0 18px 56px}.cta-inner{padding:44px 20px}.cta-inner h2{font-size:32px}
-  footer{padding:36px 18px}.footer-grid{grid-template-columns:1fr 1fr}
+  footer{padding:0 18px 96px}   /* footer own breakpoints handle its internal grids; extra bottom clears the FABs */
   .mkt-idx{grid-template-columns:1fr 1fr}.cur-grid{grid-template-columns:1fr 1fr}
 }
 /* Phones: clean, dedicated header — logo + theme toggle + menu button.
@@ -869,26 +997,81 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 .re-hid{display:none!important}
 
 /* ── Insights (blog) ── */
-.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:26px;margin-top:10px}
-.blog-card{background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 18%,transparent);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s}
-.blog-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--au) 45%,transparent);box-shadow:0 18px 44px -18px rgba(0,0,0,.45)}
-.blog-cover{aspect-ratio:16/9;overflow:hidden;background:var(--nv3)}
-.blog-cover img{width:100%;height:100%;object-fit:cover;display:block}
-.blog-body{padding:18px 20px 20px}
+/* ══════ INSIGHTS (BLOG) ══════ */
+/* shared meta row: date · reading time */
+.blog-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--au);margin-bottom:11px}
+.blog-meta i{width:3px;height:3px;border-radius:50%;background:color-mix(in srgb,var(--au) 55%,transparent);flex:none}
+.blog-meta .rt{color:var(--mt2);letter-spacing:.1em}
+
+/* featured (newest) post — full-width editorial card */
+.blog-feat{display:grid;grid-template-columns:1.15fr 1fr;gap:0;background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 20%,transparent);
+  border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:30px;transition:border-color .35s var(--lux-ease),box-shadow .35s var(--lux-ease),transform .35s var(--lux-ease)}
+.blog-feat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--au) 52%,transparent);box-shadow:0 26px 60px -26px rgba(0,0,0,.55)}
+.blog-feat-cov{position:relative;overflow:hidden;background:var(--nv3);min-height:300px}
+.blog-feat-cov img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--lux-ease)}
+.blog-feat:hover .blog-feat-cov img{transform:scale(1.045)}
+.blog-feat-cov::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 55%,color-mix(in srgb,var(--nv2) 80%,transparent) 100%);pointer-events:none}
+.blog-feat-body{padding:38px 40px;display:flex;flex-direction:column;justify-content:center}
+.blog-feat-tag{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--g3);background:color-mix(in srgb,var(--g3) 12%,transparent);border:1px solid color-mix(in srgb,var(--g3) 28%,transparent);border-radius:999px;padding:5px 12px;margin-bottom:16px}
+.blog-feat-body h3{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:clamp(25px,2.6vw,34px);line-height:1.18;color:var(--tx);margin:0 0 12px}
+.blog-feat-body p{font-size:13.5px;line-height:1.8;color:var(--mt);margin:0 0 20px;max-width:44ch}
+/* the card grid pushes its CTA to the bottom; in the centred featured body that just leaves a hole */
+.blog-feat-body .blog-more{margin-top:2px}
+@media(max-width:900px){.blog-feat{grid-template-columns:1fr}.blog-feat-cov{min-height:0;aspect-ratio:16/9}.blog-feat-cov::after{background:none}.blog-feat-body{padding:26px 24px}}
+
+/* the rest — card grid */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px}
+.blog-card{position:relative;display:flex;flex-direction:column;background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 16%,transparent);
+  border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .3s var(--lux-ease),border-color .3s,box-shadow .3s}
+.blog-card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--au) 48%,transparent);box-shadow:0 22px 50px -22px rgba(0,0,0,.5)}
+.blog-cover{aspect-ratio:16/9;overflow:hidden;background:var(--nv3);position:relative}
+.blog-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--lux-ease)}
+.blog-card:hover .blog-cover img{transform:scale(1.05)}
+/* no cover → a quiet monogram plate so the grid stays even */
+.blog-nocov{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:
+  radial-gradient(circle at 50% 40%, color-mix(in srgb,var(--au) 12%,transparent), transparent 70%),var(--nv3)}
+.blog-nocov span{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:30px;color:color-mix(in srgb,var(--au) 55%,transparent);letter-spacing:.1em}
+.blog-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}
+.blog-body h3{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:21px;line-height:1.28;color:var(--tx);margin:0 0 9px}
+.blog-body p{font-size:12.5px;line-height:1.7;color:var(--mt);margin:0 0 16px}
+.blog-more{margin-top:auto;display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--g3)}
+.blog-more svg{transition:transform .3s var(--lux-ease)}
+.blog-card:hover .blog-more svg,.blog-feat:hover .blog-more svg{transform:translateX(4px)}
 .blog-date{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--au);margin-bottom:8px}
-.blog-body h3{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:21px;line-height:1.25;color:var(--tx);margin:0 0 8px}
-.blog-body p{font-size:13px;line-height:1.65;color:var(--mt);margin:0 0 12px}
-.blog-more{font-size:12px;font-weight:700;color:var(--g3)}
-.blog-empty{text-align:center;color:var(--mt);padding:50px 0;font-size:14px}
-.blog-back{display:inline-block;font-size:13px;color:var(--g3);cursor:pointer;margin-bottom:22px}
-.blog-title{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:clamp(30px,4.5vw,44px);line-height:1.12;margin:0 0 20px;color:var(--tx)}
-.blog-hero{width:100%;border-radius:16px;margin:6px 0 26px}
-.blog-post{font-size:15px;line-height:1.85;color:var(--tx)}
-.blog-post p{margin:0 0 16px;color:var(--mt)}
-.blog-post h2,.blog-post h3{font-family:var(--font-display,'Cormorant Garamond',serif);color:var(--tx);margin:26px 0 10px}
-.blog-post ul,.blog-post ol{margin:0 0 16px 22px;color:var(--mt)}
-.blog-post img{max-width:100%;border-radius:12px}
+
+/* empty state */
+.blog-empty{text-align:center;color:var(--mt);padding:64px 20px;border:1px dashed color-mix(in srgb,var(--au) 22%,transparent);border-radius:18px}
+.blog-empty svg{opacity:.5;margin-bottom:14px}
+.blog-empty b{display:block;font-family:var(--font-display,'Cormorant Garamond',serif);font-size:22px;color:var(--tx);margin-bottom:7px;font-weight:700}
+.blog-empty span{font-size:13px;line-height:1.7}
+
+/* ── single post ── (reading progress is the site-wide #scrollProg bar) */
+.blog-back{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--mt);cursor:pointer;margin-bottom:26px;transition:color .2s,gap .2s}
+.blog-back:hover{color:var(--g3);gap:10px}
+.post-head{margin-bottom:26px}
+.blog-title{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:clamp(30px,4.6vw,46px);line-height:1.1;margin:0 0 16px;color:var(--tx);letter-spacing:.005em}
+.post-rule{height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--au) 55%,transparent),transparent);margin:22px 0 0}
+.blog-hero{width:100%;border-radius:18px;margin:4px 0 30px;border:1px solid color-mix(in srgb,var(--au) 18%,transparent);box-shadow:0 22px 50px -26px rgba(0,0,0,.5)}
+.blog-post{font-size:15.5px;line-height:1.9;color:var(--mt)}
+.blog-post>p:first-of-type{font-size:17px;line-height:1.8;color:var(--tx)}
+.blog-post p{margin:0 0 18px}
+.blog-post h2,.blog-post h3{font-family:var(--font-display,'Cormorant Garamond',serif);color:var(--tx);margin:32px 0 12px;line-height:1.25}
+.blog-post h2{font-size:27px}.blog-post h3{font-size:22px}
+.blog-post ul,.blog-post ol{margin:0 0 18px 22px}
+.blog-post li{margin-bottom:7px}
+.blog-post img{max-width:100%;border-radius:14px;margin:8px 0 20px}
 .blog-post a{color:var(--g3)}
+.blog-post blockquote{margin:24px 0;padding:4px 0 4px 22px;border-left:2px solid color-mix(in srgb,var(--au) 45%,transparent);
+  font-family:var(--font-display,'Cormorant Garamond',serif);font-size:20px;line-height:1.6;color:var(--tx);font-style:italic}
+/* share + related */
+.post-share{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:36px 0 0;padding-top:24px;border-top:1px solid color-mix(in srgb,var(--au) 15%,transparent)}
+.post-share-l{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mt2);margin-right:2px}
+.post-sh{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--au) 26%,transparent);background:transparent;color:var(--mt);font-family:inherit;font-size:11.5px;font-weight:600;transition:all .25s var(--lux-ease)}
+.post-sh:hover{color:var(--tx);border-color:color-mix(in srgb,var(--au) 55%,transparent);transform:translateY(-2px)}
+.post-more{margin-top:52px;padding-top:32px;border-top:1px solid color-mix(in srgb,var(--au) 15%,transparent)}
+.post-more-h{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:24px;color:var(--au);margin-bottom:20px}
 </style>
 </head>
 <body class="light">
@@ -901,10 +1084,21 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="pl-logo"><img src="assets/img/logo.png" alt=""></div>
   </div>
   <div class="pl-name">Rallys Equities</div>
-  <div class="pl-sub"><i></i><span>Pakistan Stock Exchange</span><i></i></div>
-  <div class="pl-bar"><i></i></div>
+  <div class="pl-sub"><i></i><span id="plSub">Pakistan Stock Exchange</span><i></i></div>
+  <div class="pl-bar" id="plBar"><i></i></div>
+  <div class="pl-status" id="plStatus" role="status" aria-live="polite"></div>
 </div>
 <div id="scrollProg"></div>
+
+<!-- VIEW-ONLY DOCUMENT VIEWER — policies open here rather than in a new tab -->
+<div class="doc-ov" id="docOv" role="dialog" aria-modal="true" aria-labelledby="docTtl">
+  <div class="doc-bar">
+    <span class="doc-ttl" id="docTtl">Document</span>
+    <button class="doc-x" type="button" aria-label="Close document" onclick="closeDoc()">✕</button>
+  </div>
+  <div class="doc-body"><iframe id="docFrame" title="Policy document" referrerpolicy="no-referrer"></iframe></div>
+  <div class="doc-foot">This document is provided for viewing only and may not be downloaded, printed, or redistributed. Need a copy for your records? Email <strong style="color:var(--mt)">hello@rallysequities.com</strong>.</div>
+</div>
 
 <!-- NAV -->
 <nav class="nav">
@@ -928,7 +1122,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
           <a onclick="showPage('trading')">Investment &amp; Trading</a>
           <a onclick="showPage('corporate')">Corporate Accounts</a>
           <a onclick="showPage('portfolio')">Portfolio Management</a>
-          <a onclick="showPage('research')">Market Research &amp; Insights</a>
+          <a onclick="showPage('research')">Market Research</a>
           <a onclick="showPage('shariah')">Shariah Compliant Investing</a>
           <a onclick="showPage('platforms')">Online Trading Platforms</a>
           <a onclick="showPage('support')">Customer Support</a>
@@ -997,7 +1191,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <a onclick="showPage('trading')">Investment &amp; Trading</a>
     <a onclick="showPage('corporate')">Corporate Accounts</a>
     <a onclick="showPage('portfolio')">Portfolio Management</a>
-    <a onclick="showPage('research')">Market Research &amp; Insights</a>
+    <a onclick="showPage('research')">Market Research</a>
     <a onclick="showPage('shariah')">Shariah Compliant Investing</a>
     <a onclick="showPage('platforms')">Online Trading Platforms</a>
     <a onclick="showPage('support')">Customer Support</a>
@@ -1120,7 +1314,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><polyline points="3,19 9,11 15,14 23,5" stroke="var(--g3)" stroke-width="1.8" stroke-linecap="round"/><polyline points="19,5 23,5 23,9" stroke="var(--g3)" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="svc-title">Investment &amp; Trading</div><div class="svc-desc">Fast and reliable order execution for individual and institutional investors — equities, IPOs, funds, fixed income and Sukuk on the PSX.</div><div class="svc-link" onclick="showPage('trading')">Learn more →</div></div>
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="var(--g3)" stroke-width="1.7"/><path d="M13 8L13 13L17 16" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round"/></svg></div><div class="svc-title">Portfolio Management</div><div class="svc-desc">Customized investment strategies aligned with your goals — allocations, sector caps and rebalancing plans where you approve each trade.</div><div class="svc-link" onclick="showPage('portfolio')">Learn more →</div></div>
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="9" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><path d="M9 9L9 6Q9 3 13 3Q17 3 17 6L17 9" stroke="var(--g3)" stroke-width="1.7" fill="none"/><circle cx="13" cy="15.5" r="2.2" stroke="var(--g3)" stroke-width="1.4"/></svg></div><div class="svc-title">Corporate Accounts</div><div class="svc-desc">Professional guidance for businesses and institutional clients, with structured execution and consistent governance.</div><div class="svc-link" onclick="showPage('corporate')">Learn more →</div></div>
-    <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19L9 7L15 13L21 3" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="3" r="1.8" fill="var(--g3)"/><line x1="3" y1="22" x2="23" y2="22" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="svc-title">Market Research &amp; Insights</div><div class="svc-desc">Access to expert analysis, reports, and stock recommendations backed by real-time PSX research.</div><div class="svc-link" onclick="showPage('research')">Learn more →</div></div>
+    <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19L9 7L15 13L21 3" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="3" r="1.8" fill="var(--g3)"/><line x1="3" y1="22" x2="23" y2="22" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="svc-title">Market Research</div><div class="svc-desc">Access to expert analysis, reports, and stock recommendations backed by real-time PSX research.</div><div class="svc-link" onclick="showPage('research')">Learn more →</div></div>
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="7" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><rect x="8" y="3" width="10" height="5" rx="1" stroke="var(--g3)" stroke-width="1.4"/><line x1="9" y1="13" x2="17" y2="13" stroke="var(--g3)" stroke-width="1.3"/><line x1="9" y1="16" x2="14" y2="16" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div class="svc-title">Online Trading Platforms</div><div class="svc-desc">Seamless access to PSX online trading through secure mobile and desktop platforms.</div><div class="svc-link" onclick="showPage('platforms')">Learn more →</div></div>
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3L19 7L19 17Q19 22 13 24Q7 22 7 17L7 7Z" stroke="var(--g3)" stroke-width="1.7" fill="none"/><path d="M10 15L12 17L16 12" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="svc-title">Shariah Compliant Investing</div><div class="svc-desc">Build portfolios aligned to Shariah-compliant universes and indices on the PSX, with screened lists and purification guidance. آپ کا دین، آپ کی دولت۔</div><div class="svc-link" onclick="showPage('shariah')">Learn more →</div></div>
     <div class="svc-card"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="10" r="4" stroke="var(--g3)" stroke-width="1.7"/><path d="M4 22Q4 16 13 16Q22 16 22 22" stroke="var(--g3)" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg></div><div class="svc-title">Customer Support</div><div class="svc-desc">Dedicated support team to assist you at every step of your trading journey — by phone, email or in person.</div><div class="svc-link" onclick="showPage('support')">Learn more →</div></div>
@@ -1220,10 +1414,10 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div class="reg-strip-item brand-chip rv" style="--rvd:.16s"><img src="assets/img/stocks/brand-04.png" alt="CDC" loading="lazy"><span class="rst">CDC Pakistan</span></div>
   <div class="reg-strip-item brand-chip rv" style="--rvd:.24s"><img src="assets/img/stocks/brand-06.png" alt="NCCPL" loading="lazy"><span class="rst">NCCPL</span></div>
 </div>
-<div style="text-align:center;padding:22px 20px 4px">
-  <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mt2);margin-bottom:12px">Investor Education Partner</div>
-  <a href="https://jamapunji.pk/" target="_blank" rel="noopener" class="brand-chip rv" style="text-decoration:none"><img src="assets/img/jamapunji.png" alt="Jama Punji — SECP investor education portal" loading="lazy"><span class="rst">Jama Punji</span></a>
-</div>
+<!-- Jama Punji used to sit here, directly under the regulator strip. The client asked for it NOT to
+     appear alongside the regulatory authorities (it is an SECP investor-education portal, not a
+     regulator of ours) and to appear at the very bottom of the page instead — see the dedicated
+     full-width band in the footer. -->
 
 <!-- CTA -->
 <div class="cta-block" style="margin-top:72px">
@@ -1238,6 +1432,58 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="cta-note"><span>✓ SECP regulated</span><span>✓ PSX licensed</span><span>✓ Competitive rates</span><span>✓ Shariah-compliant investing</span></div>
   </div>
 </div>
+
+<!-- ══════ FEEDBACK & COMPLAINTS (bottom of the site) ══════
+     Appended as the LAST child of page-home on purpose: the client's saved CMS overrides
+     use positional keys inside section2/div4, so anything inserted earlier would re-point
+     them. Both forms reuse submitGenericForm() with the already-allowed 'feedback' and
+     'complaint' kinds — no Supabase migration needed. Ids are prefixed h* so they never
+     collide with the dedicated page-feedback / page-complaints forms. -->
+<section class="sec sec-alt" id="home-feedback">
+  <div style="text-align:center"><div class="stag">We're Listening</div><h2 class="sh">Feedback &amp; <em>Complaints</em></h2>
+    <p class="sub" style="margin:14px auto 0">Tell us how we're doing, or raise a formal complaint — both reach us directly.</p></div>
+  <div class="fbc-grid">
+    <!-- FEEDBACK -->
+    <div>
+      <div class="fbc-head"><span class="fbc-ic">✦</span>Share your feedback</div>
+      <div class="fbc-card" id="hfbBox">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Name <span class="req">*</span></label><input type="text" class="finput" id="hfb-name" placeholder="Your full name"></div>
+          <div class="fg"><label class="flbl">Contact Number (optional)</label><input type="tel" class="finput" id="hfb-phone" placeholder="+92-3XX-XXXXXXX"></div>
+        </div>
+        <div class="fg" style="margin-bottom:14px"><label class="flbl">Email (optional)</label><input type="email" class="finput" id="hfb-email" placeholder="So we can reply to you"></div>
+        <div class="fg" style="margin-bottom:14px"><label class="flbl">Subject <span class="req">*</span></label><input type="text" class="finput" id="hfb-subj" placeholder="What is this about?"></div>
+        <div class="fg" style="margin-bottom:16px"><label class="flbl">Message / Feedback <span class="req">*</span></label><textarea class="ftarea" id="hfb-msg" placeholder="Tell us what you think"></textarea></div>
+        <button class="fnext" style="width:100%" onclick="submitHomeFeedback()">Submit Feedback</button>
+      </div>
+      <div class="fbc-done" id="hfbDone">
+        <div style="font-size:26px;margin-bottom:6px">✓</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">Feedback received</div>
+        <div style="font-size:12px;color:var(--mt)">Thank you for helping us improve. We read every submission.</div>
+      </div>
+    </div>
+    <!-- COMPLAINT -->
+    <div>
+      <div class="fbc-head"><span class="fbc-ic" style="color:var(--dn)">!</span>Lodge a complaint</div>
+      <div class="fbc-card" id="hcmpBox">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Name <span class="req">*</span></label><input type="text" class="finput" id="hcmp-name" placeholder="Your full name"></div>
+          <div class="fg"><label class="flbl">Email <span class="req">*</span></label><input type="email" class="finput" id="hcmp-email" placeholder="Email address"></div>
+        </div>
+        <div class="fg" style="margin-bottom:14px"><label class="flbl">Contact Number (optional)</label><input type="tel" class="finput" id="hcmp-phone" placeholder="+92-3XX-XXXXXXX"></div>
+        <div class="fg" style="margin-bottom:14px"><label class="flbl">Category <span class="req">*</span></label><select class="fselect" id="hcmp-cat"><option value="">Select category</option><option>Account / Login Issues</option><option>Transaction Problem</option><option>Customer Service</option><option>Financial Guidance Issue</option><option>Other</option></select></div>
+        <div class="fg" style="margin-bottom:16px"><label class="flbl">Details of complaint <span class="req">*</span></label><textarea class="ftarea" id="hcmp-msg" placeholder="Describe what happened, with dates if possible"></textarea></div>
+        <button class="fnext" style="width:100%" onclick="submitHomeComplaint()">Submit Complaint</button>
+      </div>
+      <div class="fbc-done" id="hcmpDone">
+        <div style="font-size:26px;margin-bottom:6px">✓</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">Complaint logged</div>
+        <div style="font-size:12px;color:var(--mt)">Our compliance team will review it and respond. Keep an eye on your email.</div>
+      </div>
+      <p class="sub" style="font-size:11.5px;margin-top:14px">Not satisfied with our resolution? You can escalate to the regulators — see <a onclick="showPage('portal')" style="color:var(--g3);cursor:pointer;text-decoration:underline">Investor Portal</a>.</p>
+    </div>
+  </div>
+</section>
 </div><!-- end page-home -->
 <!-- ══════ SERVICES PAGE ══════ -->
 <div class="page" id="page-services">
@@ -1379,7 +1625,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div style="margin-top:72px;text-align:center"><div class="stag">More Services</div><h3 class="sh" style="font-size:34px">Everything Else We <em>Offer</em></h3></div>
   <div class="svc-grid" style="grid-template-columns:repeat(2,1fr)">
     <div class="svc-card" id="svc-corporate"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="9" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><path d="M9 9L9 6Q9 3 13 3Q17 3 17 6L17 9" stroke="var(--g3)" stroke-width="1.7" fill="none"/><circle cx="13" cy="15.5" r="2.2" stroke="var(--g3)" stroke-width="1.4"/></svg></div><div class="svc-title">Corporate &amp; Institutional Accounts</div><div class="svc-desc">Onboard companies, funds, and family offices with compliant documentation, board resolutions, and authorized trader lists. Enable multi-user access with maker-checker approvals and user-level permissions. We provide tailored reports — execution quality, exposure, corporate actions — and careful handling of larger tickets or blocks (where available).<br><br><strong style="color:var(--au)">What you get:</strong><br>• Corporate KYC &amp; documentation support<br>• Role-based access and approvals<br>• Custom reports (TCA, ledgers, actions)<br>• Dedicated desk and service SLAs</div><div class="svc-link" onclick="openAccount()">Open Your Account →</div></div>
-    <div class="svc-card" id="svc-research"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19L9 7L15 13L21 3" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="3" r="1.8" fill="var(--g3)"/><line x1="3" y1="22" x2="23" y2="22" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="svc-title">Market Research &amp; Insights</div><div class="svc-desc">Stay oriented with concise market summaries, sector snapshots, and earnings calendar highlights. We keep the language simple, focus on what moved markets, and explain why it mattered — useful for decision support without hype. Get regular updates, investor education pieces, and tools to interpret data responsibly.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Daily/weekly recaps and top movers<br>• Earnings dates and key takeaways<br>• Sector notes and simple explainers<br>• Opt-in email/WhatsApp alerts</div><div class="svc-link" onclick="showPage('markets')">See live markets →</div></div>
+    <div class="svc-card" id="svc-research"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19L9 7L15 13L21 3" stroke="var(--g3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="3" r="1.8" fill="var(--g3)"/><line x1="3" y1="22" x2="23" y2="22" stroke="var(--g3)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="svc-title">Market Research</div><div class="svc-desc">Stay oriented with concise market summaries, sector snapshots, and earnings calendar highlights. We keep the language simple, focus on what moved markets, and explain why it mattered — useful for decision support without hype. Get regular updates, investor education pieces, and tools to interpret data responsibly.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Daily/weekly recaps and top movers<br>• Earnings dates and key takeaways<br>• Sector notes and simple explainers<br>• Opt-in email/WhatsApp alerts</div><div class="svc-link" onclick="showPage('markets')">See live markets →</div></div>
     <div class="svc-card" id="svc-platforms"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="7" width="18" height="13" rx="2" stroke="var(--g3)" stroke-width="1.7"/><rect x="8" y="3" width="10" height="5" rx="1" stroke="var(--g3)" stroke-width="1.4"/><line x1="9" y1="13" x2="17" y2="13" stroke="var(--g3)" stroke-width="1.3"/><line x1="9" y1="16" x2="14" y2="16" stroke="var(--g3)" stroke-width="1.3"/></svg></div><div class="svc-title">Online Trading Platforms</div><div class="svc-desc">Trade anywhere with stable web and mobile platforms. Build watchlists, set price alerts, and place market/limit/stop orders in a few taps. Review ledgers, contract notes, and P&amp;L with downloadable statements. Sign-in security and session controls help protect access, while our support team assists with platform setup and troubleshooting.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Live quotes, charts, and alerts<br>• Day/IOC/GTC (if supported) order validity<br>• Downloadable ledgers and contract notes<br>• 2FA and session-level security</div><div class="svc-link" onclick="openAccount()">Open Your Account →</div></div>
     <div class="svc-card" id="svc-support"><div class="svc-icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="10" r="4" stroke="var(--g3)" stroke-width="1.7"/><path d="M4 22Q4 16 13 16Q22 16 22 22" stroke="var(--g3)" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg></div><div class="svc-title">Customer Support — Customer &amp; Investor Education</div><div class="svc-desc">Great brokerage is great service. Our desk helps with account opening, platform setup, order placement basics, reconciliations, and corporate actions. Reach us via phone, WhatsApp, or email during support hours; visit in person where available. For concerns, use our complaints &amp; grievances path so we can resolve issues quickly and transparently.<br><br><strong style="color:var(--au)">What you get:</strong><br>• Onboarding and platform walkthroughs<br>• Order, statements, and actions support<br>• Phone/WhatsApp/email ticketing with SLAs<br>• Clear escalation/complaints pathway</div><div class="svc-link" onclick="showPage('locations')">Contact support →</div></div>
   </div>
@@ -1823,14 +2069,14 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 
 <!-- OUR MANAGEMENT PAGE -->
 <div class="page" id="page-management">
-<section class="phero"><div class="stag">About Us</div><h1>Our <em>Management</em></h1><p>The Minds Behind Your Investments</p></section>
+<section class="phero"><div class="stag">About Us</div><h1>Our <em>Management</em></h1><p>Decades of market experience, modern financial expertise, and strong governance.</p></section>
 <section class="sec">
   <!-- LEADERSHIP -->
   <div style="margin-top:8px;text-align:center" id="leadership"><p class="sub" style="margin:14px auto 0;text-align:center">At Rallys Equities, our leadership team combines decades of market experience with modern financial expertise and strong governance. Each member of our management brings a distinct strength, ensuring strategic direction, operational excellence, and strict regulatory compliance across the organization.</p></div>
   <div class="testi-grid">
-    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">MF</div><div><div class="testi-name">Muhammad Fayyaz</div><div class="testi-role">Chief Executive Officer (CEO)</div></div></div><div class="testi-q">With over 35 years of experience across the Pakistan Stock Exchange and Mercantile Exchange, Muhammad Fayyaz brings deep market knowledge and seasoned leadership to Rallys Equities. His extensive understanding of trading structures, regulatory frameworks, and investor behavior has been instrumental in establishing the firm's credibility and long-term vision. Under his leadership, the company continues to uphold the core values of trust, transparency, and disciplined performance in Pakistan's capital markets.</div></div>
-    <div class="testi"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">HF</div><div><div class="testi-name">Hasham Fayyaz</div><div class="testi-role">Chief Operating Officer (COO)</div></div></div><div class="testi-q">Hasham Fayyaz represents the next generation of brokerage leadership, combining a strong academic foundation in Finance and Data Analytics with an entrepreneurial mindset. He focuses on operational efficiency, client experience, and the adoption of technology-driven processes that enhance how investors interact with the PSX. His analytical approach and forward-looking vision play a key role in aligning traditional market expertise with modern brokerage practices at Rallys Equities.</div></div>
-    <div class="testi"><div class="testi-auth" style="margin-bottom:14px"><div class="testi-av">TK</div><div><div class="testi-name">Tayyab Kaleem Khan</div><div class="testi-role">Chief Compliance Officer (CCO)</div></div></div><div class="testi-q">Tayyab Kaleem Khan is a seasoned professional with extensive experience in corporate governance, executive leadership, and operational management. Serving as a Director across multiple private limited companies, he brings strong board-level insight into regulatory oversight, accountability, and sustainable business practices. His ability to balance strategic governance with hands-on operational understanding ensures that Rallys Equities consistently maintains robust compliance standards and regulatory discipline.</div></div>
+    <div class="testi" style="border-color:color-mix(in srgb, var(--au) 35%, transparent)"><div class="lead-photo"><img src="assets/img/team-placeholder.png" alt="Portrait of Muhammad Fayyaz, Chief Executive Officer" loading="lazy" data-edit-img="management.photo.ceo"></div><div class="testi-auth" style="margin-bottom:14px"><div><div class="testi-name">Muhammad Fayyaz</div><div class="testi-role">Chief Executive Officer (CEO)</div></div></div><div class="testi-q">With over 35 years of experience across the Pakistan Stock Exchange and Mercantile Exchange, Muhammad Fayyaz brings deep market knowledge and seasoned leadership to Rallys Equities. His extensive understanding of trading structures, regulatory frameworks, and investor behavior has been instrumental in establishing the firm's credibility and long-term vision. Under his leadership, the company continues to uphold the core values of trust, transparency, and disciplined performance in Pakistan's capital markets.</div></div>
+    <div class="testi"><div class="lead-photo"><img src="assets/img/team-placeholder.png" alt="Portrait of Hasham Fayyaz, Chief Operating Officer" loading="lazy" data-edit-img="management.photo.coo"></div><div class="testi-auth" style="margin-bottom:14px"><div><div class="testi-name">Hasham Fayyaz</div><div class="testi-role">Chief Operating Officer (COO)</div></div></div><div class="testi-q">Hasham Fayyaz represents the next generation of brokerage leadership, combining a strong academic foundation in Finance and Data Analytics with an entrepreneurial mindset. He focuses on operational efficiency, client experience, and the adoption of technology-driven processes that enhance how investors interact with the PSX. His analytical approach and forward-looking vision play a key role in aligning traditional market expertise with modern brokerage practices at Rallys Equities.</div></div>
+    <div class="testi"><div class="lead-photo"><img src="assets/img/team-placeholder.png" alt="Portrait of Tayyab Kaleem Khan, Chief Compliance Officer" loading="lazy" data-edit-img="management.photo.cco"></div><div class="testi-auth" style="margin-bottom:14px"><div><div class="testi-name">Tayyab Kaleem Khan</div><div class="testi-role">Chief Compliance Officer (CCO)</div></div></div><div class="testi-q">Tayyab Kaleem Khan is a seasoned professional with extensive experience in corporate governance, executive leadership, and operational management. Serving as a Director across multiple private limited companies, he brings strong board-level insight into regulatory oversight, accountability, and sustainable business practices. His ability to balance strategic governance with hands-on operational understanding ensures that Rallys Equities consistently maintains robust compliance standards and regulatory discipline.</div></div>
   </div>
 
   <!-- LEADERSHIP PHILOSOPHY -->
@@ -1948,7 +2194,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 </div>
 <!-- SERVICE PAGE: research -->
 <div class="page" id="page-research">
-<section class="phero"><div class="stag">Services</div><h1>Market Research &amp; <em>Insights</em></h1><p>Concise market summaries, sector snapshots, and earnings highlights.</p></section>
+<section class="phero"><div class="stag">Services</div><h1>Market <em>Research</em></h1><p>Concise market summaries, sector snapshots, and earnings highlights.</p></section>
 <section class="sec" style="max-width:920px;margin:0 auto">
   <div class="imgwrap rv" style="margin-bottom:36px"><img src="assets/img/market-research.webp" alt="Market research and insights" loading="lazy" style="height:330px;object-fit:cover"></div>
   <p class="sub" style="max-width:none;font-size:14px">Stay oriented with concise market summaries, sector snapshots, and earnings calendar highlights. We keep the language simple, focus on what moved markets, and explain why it mattered&mdash;useful for decision support without hype. Get regular updates, investor education pieces, and tools to interpret data responsibly.</p>
@@ -2019,11 +2265,26 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="stag">Investor Portal</div>
     <h3 class="sh" style="font-size:30px">Grievances &amp; <em>Regulatory Reporting</em></h3>
     <p class="sub" style="margin-top:8px">Our Investor Portal is designed to promote transparency, investor protection, and open communication — a centralized location for information regarding grievances, regulatory reporting, and complaint channels.</p>
-    <div class="svc-grid" style="margin-top:32px">
-      <div class="svc-card"><div class="svc-title" style="color:var(--g3)">✓ No Grievances Reported</div><div class="svc-desc">No investor grievances have been reported against the firm, and no pending investor complaints exist with regulatory authorities.</div></div>
-      <div class="svc-card"><div class="svc-title" style="color:var(--g3)">✓ No Penal Action</div><div class="svc-desc">No penal action has been taken against Rallys Equities by the Securities and Exchange Commission of Pakistan or the stock exchange.</div></div>
-      <div class="svc-card"><div class="svc-title" style="color:var(--au)">Raise a Concern</div><div class="svc-desc">Email investor concerns to <strong style="color:var(--g3)">hello@rallysequities.com</strong>. If unsatisfied, escalate via:<br><br><a href="https://xs.secp.gov.pk/" target="_blank" rel="noopener" style="color:var(--g3);text-decoration:underline">SECP Online Complaint Form ↗</a><br><a href="http://www.csir.psx.com.pk/?type=2" target="_blank" rel="noopener" style="color:var(--g3);text-decoration:underline">PSX Online Complaint Portal ↗</a></div></div>
+    <div class="disc-grid" data-rekey="portal.disclosures">
+      <div class="svc-card"><div class="svc-title" style="color:var(--g3)">✓ Investor Grievances</div><div class="svc-desc">At present, no investor grievances have been reported against Rallys Equities (Pvt) Ltd.</div></div>
+      <div class="svc-card"><div class="svc-title" style="color:var(--g3)">✓ Pending Investor Complaints</div><div class="svc-desc">There are no pending investor complaints against the brokerage firm with the Pakistan Stock Exchange or any regulatory authority.</div></div>
+      <div class="svc-card"><div class="svc-title" style="color:var(--g3)">✓ Regulatory Actions Disclosure</div><div class="svc-desc">As of date, no penal action has been taken against Rallys Equities (Pvt) Ltd by the Securities and Exchange Commission of Pakistan or the Pakistan Stock Exchange.</div></div>
+      <div class="svc-card"><div class="svc-title" style="color:var(--au)">Investor Complaints Contact</div><div class="svc-desc">Investors may contact the designated address below for any concerns, complaints, or feedback related to our services:<br><br><a href="mailto:hello@rallysequities.com" style="color:var(--g3);font-weight:700;text-decoration:none">hello@rallysequities.com</a><br><br>All investor communications are reviewed seriously and addressed in a timely and transparent manner.</div></div>
     </div>
+  </div>
+
+  <!-- ONLINE COMPLAINT LODGEMENT — regulator escalation routes -->
+  <div style="margin-top:56px" id="ir-lodgement">
+    <div class="stag">Escalation</div>
+    <h3 class="sh" style="font-size:30px">Online Complaint <em>Lodgement</em></h3>
+    <p class="sub" style="margin-top:8px">If you are not satisfied with the resolution provided by the brokerage firm, a complaint may be lodged directly with the regulators for independent review.</p>
+    <div class="pol-grid" style="max-width:820px" data-rekey="portal.lodgement">
+      <a class="pol-chip" href="https://xs.secp.gov.pk/" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx)"><span class="pn">↗</span><span style="flex:1">SECP — Complaints &amp; Queries Portal (SECP-XS)</span></a>
+      <a class="pol-chip" href="http://www.csir.psx.com.pk/?type=2" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx)"><span class="pn">↗</span><span style="flex:1">PSX — Online Complaint Portal (CSIR)</span></a>
+      <a class="pol-chip" href="https://www.psx.com.pk/psx/resources-and-tools/investors/investors-complaints" target="_blank" rel="noopener" style="text-decoration:none;color:var(--tx)"><span class="pn">↗</span><span style="flex:1">PSX — Investor Complaints (forms &amp; procedure)</span></a>
+      <a class="pol-chip" href="mailto:investor.complaints@psx.com.pk" style="text-decoration:none;color:var(--tx)"><span class="pn">✉</span><span style="flex:1">PSX — investor.complaints@psx.com.pk</span></a>
+    </div>
+    <p class="sub" style="margin-top:16px;font-size:12px">If the PSX complaint portal is unreachable, use the PSX Investor Complaints page or the email address above — both are official routes to the Regulatory Affairs Division.</p>
   </div>
 
 
@@ -2080,7 +2341,16 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     <div class="imgwrap rv" style="max-width:760px;margin-top:24px"><img src="assets/img/bg-4-1.webp" alt="Financial highlights coming soon" loading="lazy"></div>
     <div style="margin-top:24px;border:1px solid color-mix(in srgb, var(--au) 25%, transparent);border-radius:16px;padding:26px;background:color-mix(in srgb, var(--au) 5%, transparent);max-width:760px">
       <p class="sub" style="max-width:none;margin-bottom:12px">Rallys Equities (Pvt) Ltd is committed to transparency and timely financial disclosure.</p>
-      <p class="sub" style="max-width:none">The quarterly financial report for 2026 will be made available here after finalization and approval.</p>
+      <p class="sub" style="max-width:none">The quarterly financial report for 2026 will be published here once finalized and approved.</p>
+    </div>
+
+    <!-- QUARTERLY REPORT 2026 — download slot; swap the placeholder for a linked chip when the PDF lands -->
+    <div style="margin-top:44px" id="ir-quarterly">
+      <div style="font-size:12px;font-weight:700;color:var(--au);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Quarterly Report 2026</div>
+      <div class="pol-grid" style="max-width:820px">
+        <div class="pol-chip" style="opacity:.62;cursor:default"><span class="pn">Q1</span><span style="flex:1">Quarterly Report 2026 — Q1</span><span class="pdf-tag" style="color:var(--mt2)">AWAITING APPROVAL</span></div>
+      </div>
+      <p class="sub" style="margin-top:16px;font-size:12px">Download links appear here as each report is finalized and approved. For an earlier copy, email <strong style="color:var(--g3)">hello@rallysequities.com</strong>.</p>
     </div>
   </div>
 
@@ -2120,23 +2390,24 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   <div style="margin-top:8px" id="ir-policies">
     <div class="stag">Policies and Procedures</div>
     <h3 class="sh" style="font-size:30px">Our Compliance <em>Framework</em></h3>
-    <div class="pol-grid">
-      <div class="pol-chip"><span class="pn">01</span>Risk Disclosure Policy</div>
-      <div class="pol-chip"><span class="pn">02</span>Anti-Money Laundering (AML) &amp; CFT Policy</div>
-      <div class="pol-chip"><span class="pn">03</span>Know Your Customer (KYC) &amp; Customer Due Diligence Policy</div>
-      <div class="pol-chip"><span class="pn">04</span>Order Execution &amp; Best Execution Policy</div>
-      <div class="pol-chip"><span class="pn">05</span>Client Account Opening &amp; Documentation Policy</div>
-      <div class="pol-chip"><span class="pn">06</span>Conflicts of Interest Policy</div>
-      <div class="pol-chip"><span class="pn">07</span>Client Complaint Handling &amp; Grievance Policy</div>
-      <div class="pol-chip"><span class="pn">08</span>Confidentiality &amp; Data Protection Policy</div>
-      <div class="pol-chip"><span class="pn">09</span>Internal Controls &amp; Compliance Policy</div>
-      <div class="pol-chip"><span class="pn">10</span>Code of Conduct &amp; Ethics Policy</div>
-      <div class="pol-chip"><span class="pn">11</span>Segregation of Client Money &amp; Assets Policy</div>
-      <div class="pol-chip"><span class="pn">12</span>Communication &amp; Disclosure Policy</div>
-      <div class="pol-chip"><span class="pn">13</span>Whistleblowing Policy</div>
-      <div class="pol-chip"><span class="pn">14</span>Information Security &amp; Cybersecurity Policy</div>
+    <p class="sub" style="margin-top:8px">Every policy below is published in full. Select any document to read it here on the page — these are provided for viewing only.</p>
+    <!-- data-rekey anchors the editable keys of everything inside to "policies.docgrid/…" so they
+         stay stable if this list is reordered later (see getEditKey) -->
+    <div class="pol-grid" data-rekey="policies.docgrid">
+      <button type="button" class="pol-chip" onclick="openDoc('aml-cft-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">01</span><span style="flex:1">Anti-Money Laundering (AML) &amp; Countering Financing of Terrorism (CFT)</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('internal-controls-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">02</span><span style="flex:1">Internal Controls Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('conflict-of-interest-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">03</span><span style="flex:1">Conflict of Interest — Resolution Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('unethical-conduct-market-abuse')" style="text-decoration:none;color:var(--tx)"><span class="pn">04</span><span style="flex:1">Policy on Unethical Conduct &amp; Market Abuse</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('complaint-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">05</span><span style="flex:1">Complaint Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('customer-grievance-redressal')" style="text-decoration:none;color:var(--tx)"><span class="pn">06</span><span style="flex:1">Customer Grievance Redressal Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('orders-recording-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">07</span><span style="flex:1">Orders Recording Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('authorization-order-placement')" style="text-decoration:none;color:var(--tx)"><span class="pn">08</span><span style="flex:1">Authorization for Order Placement</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('client-access-online-trading')" style="text-decoration:none;color:var(--tx)"><span class="pn">09</span><span style="flex:1">Allowing Client Access to Online Trading Services</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('record-retention-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">10</span><span style="flex:1">Record Retention Policy</span><span class="pdf-tag">VIEW ↗</span></button>
+      <button type="button" class="pol-chip" onclick="openDoc('disaster-recovery-contingency-plan')" style="text-decoration:none;color:var(--tx)"><span class="pn">11</span><span style="flex:1">Disaster Recovery &amp; Contingency Plan</span><span class="pdf-tag">VIEW ↗</span></button>
     </div>
-    <p class="sub" style="margin-top:18px;font-size:12px">Full policy documents are available on request — write to hello@rallysequities.com.</p>
+    <p class="sub" style="margin-top:18px;font-size:12px">These are scanned copies of the signed originals, shown for reading only. Need a copy for your records, or a screen-reader-friendly version? Email <strong style="color:var(--g3)">hello@rallysequities.com</strong> and we'll send one.</p>
+    <div style="margin-top:40px;text-align:center"><button class="bbig bbig-g" onclick="openAccount()">Open Your Account</button></div>
   </div>
 
 </section>
@@ -2348,9 +2619,31 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
     
     
     <div class="svc-grid" style="margin-top:32px">
-      <div class="svc-card"><div class="svc-title">Account Opening Forms</div><div class="svc-desc">Individual and corporate account opening documentation — also available digitally via the PSX eClear portal.</div><a class="svc-link" href="https://aof.eclear.com.pk/repl" target="_blank" rel="noopener">Open online →</a></div>
-      <div class="svc-card"><div class="svc-title">Policy Documents</div><div class="svc-desc">Risk disclosure, KYC/AML, complaint handling and other compliance policies — available on request.</div><a class="svc-link" href="mailto:hello@rallysequities.com">Request by email →</a></div>
-      <div class="svc-card"><div class="svc-title">Latest Resources</div><div class="svc-desc">For the most current downloadable forms and documents, visit the live downloads page.</div><a class="svc-link" onclick="showPage('links')">View useful links & resources →</a></div>
+      <div class="svc-card"><div class="svc-title">Account Opening</div><div class="svc-desc">Open your account online through the PSX eClear portal — no paperwork to download.</div><a class="svc-link" href="https://aof.eclear.com.pk/repl" target="_blank" rel="noopener">Open online →</a></div>
+      <div class="svc-card"><div class="svc-title">Compliance Policies</div><div class="svc-desc">All 11 of our published policies can be read below, and on the Policies &amp; Procedures page.</div><a class="svc-link" onclick="showPage('policies')">View Policies &amp; Procedures →</a></div>
+      <div class="svc-card"><div class="svc-title">Regulator Resources</div><div class="svc-desc">PSX, SECP, CDC and NCCPL portals, plus investor education material.</div><a class="svc-link" onclick="showPage('links')">View useful links →</a></div>
+    </div>
+
+    <!-- POLICY DOCUMENTS — the real downloadable files. Deliberately excludes assets/docs/*,
+         which are still ~1 KB placeholders; publishing those as if genuine would be worse
+         than omitting them until the signed originals arrive. -->
+    <div style="margin-top:56px" id="misc-policy-downloads">
+      <div style="font-size:12px;font-weight:700;color:var(--au);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Policy Documents</div>
+      <p class="sub" style="margin:0 0 4px">Every policy governing how we operate — select one to read it here on the page.</p>
+      <div class="pol-grid" style="max-width:820px" data-rekey="downloads.policies">
+        <button type="button" class="pol-chip" onclick="openDoc('aml-cft-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Anti-Money Laundering (AML) &amp; CFT</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('internal-controls-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Internal Controls Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('conflict-of-interest-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Conflict of Interest — Resolution Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('unethical-conduct-market-abuse')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Unethical Conduct &amp; Market Abuse</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('complaint-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Complaint Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('customer-grievance-redressal')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Customer Grievance Redressal Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('orders-recording-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Orders Recording Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('authorization-order-placement')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Authorization for Order Placement</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('client-access-online-trading')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Client Access to Online Trading Services</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('record-retention-policy')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Record Retention Policy</span><span class="pdf-tag">VIEW</span></button>
+        <button type="button" class="pol-chip" onclick="openDoc('disaster-recovery-contingency-plan')" style="text-decoration:none;color:var(--tx)"><span class="pn">↓</span><span style="flex:1">Disaster Recovery &amp; Contingency Plan</span><span class="pdf-tag">VIEW</span></button>
+      </div>
+      <p class="sub" style="margin-top:16px;font-size:12px">Shown for viewing only. Need a copy for your records, or a text-readable version? Email <strong style="color:var(--g3)">hello@rallysequities.com</strong>.</p>
     </div>
   </div>
 
@@ -2510,8 +2803,13 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 <div class="page" id="page-insights">
 <section class="phero"><div class="stag">Insights</div><h1>Market <em>Insights</em></h1><p>Research notes, market commentary and investor education from the Rallys Equities desk.</p></section>
 <section class="sec">
+  <div id="blogFeat"></div>
   <div class="blog-grid" id="blogList"></div>
-  <div class="blog-empty" id="blogEmpty" style="display:none">New insights are on the way — check back soon.</div>
+  <div class="blog-empty" id="blogEmpty" style="display:none">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--au)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/></svg>
+    <b>New insights are on the way</b>
+    <span>Our desk publishes market commentary, research notes and investor education here. Check back soon.</span>
+  </div>
 </section>
 </div>
 
@@ -2523,28 +2821,92 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 </div>
 
 <footer>
-  <div class="footer-grid">
-    <div class="fb">
-      <div style="display:flex;align-items:center;gap:10px"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo" data-edit-img="brand.logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Pakistan Stock Exchange</span></div></div>
-      <p>At Rallys Equities (Pvt) Ltd, we make investing in the Pakistan Stock Exchange (PSX) simple, secure, and transparent. Licensed &amp; regulated by SECP &amp; PSX.</p>
+  <!-- oversized display wordmark, clipped by the footer — the footer's signature detail.
+       Purely decorative and aria-hidden; sits behind everything at low opacity. -->
+  <div class="foot-mark" aria-hidden="true">Rallys&nbsp;Equities</div>
+
+  <div class="foot-top">
+    <div class="foot-lede">
+      <div class="foot-lock"><div class="lm-img"><img src="assets/img/logo.png" alt="Rallys Equities logo" data-edit-img="brand.logo"></div><div><span class="lt-main">Rallys Equities</span><span class="lt-sub">Pakistan Stock Exchange</span></div></div>
+      <p class="foot-say">Making investment in the Pakistan Stock Exchange simple, secure and transparent — licensed and regulated by the SECP &amp; PSX.</p>
       <span class="fb-urdu">رالیز ایکویٹیز — آپ کا قابل اعتماد مالی ساتھی</span>
-      <div style="margin-top:12px;font-size:11px;color:var(--mt2);line-height:2">📞 042-36366667 · 0316-9991907<br>📧 hello@rallysequities.com<br>🏢 Office # 408, 4th Floor, Lahore Stock Exchange Building,<br>&nbsp;&nbsp;&nbsp;&nbsp;Khayaban-e-Aiwan-e-Iqbal, Lahore, Pakistan</div>
-      <div style="margin-top:12px;display:flex;gap:14px;font-size:11px">
-        <a href="https://www.facebook.com/profile.php?id=61584496977916" target="_blank" rel="noopener" style="color:var(--mt);text-decoration:none">Facebook</a>
-        <a href="https://www.instagram.com/rallyssequities/" target="_blank" rel="noopener" style="color:var(--mt);text-decoration:none">Instagram</a>
-        <a href="https://www.linkedin.com/company/rallys-equities" target="_blank" rel="noopener" style="color:var(--mt);text-decoration:none">LinkedIn</a>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <a href="https://jamapunji.pk/" target="_blank" rel="noopener" class="brand-chip" style="padding:8px 14px"><img src="assets/img/jamapunji.png" alt="Jama Punji — SECP investor education portal" style="height:40px"></a>
-        <span class="brand-chip" style="padding:8px 14px"><img src="assets/img/psx-logo.png" alt="Pakistan Stock Exchange" style="height:42px"></span>
+      <div class="foot-soc">
+        <a class="fsoc" href="https://www.facebook.com/profile.php?id=61584496977916" target="_blank" rel="noopener" aria-label="Rallys Equities on Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h2.5l.5-3H13v-2c0-.6.4-1 1-1z"/></svg></a>
+        <a class="fsoc" href="https://www.instagram.com/rallyssequities/" target="_blank" rel="noopener" aria-label="Rallys Equities on Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3.5" y="3.5" width="17" height="17" rx="4.6"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.1" cy="6.9" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+        <a class="fsoc" href="https://www.linkedin.com/company/rallys-equities" target="_blank" rel="noopener" aria-label="Rallys Equities on LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 8.5h-3v11h3v-11zM5 4a1.7 1.7 0 1 0 0 3.4A1.7 1.7 0 0 0 5 4zm5.5 4.5h-3v11h3v-6c0-1.6 2.4-1.8 2.4 0v6h3v-6.4c0-4.5-4.6-4.3-5.4-2.1V8.5z"/></svg></a>
+        <a class="fsoc" href="https://wa.me/923169991907" target="_blank" rel="noopener" aria-label="Message Rallys Equities on WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.1 14.1c-.2.6-1.2 1.2-1.7 1.2-.5 0-2.4-.3-4.5-2.3-2-2-2.4-3.7-2.4-4.3 0-.6.6-1.5 1.1-1.7.2-.1.5-.1.7.1l.9 1.4c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.4 0 .6.3.5 1.6 2 2.4 2.3.2.1.4.1.5-.1l.5-.6c.2-.2.4-.2.6-.1l1.4.8c.3.1.4.4.3.7z"/></svg></a>
       </div>
     </div>
-    <div class="fc2"><h5>Services</h5><ul><li><a onclick="showPage('services')">Investment &amp; Trading</a></li><li><a onclick="showPage('services')">Portfolio Management</a></li><li><a onclick="showPage('services')">Corporate Accounts</a></li><li><a onclick="showPage('services')">Market Research &amp; Insights</a></li><li><a onclick="showPage('services')">Shariah Compliant Investing</a></li><li><a onclick="showPage('markets')">Live Markets</a></li></ul></div>
-    <div class="fc2"><h5>Company</h5><ul><li><a onclick="showPage('about')">About Us</a></li><li><a onclick="showPage('management')">Our Management</a></li><li><a onclick="showPage('locations')">Our Office</a></li><li><a onclick="openAccount()">Open Account</a></li><li><a onclick="showPage('careers')">Careers</a></li><li><a onclick="showPage('locations')">Contact Us</a></li></ul></div>
-    <div class="fc2"><h5>Resources</h5><ul><li><a onclick="showPage('markets')">PSX Market Data</a></li><li><a onclick="showPage('education')">Investor Education</a></li><li><a onclick="showPage('awareness')">Education &amp; Awareness</a></li><li><a onclick="goSec('education','ir-strategies')">Top Five Strategies</a></li><li><a onclick="showPage('faq')">FAQ</a></li><li><a onclick="showPage('cagr')">Investor Calculators</a></li><li><a href="https://aof.eclear.com.pk/repl" target="_blank" rel="noopener">eClear Account Opening</a></li></ul></div>
+
+    <nav class="foot-cols" aria-label="Footer">
+      <!-- Mirrors the services actually shown in the nav. The client has hidden Portfolio
+           Management and Market Research from the header dropdown and the home grid via the
+           CMS, so this column must not put them back. -->
+      <div class="fc2"><h5>Services</h5><ul>
+        <li><a onclick="showPage('trading')">Investment &amp; Trading</a></li>
+        <li><a onclick="showPage('corporate')">Corporate Accounts</a></li>
+        <li><a onclick="showPage('shariah')">Shariah Investing</a></li>
+        <li><a onclick="showPage('platforms')">Online Trading Platforms</a></li>
+        <li><a onclick="showPage('support')">Customer Support</a></li>
+        <li><a onclick="showPage('markets')">Live Markets</a></li>
+      </ul></div>
+      <div class="fc2"><h5>Company</h5><ul>
+        <li><a onclick="showPage('about')">About Us</a></li>
+        <li><a onclick="showPage('mission')">Mission &amp; Vision</a></li>
+        <li><a onclick="showPage('management')">Our Management</a></li>
+        <li><a onclick="showPage('governance')">Corporate Governance</a></li>
+        <li><a onclick="showPage('careers')">Careers</a></li>
+        <li><a onclick="showPage('locations')">Contact Us</a></li>
+      </ul></div>
+      <div class="fc2"><h5>Investor Relations</h5><ul>
+        <li><a onclick="showPage('portal')">Investor Portal</a></li>
+        <li><a onclick="showPage('education')">Investor Education</a></li>
+        <li><a onclick="showPage('financial')">Financial Highlights</a></li>
+        <li><a onclick="showPage('policies')">Policies &amp; Procedures</a></li>
+        <li><a onclick="showPage('rating')">Management Rating</a></li>
+      </ul></div>
+      <div class="fc2"><h5>Insights &amp; Tools</h5><ul>
+        <li><a onclick="showPage('insights')">Market Insights</a></li>
+        <li><a onclick="showPage('cagr')">Investor Calculators</a></li>
+        <li><a onclick="goSec('education','ir-strategies')">Top Five Strategies</a></li>
+        <li><a onclick="showPage('faq')">FAQ</a></li>
+        <li><a onclick="showPage('downloads')">Useful Downloads</a></li>
+        <li><a onclick="showPage('links')">Useful Links</a></li>
+      </ul></div>
+    </nav>
+  </div>
+
+  <!-- contact strip -->
+  <div class="foot-contact">
+    <a class="fct" href="tel:+924236366667">
+      <span class="fct-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></span>
+      <span class="fct-tx"><b>042-36366667</b><em>0316-9991907</em></span>
+    </a>
+    <a class="fct" href="mailto:hello@rallysequities.com">
+      <span class="fct-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+      <span class="fct-tx"><b>hello@rallysequities.com</b><em>We reply within one business day</em></span>
+    </a>
+    <a class="fct" onclick="showPage('locations')">
+      <span class="fct-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+      <span class="fct-tx"><b>Lahore Stock Exchange Building</b><em>Office # 408, 4th Floor, Khayaban-e-Aiwan-e-Iqbal</em></span>
+    </a>
+  </div>
+  <!-- ══════ JAMA PUNJI — investor education partner ══════
+       Client asked for this at the very bottom of the page, at a size where the logo, slogan and
+       name read clearly, and deliberately NOT grouped with the regulatory authorities. Rendered at
+       76px tall against a 461×109 source, so it is still being downscaled and stays crisp. -->
+  <div class="jp-band">
+    <div class="jp-eyebrow">Investor Education Partner</div>
+    <a class="jp-logo" href="https://jamapunji.pk/" target="_blank" rel="noopener" aria-label="Jama Punji — the SECP investor education portal (opens in a new tab)">
+      <img src="assets/img/jamapunji.png" alt="Jama Punji — the Securities and Exchange Commission of Pakistan's investor education portal" width="461" height="109" loading="lazy">
+    </a>
+    <p class="jp-note">Learn the fundamentals of investing at <strong style="color:var(--mt)">jamapunji.pk</strong> — the Securities &amp; Exchange Commission of Pakistan's official investor education portal.</p>
   </div>
   <div class="footer-bot">
-    <p>© 2026 Rallys Equities, All Rights Reserved. SECP Licensed Broker · PSX TREC No. 553.</p>
+    <div class="foot-cred">
+      <span class="brand-chip foot-psx"><img src="assets/img/psx-logo.png" alt="Pakistan Stock Exchange" style="height:38px"></span>
+      <p>© 2026 Rallys Equities (Pvt) Ltd. All rights reserved.<br><span>SECP Licensed Broker · PSX TREC No. 553</span></p>
+    </div>
     <div class="footer-leg"><a onclick="showPage('policies')">Policies &amp; Procedures</a><a onclick="showPage('governance')">Corporate Governance</a><a onclick="showPage('complaints')">Complaints</a><a onclick="showPage('feedback')">Feedback</a></div>
   </div>
   <div class="footer-dis"><strong style="color:var(--mt)">Risk Disclaimer:</strong> Investing in securities involves risk. Past performance is not indicative of future results. Rallys Equities (Pvt) Ltd is licensed by SECP and is a TREC holder of Pakistan Stock Exchange. Client assets held at CDC. Please read our Risk Disclosure Statement before investing.</div>
@@ -2830,6 +3192,62 @@ const NAV_PARENT={
   post:'insights'
 };
 function openAccount(){ window.open('https://aof.eclear.com.pk/repl','_blank','noopener'); }
+
+/* ══════ VIEW-ONLY DOCUMENT VIEWER ══════
+   The client asked that policies open as view-only, not downloads. Worth being clear about
+   what is and isn't achievable: a browser must receive a file in order to render it, so a
+   determined visitor can always retrieve it from the network panel. No website can prevent
+   that. What this does do is remove every download affordance:
+     · opens in-page, so the browser's PDF toolbar (download + print) never shows —
+       #toolbar=0 is honoured by Chrome/Edge; Firefox's own viewer ignores it
+     · the chips are <button>s carrying a slug, not <a href> links, so there is no
+       "Save link as" on the list itself and the file path isn't surfaced in the UI
+     · context menu, Ctrl/Cmd+S and Ctrl/Cmd+P are suppressed while the viewer is open
+   Titles/paths come from this whitelist, so the markup can never inject an arbitrary URL. */
+const POLICY_DOCS={
+  'aml-cft-policy':'Anti-Money Laundering (AML) & Countering Financing of Terrorism (CFT)',
+  'internal-controls-policy':'Internal Controls Policy',
+  'conflict-of-interest-policy':'Conflict of Interest — Resolution Policy',
+  'unethical-conduct-market-abuse':'Policy on Unethical Conduct & Market Abuse',
+  'complaint-policy':'Complaint Policy',
+  'customer-grievance-redressal':'Customer Grievance Redressal Policy',
+  'orders-recording-policy':'Orders Recording Policy',
+  'authorization-order-placement':'Authorization for Order Placement',
+  'client-access-online-trading':'Allowing Client Access to Online Trading Services',
+  'record-retention-policy':'Record Retention Policy',
+  'disaster-recovery-contingency-plan':'Disaster Recovery & Contingency Plan'
+};
+let docLastFocus=null;
+function docKeyGuard(e){
+  if(e.key==='Escape'){ closeDoc(); return; }
+  const k=(e.key||'').toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&(k==='s'||k==='p')){ e.preventDefault(); e.stopPropagation(); reToast('This document is view-only.','err'); }
+}
+function openDoc(slug){
+  const title=POLICY_DOCS[slug];
+  if(!title){ console.warn('[doc] unknown document',slug); return; }
+  const ov=document.getElementById('docOv'), fr=document.getElementById('docFrame');
+  docLastFocus=document.activeElement;
+  document.getElementById('docTtl').textContent=title;
+  fr.setAttribute('src','assets/policies/'+slug+'.pdf#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&view=FitH');
+  ov.classList.add('open');
+  requestAnimationFrame(()=>ov.classList.add('in'));
+  document.body.style.overflow='hidden';
+  document.addEventListener('keydown',docKeyGuard,true);
+  ov.addEventListener('contextmenu',docNoCtx);
+  setTimeout(()=>{ const x=ov.querySelector('.doc-x'); if(x)x.focus(); },60);
+}
+function docNoCtx(e){ e.preventDefault(); }
+function closeDoc(){
+  const ov=document.getElementById('docOv'), fr=document.getElementById('docFrame');
+  if(!ov||!ov.classList.contains('open'))return;
+  ov.classList.remove('in');
+  document.removeEventListener('keydown',docKeyGuard,true);
+  ov.removeEventListener('contextmenu',docNoCtx);
+  document.body.style.overflow='';
+  setTimeout(()=>{ ov.classList.remove('open'); fr.removeAttribute('src'); },280);   // drop the src so it stops loading
+  try{ docLastFocus&&docLastFocus.focus&&docLastFocus.focus(); }catch(e){}
+}
 function showPage(id){
   const target=document.getElementById('page-'+id);
   if(target&&target.classList.contains('re-hid')&&id!=='home'){ id='home'; } // deleted page → home
@@ -3111,6 +3529,29 @@ function submitComplaint(){
     'complaint',
     ()=>({name:g('cmp-name'),email:g('cmp-email'),phone:g('cmp-phone'),category:g('cmp-cat'),message:g('cmp-msg')}),
     'cmpBox','cmpDone');
+}
+/* Bottom-of-home pair. Same kinds and the same payload shape as the dedicated pages, so the
+   alert email and any future admin inbox render them identically — only the element ids differ.
+   Feedback keeps Email optional (the client's field list omitted it, but without an address we
+   can't reply), so it is validated only when something was typed. */
+function submitHomeFeedback(){
+  const g=id=>document.getElementById(id).value.trim();
+  submitGenericForm(
+    [['hfb-name',v=>v.length>1],['hfb-subj',v=>v.length>1],['hfb-msg',v=>v.length>2],
+     ['hfb-email',v=>v===''||v.includes('@')]],
+    'feedback',
+    ()=>({name:g('hfb-name'),email:g('hfb-email'),phone:g('hfb-phone'),subject:g('hfb-subj'),
+          message:g('hfb-msg'),category:'General Feedback',source:'Home page'}),
+    'hfbBox','hfbDone');
+}
+function submitHomeComplaint(){
+  const g=id=>document.getElementById(id).value.trim();
+  submitGenericForm(
+    [['hcmp-name',v=>v.length>1],['hcmp-email',v=>v.includes('@')],['hcmp-cat',v=>v!==''],['hcmp-msg',v=>v.length>2]],
+    'complaint',
+    ()=>({name:g('hcmp-name'),email:g('hcmp-email'),phone:g('hcmp-phone'),category:g('hcmp-cat'),
+          message:g('hcmp-msg'),source:'Home page'}),
+    'hcmpBox','hcmpDone');
 }
 function submitFeedback(){
   const g=id=>document.getElementById(id).value.trim();
@@ -3599,32 +4040,101 @@ function sanitizePost(html){
   })(tmp);
   return tmp.innerHTML;
 }
+/* ~200 wpm over the stripped body — rounded up, never below 1 minute */
+function readTime(body){
+  const words=String(body||'').replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1,Math.round(words/200))+' min read';
+}
+const ARROW='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>';
+function blogMeta(p){
+  return '<div class="blog-meta"><span>'+escH(fmtPostDate(p.date))+'</span><i></i><span class="rt">'+escH(readTime(p.body))+'</span></div>';
+}
 function renderBlog(posts){
   const list=document.getElementById('blogList'); if(!list)return;
   const pub=(posts||[]).filter(p=>p&&p.published!==false).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
   window.__POSTS=pub;
+  /* No published posts → hide every route in, including the footer link (added later, so it
+     has to be collected here too or visitors land on an empty page). */
   const navA=document.getElementById('nav-insights');
-  const links=[navA&&navA.parentElement,...document.querySelectorAll('.mnav [onclick*="showPage(\'insights\')"]')];
-  links.forEach(n=>{ if(n)n.style.display=pub.length?'':'none'; });   // no published posts → hide the nav entry
+  const links=[navA&&navA.parentElement,
+    ...document.querySelectorAll('.mnav [onclick*="showPage(\'insights\')"]'),
+    ...[...document.querySelectorAll('footer [onclick*="showPage(\'insights\')"]')].map(a=>a.closest('li')||a)];
+  links.forEach(n=>{ if(n)n.style.display=pub.length?'':'none'; });
+  const feat=document.getElementById('blogFeat');
+  if(feat)feat.innerHTML='';
   list.innerHTML='';
   const empty=document.getElementById('blogEmpty'); if(empty)empty.style.display=pub.length?'none':'block';
-  pub.forEach((p,i)=>{
+  if(!pub.length)return;
+
+  /* newest post leads as a wide editorial card; the rest fill the grid */
+  if(feat){
+    const p=pub[0];
+    const el=document.createElement('article'); el.className='blog-feat';
+    el.setAttribute('role','link'); el.setAttribute('tabindex','0');
+    el.onclick=()=>openPost(0);
+    el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPost(0); } };
+    el.innerHTML=(p.cover?'<div class="blog-feat-cov"><img loading="lazy" src="'+escH(p.cover)+'" alt=""></div>'
+                         :'<div class="blog-feat-cov blog-nocov"><span>Rallys</span></div>')+
+      '<div class="blog-feat-body"><span class="blog-feat-tag">Latest insight</span>'+blogMeta(p)+
+      '<h3>'+escH(p.title||'Untitled')+'</h3>'+
+      (p.excerpt?'<p>'+escH(p.excerpt)+'</p>':'')+
+      '<span class="blog-more">Read the full note '+ARROW+'</span></div>';
+    feat.appendChild(el);
+  }
+  pub.slice(feat?1:0).forEach((p,n)=>{
+    const i=n+(feat?1:0);
     const card=document.createElement('article'); card.className='blog-card';
+    card.setAttribute('role','link'); card.setAttribute('tabindex','0');
     card.onclick=()=>openPost(i);
-    card.innerHTML=(p.cover?'<div class="blog-cover"><img loading="lazy" src="'+escH(p.cover)+'" alt=""></div>':'')+
-      '<div class="blog-body"><div class="blog-date">'+escH(fmtPostDate(p.date))+'</div><h3>'+escH(p.title||'Untitled')+'</h3>'+
-      (p.excerpt?'<p>'+escH(p.excerpt)+'</p>':'')+'<span class="blog-more">Read more →</span></div>';
+    card.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPost(i); } };
+    card.innerHTML=(p.cover?'<div class="blog-cover"><img loading="lazy" src="'+escH(p.cover)+'" alt=""></div>'
+                           :'<div class="blog-nocov"><span>Rallys</span></div>')+
+      '<div class="blog-body">'+blogMeta(p)+'<h3>'+escH(p.title||'Untitled')+'</h3>'+
+      (p.excerpt?'<p>'+escH(p.excerpt)+'</p>':'')+
+      '<span class="blog-more">Read more '+ARROW+'</span></div>';
     list.appendChild(card);
   });
 }
 function openPost(i){
-  const p=(window.__POSTS||[])[i]; if(!p)return;
+  const posts=window.__POSTS||[], p=posts[i]; if(!p)return;
   const v=document.getElementById('postView'); if(!v)return;
+  /* up to three other posts to read next */
+  const more=posts.filter((_,n)=>n!==i).slice(0,3);
+  const moreHtml=more.length?('<div class="post-more"><div class="post-more-h">More insights</div><div class="blog-grid">'+
+    more.map(m=>{ const n=posts.indexOf(m);
+      return '<article class="blog-card" role="link" tabindex="0" onclick="openPost('+n+')" onkeydown="if(event.key===\'Enter\'){openPost('+n+')}">'+
+        (m.cover?'<div class="blog-cover"><img loading="lazy" src="'+escH(m.cover)+'" alt=""></div>':'<div class="blog-nocov"><span>Rallys</span></div>')+
+        '<div class="blog-body">'+blogMeta(m)+'<h3>'+escH(m.title||'Untitled')+'</h3>'+
+        '<span class="blog-more">Read more '+ARROW+'</span></div></article>';
+    }).join('')+'</div></div>'):'';
   v.innerHTML='<a class="blog-back" onclick="showPage(\'insights\')">← All insights</a>'+
-    '<div class="blog-date">'+escH(fmtPostDate(p.date))+'</div><h1 class="blog-title">'+escH(p.title||'Untitled')+'</h1>'+
+    '<div class="post-head">'+blogMeta(p)+
+    '<h1 class="blog-title">'+escH(p.title||'Untitled')+'</h1>'+
+    (p.excerpt?'<p class="sub" style="max-width:62ch;margin:0">'+escH(p.excerpt)+'</p>':'')+
+    '<div class="post-rule"></div></div>'+
     (p.cover?'<img class="blog-hero" src="'+escH(p.cover)+'" alt="">':'')+
-    '<div class="blog-post">'+sanitizePost(p.body||'')+'</div>';
+    '<div class="blog-post">'+sanitizePost(p.body||'')+'</div>'+
+    '<div class="post-share"><span class="post-share-l">Share</span>'+
+      '<button class="post-sh" type="button" onclick="sharePost(\'copy\','+i+')">Copy link</button>'+
+      '<button class="post-sh" type="button" onclick="sharePost(\'wa\','+i+')">WhatsApp</button>'+
+      '<button class="post-sh" type="button" onclick="sharePost(\'li\','+i+')">LinkedIn</button>'+
+    '</div>'+moreHtml;
   showPage('post');
+}
+/* Share targets. There are no per-post URLs (the site is a single page with no routing), so
+   "copy link" shares the Insights page rather than pretending to deep-link. */
+function sharePost(how,i){
+  const p=(window.__POSTS||[])[i]; if(!p)return;
+  const url=location.origin+location.pathname;
+  const text=(p.title||'Rallys Equities insight')+' — Rallys Equities';
+  if(how==='copy'){
+    const done=()=>reToast('Link copied to your clipboard.');
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>reToast('Could not copy the link.','err'));
+    else reToast('Could not copy the link.','err');
+    return;
+  }
+  if(how==='wa')window.open('https://wa.me/?text='+encodeURIComponent(text+' '+url),'_blank','noopener');
+  if(how==='li')window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url),'_blank','noopener');
 }
 
 /* Cached overrides (instant apply, no flash) + live published fetch from Supabase */
@@ -3663,8 +4173,58 @@ window.RE_API={
 
 /* /admin (or ?edit=1) → load the visual editor (admin only; activates after login). Public bundle never references it. */
 if(new URLSearchParams(location.search).has('edit')||/^\/admin\/?$/.test(location.pathname)){
+  /* ── Boot narrator ──
+     Holds the branded preloader up and reports what is actually happening, so the
+     gap between "page loaded" and "admin ready" is a considered moment instead of a
+     confusing flash of the public homepage. Every stage below is fired by a real
+     event; `finish` is idempotent and a hard cap guarantees nobody is ever trapped
+     behind the overlay if a request stalls. */
+  const RB=window.RE_BOOT={
+    held:true, over:false, t0:Date.now(), msg:'', sw:0,
+    stage(msg,pct){
+      if(this.over)return;          // once we're closing, nothing may re-narrate backwards
+      const pre=document.getElementById('preloader'), st=document.getElementById('plStatus'), bar=document.getElementById('plBar');
+      if(!pre)return;
+      pre.classList.add('pl-admin');
+      const sub=document.getElementById('plSub'); if(sub)sub.textContent='Website Admin';
+      if(bar)bar.classList.add('det');
+      /* Fade the old line out before swapping, and let the newest message win if
+         several stages land in the same breath (they do, on a fast connection) —
+         otherwise the queued swaps fight and none of them ever render. */
+      this.msg=msg;
+      if(st&&st.textContent!==msg){
+        if(st.textContent){ st.classList.remove('in'); clearTimeout(this.sw);
+          this.sw=setTimeout(()=>{ st.textContent=RB.msg; st.classList.add('in'); },200); }
+        else { st.textContent=msg; requestAnimationFrame(()=>st.classList.add('in')); }
+      }
+      const fill=bar&&bar.firstElementChild; if(fill)fill.style.width=Math.max(0,Math.min(100,pct))+'%';
+    },
+    finish(){
+      if(this.over)return; this.over=true;
+      const bar=document.getElementById('plBar'), fill=bar&&bar.firstElementChild, st=document.getElementById('plStatus');
+      if(fill)fill.style.width='100%';           // complete the bar straight away
+      /* A curtain that vanishes in 40ms reads as a glitch. Hold a floor so the reveal
+         is deliberate — on a fast connection the admin is ready long before this. */
+      const MIN=1000, wait=Math.max(0,MIN-(Date.now()-this.t0));
+      setTimeout(()=>{
+        if(st)st.classList.remove('in');
+        this.held=false;                          // only now may the curtain lift
+        setTimeout(()=>{ if(window.RE_HIDE_PRE)window.RE_HIDE_PRE(); },260);
+      },wait);
+    }
+  };
+  RB.stage('Preparing your workspace',16);
+  setTimeout(()=>RB.finish(),14000);   // hard cap: never trap the visitor behind the overlay
+
   const link=document.createElement('link'); link.rel='stylesheet'; link.href='editor.css'; document.head.appendChild(link);
-  let edLoaded=false; const loadEditor=()=>{ if(edLoaded)return; edLoaded=true; const s=document.createElement('script'); s.src='editor.js'; document.body.appendChild(s); };
+  /* No `onload` stage here: the script's load event fires after its own body has run,
+     so on a fast connection it lands *after* editor.js has already reported a later
+     stage — narrating backwards. editor.js announces its own progress instead. */
+  let edLoaded=false; const loadEditor=()=>{ if(edLoaded)return; edLoaded=true;
+    RB.stage('Loading the editor',44);
+    const s=document.createElement('script'); s.src='editor.js';
+    s.onerror=()=>RB.finish();    // editor bundle unreachable → drop the curtain now, don't wait out the cap
+    document.body.appendChild(s); };
   if(window.RE_SUPABASE_READY){ const sb=document.createElement('script'); sb.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sb.onload=loadEditor; sb.onerror=loadEditor; document.body.appendChild(sb);
     setTimeout(loadEditor,8000); }   // if the CDN stalls, load the editor anyway so the login still appears
   else loadEditor();
@@ -3697,9 +4257,13 @@ document.getElementById('nav-home')?.classList.add('active');
   const pre=document.getElementById('preloader');
   const t0=performance.now();
   function hidePre(){ if(!pre||pre.classList.contains('done'))return;
+    /* On /admin the boot narrator owns the curtain — it lifts once the admin is
+       actually on screen, not when the public page happens to finish loading. */
+    if(window.RE_BOOT&&window.RE_BOOT.held)return;
     const wait=Math.max(0,650-(performance.now()-t0));
     setTimeout(()=>{pre.classList.add('done');startReveals();},wait);
   }
+  window.RE_HIDE_PRE=hidePre;
   addEventListener('load',hidePre);
   setTimeout(hidePre,2400);
   function startReveals(){ // nudge the first viewport's reveals in after intro

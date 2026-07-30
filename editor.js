@@ -17,6 +17,9 @@ const INVITE_FLOW = /type=(invite|recovery)/.test(location.hash + location.searc
    Falls back to the current origin for local/preview testing. */
 const CANON_ORIGIN = /rallysequities\.com$/.test(location.hostname) ? location.origin : 'https://www.rallysequities.com';
 const INVITE_REDIRECT = CANON_ORIGIN + '/set-password';
+/* The boot narrator lives in index.html (it has to exist before this file loads).
+   No-op shim so the editor still runs if it's ever loaded without one. */
+const BOOT = window.RE_BOOT || {stage(){},finish(){}};
 
 /* ---------- tiny DOM helpers ---------- */
 const h=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.startsWith('on')&&typeof attrs[k]==='function')e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?'':c)));return e;};
@@ -58,20 +61,105 @@ const ICONS={
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   rotate:'<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
   flip:'<path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 20v2"/><path d="M12 14v2"/><path d="M12 8v2"/><path d="M12 2v2"/>',
-  eraser:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>'
+  eraser:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  circle:'<circle cx="12" cy="12" r="9"/>',
+  cloud:'<path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.78A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 5 19z"/><path d="m9 14 3-3 3 3"/><path d="M12 11v6"/>'
 };
 function icon(name,size){ size=size||20; return h('span',{class:'re-ic',html:'<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'}); }
 const iconBtn=(name,label,fn,cls)=>h('button',{class:'re-iconbtn'+(cls?' '+cls:''),type:'button','aria-label':label,title:label,onclick:fn},icon(name,16));
+/* ---------- brand mark ----------
+   Reuse the site's own logo node so the admin shows whatever logo is actually live
+   (the client can replace it from the Photos panel) and so the path is right whether
+   we're at /admin, /admin/, or a file:// preview. Height drives the size and the CSS
+   locks the real 140:99 aspect — the old fixed 48×48 was what squashed it. */
+function logoSrc(){
+  const el=document.querySelector('img[data-edit-img="brand.logo"],.lm-img img,.pl-logo img');
+  return (el&&el.getAttribute('src'))||'assets/img/logo.png';
+}
+function brandMark(o){ o=o||{};
+  const plate=h('span',{class:'re-brand-plate'},h('img',{class:'re-brand-logo',src:logoSrc(),alt:o.alt||'Rallys Equities',style:o.h?('height:'+o.h+'px'):null}));
+  if(!o.label)return h('span',{class:'re-brand'},plate);
+  return h('span',{class:'re-brand'},plate,h('span',{class:'re-brand-tx'},
+    h('span',{class:'re-brand-name'},'Rallys Equities'),
+    h('span',{class:'re-brand-sub'},o.label)));
+}
+/* One page header for every view: eyebrow · title · sub · optional actions. */
+function pageHead(eyebrow,title,sub,acts){
+  const tx=h('div',{class:'re-main-head-tx'},
+    eyebrow?h('div',{class:'re-eyebrow'},eyebrow):'',
+    h('h1',{},title),
+    sub?h('p',{},sub):'');
+  return h('div',{class:'re-main-head'},tx,acts&&acts.length?h('div',{class:'re-head-acts'},...acts):'');
+}
+/* Shaped placeholders while a fetch is in flight — an honest "this is loading". */
+const skelBar=w=>h('div',{class:'re-skel',style:'width:'+w});
+function skelRows(n,withAvatar){
+  const box=h('div',{class:'re-skel-rows'});
+  for(let i=0;i<(n||3);i++)box.append(h('div',{class:'re-skel-row'},
+    withAvatar?skelBar('34px'):'',
+    h('div',{style:'flex:1'},skelBar((52+((i*17)%34))+'%'))));
+  return box;
+}
+/* Initials for the avatar: "Sikandar Khan" → SK, else the email's first letters. */
+function initials(name,email){
+  const src=String(name||'').trim()||String(email||'').split('@')[0].replace(/[._-]+/g,' ');
+  const parts=src.split(/\s+/).filter(Boolean);
+  return ((parts[0]||'?')[0]+(parts.length>1?parts[parts.length-1][0]:'')).toUpperCase();
+}
+const dateLong=v=>{ const t=Date.parse(v||''); return t?new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—'; };
+const dateTime=v=>{ const t=Date.parse(v||''); return t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}):'—'; };
 /* Locked = live/dynamic widgets + the editor's own UI. Everything else (incl. nav labels & logo) is editable. */
 const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.ticker,.live-badge,.theme-toggle,#toTop,.wa-fab,.ham,.re-bar,.re-panel,.re-overlay,.re-fmt,.re-img-btn,.re-coach,.re-toast,.re-dash,.re-login,.cnt';
 function toast(msg,type){
-  let t=$('.re-toast'); if(!t){t=h('div',{class:'re-toast'});document.body.append(t);}
+  let t=$('.re-toast'); if(!t){t=h('div',{class:'re-toast',role:'status','aria-live':'polite'});document.body.append(t);}
   t.className='re-toast '+(type==='err'?'err':'ok');
   t.replaceChildren(icon(type==='err'?'alert':'check',15),h('span',{},msg));
   requestAnimationFrame(()=>t.classList.add('show'));
   clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2400);
 }
 const debounce=(fn,ms=120)=>{let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms);};};
+
+/* ════════ LOADING ════════ */
+/* The curtain — only for actions that take real seconds AND must not be interrupted
+   (publishing, a reset that reloads the page). Deliberately scarce: a modal that
+   appears for a 200ms save is worse than no feedback at all. */
+function reBusy(title,sub){
+  const d=h('div',{class:'re-busy-d'},sub||'');
+  const card=h('div',{class:'re-busy-card',role:'status','aria-live':'polite'},
+    h('div',{class:'re-busy-stage','aria-hidden':'true'},
+      h('span',{class:'re-busy-ring'}),
+      h('span',{class:'re-busy-ring re-busy-ring2'}),
+      h('span',{class:'re-busy-plate'},brandMark({h:34}))),
+    h('div',{class:'re-busy-t'},title||'Working…'),
+    d,
+    h('div',{class:'re-busy-bar','aria-hidden':'true'},h('i',{})));
+  const wrap=h('div',{class:'re-busy re-ui','aria-busy':'true'},card);
+  /* swallow stray clicks and Escape so a long write can't be half-interrupted */
+  const eat=e=>{ e.stopPropagation(); e.preventDefault(); };
+  wrap.addEventListener('click',eat);
+  const key=e=>{ if(e.key==='Escape')eat(e); };
+  document.addEventListener('keydown',key,true);
+  document.body.append(wrap);
+  requestAnimationFrame(()=>wrap.classList.add('in'));
+  let closed=false;
+  return {
+    update(t){ if(!closed)d.textContent=t||''; },
+    close(){ if(closed)return; closed=true; document.removeEventListener('keydown',key,true);
+      wrap.classList.remove('in'); setTimeout(()=>wrap.remove(),340); }
+  };
+}
+/* A gold arc inside the button you just pressed — the right weight for everything
+   short. Returns a restore fn that puts the original label back. */
+function btnBusy(btn,label){
+  if(!btn||btn._busy)return function(){};
+  btn._busy=true;
+  const prev=[...btn.childNodes], wasDisabled=btn.disabled;
+  btn.disabled=true;
+  btn.replaceChildren(h('span',{class:'re-spin','aria-hidden':'true'}),h('span',{},label||'Working…'));
+  return function(){ btn._busy=false; btn.disabled=wasDisabled; btn.replaceChildren(...prev); };
+}
 
 /* ---------- modal system (one factory; ESC + backdrop close, dialog a11y) ---------- */
 function reModal(o){
@@ -84,9 +172,24 @@ function reModal(o){
   (o.body||[]).forEach(n=>card.append(n));
   if(o.foot&&o.foot.length)card.append(h('div',{class:'re-modal-foot'},...o.foot));
   const overlay=h('div',{class:'re-overlay re-ui',onclick:e=>{ if(e.target===overlay&&o.dismissible!==false)close(); }},card);
-  const key=e=>{ if(e.key==='Escape'&&o.dismissible!==false){ e.stopPropagation(); close(); } };
+  /* Keep Tab inside the dialog and hand focus back where it came from on close —
+     otherwise keyboard users land back at the top of the page after every prompt. */
+  const prevFocus=document.activeElement;
+  const focusables=()=>[...card.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])')]
+    .filter(n=>!n.disabled&&n.getClientRects().length);
+  const key=e=>{
+    if(e.key==='Escape'&&o.dismissible!==false){ e.stopPropagation(); close(); return; }
+    if(e.key!=='Tab')return;
+    const f=focusables(); if(!f.length)return;
+    const first=f[0],last=f[f.length-1];
+    if(!card.contains(document.activeElement)){ e.preventDefault(); (e.shiftKey?last:first).focus(); }
+    else if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+  };
   let closed=false;
-  function close(){ if(closed)return; closed=true; document.removeEventListener('keydown',key,true); overlay.remove(); o.onClose&&o.onClose(); }
+  function close(){ if(closed)return; closed=true; document.removeEventListener('keydown',key,true); overlay.remove();
+    try{ prevFocus&&prevFocus.focus&&prevFocus.focus(); }catch(e){}
+    o.onClose&&o.onClose(); }
   document.addEventListener('keydown',key,true);
   document.body.append(overlay);
   return {overlay,card,close};
@@ -148,6 +251,8 @@ function localStore(){
     login(v){ if(!v.pass||!v.pass.trim())return Promise.reject(new Error('Enter a passphrase')); sessionStorage.setItem('re-auth','1'); return Promise.resolve(true); },
     logout(){ sessionStorage.removeItem('re-auth'); },
     changePassword(){ return Promise.reject(new Error('Password change works on the live site once you’re signed in.')); },
+    verifyPassword(){ return Promise.resolve(true); },   // no real account in local preview
+    resetPassword(){ return Promise.reject(new Error('Password reset works on the live site.')); },
     inviteEditor(){ return Promise.reject(new Error('Inviting editors works on the live site.')); },
     revokeInvite(){ return Promise.reject(new Error('Works on the live site.')); },
     myRole(){ return Promise.resolve({owner:true}); },
@@ -155,7 +260,7 @@ function localStore(){
     subscribeInvites(){ return function(){}; },
     reconcileInvites(){ return Promise.resolve({reconciled:0}); },
     removeEditor(){ return Promise.reject(new Error('Removing editors works on the live site.')); },
-    getProfile(){ return Promise.resolve({email:'you@rallysequities.com',name:''}); },
+    getProfile(){ return Promise.resolve({email:'you@rallysequities.com',name:'',created_at:'',last_sign_in_at:''}); },
     saveProfileName(){ return Promise.resolve(); },
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
@@ -175,6 +280,24 @@ function supabaseStore(){
     async login(v){const{error}=await sb.auth.signInWithPassword({email:(v.email||'').trim(),password:v.pass||''});if(error)throw new Error(error.message);return true;},
     async logout(){await sb.auth.signOut();},
     async changePassword(pw){const{error}=await sb.auth.updateUser({password:pw});if(error)throw new Error(error.message);},
+    /* Supabase lets a signed-in user change their password without proving the old one.
+       That's a real hazard on a shared office machine, so we re-authenticate first:
+       signInWithPassword against the same account both checks the old password and
+       refreshes the session. A wrong password leaves the current session untouched. */
+    async verifyPassword(pw){
+      const{data:{user}}=await sb.auth.getUser();
+      const email=(user&&user.email)||'';
+      if(!email)throw new Error('Your session expired — please log in again.');
+      const{error}=await sb.auth.signInWithPassword({email,password:pw});
+      if(error)throw new Error('That current password isn’t right.');
+      return true;
+    },
+    /* Forgot-password: sends Supabase's recovery link, which lands on the same
+       /set-password screen the invite uses (it handles type=recovery too). */
+    async resetPassword(email,redirectTo){
+      const{error}=await sb.auth.resetPasswordForEmail(String(email||'').trim(),{redirectTo:redirectTo||INVITE_REDIRECT});
+      if(error)throw new Error(error.message);
+    },
     async _fn(bodyObj){
       const{data:{session}}=await sb.auth.getSession();
       if(!session)throw new Error('Your session expired — please log in again.');
@@ -194,7 +317,9 @@ function supabaseStore(){
     subscribeInvites(cb){ try{ const ch=sb.channel('re-invites-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'invites'},()=>{ try{cb();}catch(e){} }).subscribe(); return ()=>{ try{sb.removeChannel(ch);}catch(e){} }; }catch(e){ return function(){}; } },
     async reconcileInvites(){ return await this._fn({action:'reconcile'}); },
     async removeEditor(inv){ return await this._fn({action:'remove',id:inv&&inv.id,email:inv&&inv.email}); },
-    async getProfile(){ const{data:{user}}=await sb.auth.getUser(); const md=(user&&user.user_metadata)||{}; return {email:(user&&user.email)||'',name:md.name||md.full_name||''}; },
+    async getProfile(){ const{data:{user}}=await sb.auth.getUser(); const md=(user&&user.user_metadata)||{};
+      return {email:(user&&user.email)||'',name:md.name||md.full_name||'',
+              created_at:(user&&user.created_at)||'',last_sign_in_at:(user&&user.last_sign_in_at)||''}; },
     async saveProfileName(name){ const{error}=await sb.auth.updateUser({data:{name}}); if(error)throw new Error(error.message); },
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
@@ -224,14 +349,31 @@ function showLogin(){
     Store.login(v).then(()=>{ wrap.remove(); onAuthed(); })
       .catch(e=>{ err.textContent=e.message||'Login failed'; btn.disabled=false; btn.textContent=isSb?'Sign in':'Enter editor'; });
   }
+  /* Forgot password: without this an editor who forgets their password has no way
+     back in except asking the owner for a whole new invite. */
+  function forgot(){
+    const typed=(inputs.email&&inputs.email.value||'').trim();
+    rePrompt('We’ll email you a link to set a new password.',{title:'Reset your password',placeholder:'you@email.com',value:typed,okLabel:'Send reset link'})
+      .then(email=>{
+        if(!email)return;
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('That doesn’t look like an email address','err'); return; }
+        Promise.resolve(Store.resetPassword(email)).then(()=>toast('Reset link sent to '+email))
+          .catch(e=>toast(e.message||'Could not send the reset link','err'));
+      });
+  }
   const wrap=h('div',{class:'re-login re-ui'},
-    h('div',{class:'re-login-card'},
-      h('div',{class:'re-login-mark','aria-hidden':'true'},'RE'),
-      h('h1',{class:'re-login-brand'},'Rallys Equities'),
-      h('div',{class:'re-login-sub'},'Admin portal'),
-      isSb?'':h('div',{class:'re-note'},icon('alert',15),h('span',{},'Local preview — Supabase isn’t connected. Any passphrase works; changes save to this browser only.')),
-      ...fields, err, btn,
-      isSb?h('p',{class:'re-login-hint'},'Trouble signing in? Ask the site owner for a fresh invite link.'):''));
+    h('div',{},
+      h('div',{class:'re-login-card'},
+        h('div',{class:'re-login-rule'}),h('div',{class:'re-login-rule'}),
+        h('div',{class:'re-login-body'},
+          h('div',{class:'re-login-mark'},brandMark({h:44})),
+          h('h1',{class:'re-login-brand'},'Rallys Equities'),
+          h('div',{class:'re-login-sub'},'Website Admin'),
+          isSb?'':h('div',{class:'re-note'},icon('alert',15),h('span',{},'Local preview — Supabase isn’t connected. Any passphrase works; changes save to this browser only.')),
+          ...fields, err, btn,
+          isSb?h('div',{class:'re-login-foot'},h('button',{class:'re-linkbtn',type:'button',onclick:forgot},'Forgot your password?')):'',
+          isSb?h('p',{class:'re-login-hint'},'No account yet? Ask the site owner to send you an invite.'):'')),
+      h('div',{class:'re-login-cap'},'SECP-licensed brokerage · PSX TREC holder')));
   document.body.append(wrap);
   setTimeout(()=>{const i=$('input',wrap);i&&i.focus();},50);
 }
@@ -264,19 +406,75 @@ function migrateHidden(hidden){ hidden=hidden||{};
   return hidden;
 }
 function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:migrateHidden(d.hidden||{}),order:d.order||{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
-function doLogout(){ Promise.resolve(Store.logout()).then(()=>location.search=location.search.replace(/[?&]edit=1/,'')||''); }
+function doLogout(){
+  const busy=reBusy('Signing out','Closing your session on this device…');
+  Promise.resolve(Store.logout())
+    .then(()=>{ location.search=location.search.replace(/[?&]edit=1/,'')||''; })
+    .catch(e=>{ busy.close(); toast(e.message||'Could not sign out','err'); });
+}
 
 /* ════════ DASHBOARD APP (fullscreen: sidebar + views) ════════ */
 let dashEl,dashMain,dashView='overview',blogEditId=null,viewTeardown=null;
 function teardownView(){ if(viewTeardown){ try{viewTeardown();}catch(e){} viewTeardown=null; } }
 
+/* ── who's signed in ──
+   Loaded once and shared by the sidebar and the Profile page, so opening Profile
+   doesn't re-fetch what the chrome already knows. `owner` defaults to true if the
+   role check fails, matching the server's fail-open behaviour. */
+let ME={email:'',name:'',owner:true,owners:[],created_at:'',last_sign_in_at:''},mePromise=null;
+function loadMe(force){
+  if(mePromise&&!force)return mePromise;
+  mePromise=Promise.all([
+    Store.getProfile?Promise.resolve(Store.getProfile()).catch(()=>({})):Promise.resolve({}),
+    Store.myRole?Promise.resolve(Store.myRole()).catch(()=>({})):Promise.resolve({})
+  ]).then(([p,r])=>{
+    ME=Object.assign({},ME,p||{},{owner:!(r&&r.owner===false),owners:(r&&r.owners)||[]});
+    paintMe(); return ME;
+  });
+  return mePromise;
+}
+let sideEls={};
+function paintMe(){
+  if(!sideEls.meName)return;
+  const known=!!(ME.name||ME.email);
+  /* Until the identity lands, show its shape — not the word "Loading…" sitting where
+     a person's name belongs. */
+  sideEls.meName.textContent=known?(ME.name||ME.email):'';
+  sideEls.meRole.textContent=known?(ME.owner?'Owner':'Editor'):'';
+  sideEls.meName.classList.toggle('re-skel',!known);
+  sideEls.meRole.classList.toggle('re-skel',!known);
+  sideEls.meAv.textContent=known?initials(ME.name,ME.email):'';
+  sideEls.meAv.classList.toggle('re-load',!known);
+  sideEls.meAv.classList.toggle('ed',known&&!ME.owner);
+  sideEls.me.title=ME.email||'';
+}
+/* The one fact you should never have to hunt for: is the website up to date? */
+function updateSideStatus(){
+  if(!sideEls.statusT)return;
+  const n=dirty.size;
+  const waiting=(WORK.posts||[]).filter(p=>postState(p).act).length;
+  const pending=n||waiting;
+  sideEls.status.classList.toggle('warn',!!pending);
+  sideEls.statusIc.replaceChildren(icon(pending?'clock':'check',15));
+  sideEls.statusT.textContent=n?(n+' unsaved change'+(n===1?'':'s'))
+    :waiting?(waiting+' post'+(waiting===1?'':'s')+' to publish')
+    :'Website up to date';
+  sideEls.statusD.textContent=pending?'Not live until you publish':'Everything is published';
+}
 function ensureDash(){
   if(dashEl)return;
   const navItem=(id,ic,label,fn)=>h('button',{class:'re-nav-item','data-nav':id||'',onclick:fn}, icon(ic,18), h('span',{class:'re-nav-lbl'},label));
+  sideEls.statusIc=h('span',{},icon('check',15));
+  sideEls.statusT=h('span',{class:'re-side-status-t'},'Website up to date');
+  sideEls.statusD=h('span',{class:'re-side-status-d'},'Everything is published');
+  sideEls.status=h('button',{class:'re-side-status',type:'button',title:'Publishing state — opens Settings',onclick:()=>go('settings')},
+    sideEls.statusIc,h('span',{class:'re-side-status-tx'},sideEls.statusT,sideEls.statusD));
+  sideEls.meAv=h('span',{class:'re-avatar re-load','aria-hidden':'true'});
+  sideEls.meName=h('span',{class:'re-side-me-n re-skel'});
+  sideEls.meRole=h('span',{class:'re-side-me-r re-skel'});
+  sideEls.me=h('div',{class:'re-side-me'},sideEls.meAv,h('span',{class:'re-side-me-tx'},sideEls.meName,sideEls.meRole));
   const side=h('aside',{class:'re-side'},
-    h('div',{class:'re-side-brand'},
-      h('div',{class:'re-side-logo'},'Rallys Equities'),
-      h('div',{class:'re-side-sub'},'Admin')),
+    h('div',{class:'re-side-brand'},brandMark({label:'Website Admin'})),
     h('nav',{class:'re-side-nav','aria-label':'Admin navigation'},
       navItem('overview','grid','Dashboard',()=>go('overview')),
       navItem('blog','post','Blog Posts',()=>{ blogEditId=null; go('blog'); }),
@@ -286,12 +484,14 @@ function ensureDash(){
       navItem('','sliders','Site settings',()=>enterStudio({edit:false,panel:'site'})),
       navItem('','external','View live site',()=>window.open(location.origin+'/','_blank'))),
     h('div',{class:'re-side-foot'},
+      sideEls.status, sideEls.me,
       navItem('profile','user','Profile',()=>go('profile')),
       navItem('settings','gear','Settings',()=>go('settings')),
       navItem('','logout','Log out',doLogout)));
   dashMain=h('div',{class:'re-main-inner'});
   dashEl=h('div',{class:'re-dash re-ui'},side,h('main',{class:'re-main'},dashMain));
   document.body.append(dashEl);
+  paintMe(); updateSideStatus(); loadMe();
 }
 function go(view){ dashView=view; setActiveNav(); renderMain(); dashEl.querySelector('.re-main').scrollTop=0; }
 function setActiveNav(){ dashEl&&dashEl.querySelectorAll('.re-nav-item[data-nav]').forEach(b=>{const on=b.getAttribute('data-nav')===dashView;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}); }
@@ -302,37 +502,95 @@ function openDashboard(){
 }
 function closeDashboard(){ teardownView(); if(dashEl)dashEl.style.display='none'; document.body.classList.remove('re-dash-open'); }
 function dashVisible(){ return dashEl&&dashEl.style.display!=='none'; }
-function emptyState(msg,ic){ return h('div',{class:'re-empty'},icon(ic||'post',30),h('p',{},msg)); }
+function emptyState(msg,ic,cta){ return h('div',{class:'re-empty'},icon(ic||'post',30),h('p',{},msg),cta||''); }
 
-function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile}[dashView]||renderOverview)(); }
+/* Everything a view actually reads. Redrawing is cheap but *visible* — the page
+   repaints — so a background fetch that changes nothing shouldn't cause one. */
+function viewSig(){
+  return JSON.stringify([dashView,dirty.size,
+    (WORK.posts||[]).map(postSig),(LIVE.posts||[]).map(postSig),
+    Object.keys(WORK.hidden||{}).length]);
+}
+let lastViewSig='';
+function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; updateSideStatus(); lastViewSig=viewSig();
+  ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile}[dashView]||renderOverview)(); }
 /* Background refresh (a fetch landed, a save finished): never redraw over a half-written
    post — the post form is the one view with unsaved input in the DOM. */
-function softRefresh(){ if(blogEditId)return; renderMain(); }
-/* ── Profile — the signed-in user's own account (email, role, display name, password) ── */
+function softRefresh(){
+  if(blogEditId)return;
+  /* Also never redraw over a field someone is typing into — the profile's name box
+     and the invite email box would both lose their input mid-keystroke. */
+  const a=document.activeElement;
+  if(a&&dashMain&&dashMain.contains(a)&&/^(INPUT|TEXTAREA)$/.test(a.tagName))return;
+  /* Boot fires this twice (draft, then the published snapshot) and most saves fire it
+     again with identical content — without this guard each one visibly repaints. */
+  if(viewSig()===lastViewSig){ updateSideStatus(); return; }
+  renderMain();
+}
+/* ── Profile — the signed-in user's own account ──
+   Identity first (who you are, what you can do, since when), then the two things
+   you can actually change here: your display name and your password. */
+const setRow=(title,desc,ctl)=>h('div',{class:'re-setrow'},
+  h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),desc?h('div',{class:'re-setrow-d'},desc):''),ctl);
 function renderProfile(){
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Profile'),h('p',{},'Your account details.')));
-  const card=h('div',{class:'re-card re-set-card'}); dashMain.append(card);
-  card.append(h('div',{class:'re-inv-empty'},'Loading…'));
-  const row=(title,desc,ctl)=>h('div',{class:'re-setrow'},h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),desc?h('div',{class:'re-setrow-d'},desc):''),ctl);
-  Promise.all([
-    Store.getProfile?Promise.resolve(Store.getProfile()):Promise.resolve({email:'',name:''}),
-    Store.myRole?Promise.resolve(Store.myRole()):Promise.resolve({owner:true})
-  ]).then(([prof,role])=>{
-    prof=prof||{}; role=role||{};
-    card.innerHTML='';
-    card.append(h('div',{class:'re-set-h'},'Account'));
-    card.append(row('Email','The address you sign in with.',h('span',{class:'re-profile-email'},prof.email||'—')));
-    card.append(row('Role','',h('span',{class:'re-badge '+(role.owner?'re-inv-accepted':'re-inv-pending')},role.owner?'Owner':'Editor')));
-    const nameInp=h('input',{class:'re-input',value:prof.name||'',placeholder:'e.g. Sikandar Khan',style:'max-width:220px','aria-label':'Display name'});
-    const saveName=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
-      saveName.disabled=true; saveName.textContent='Saving…';
-      Promise.resolve(Store.saveProfileName(nameInp.value.trim())).then(()=>toast('Name saved'))
-        .catch(x=>toast(x.message||'Could not save','err')).then(()=>{ saveName.disabled=false; saveName.textContent='Save'; });
+  dashMain.append(pageHead('Your account','Profile','How you sign in and how your name appears to other editors.'));
+  const hero=h('div',{class:'re-prof-hero'},
+    h('div',{class:'re-avatar re-avatar-lg re-skel',style:'border-radius:18px'}),
+    h('div',{class:'re-prof-id'},skelBar('40%'),h('div',{style:'height:9px'}),skelBar('62%')));
+  const card=h('div',{class:'re-card re-set-card'},h('div',{class:'re-set-h'},icon('user',17),'Details'),skelRows(3));
+  const sec=h('div',{class:'re-card re-set-card'},h('div',{class:'re-set-h'},icon('shield',17),'Sign-in & security'),skelRows(2));
+  dashMain.append(hero,card,sec);
+
+  loadMe(true).then(()=>{
+    const owner=!!ME.owner;
+    /* hero */
+    hero.replaceChildren(
+      h('div',{class:'re-avatar re-avatar-lg'+(owner?'':' ed'),'aria-hidden':'true'},initials(ME.name,ME.email)),
+      h('div',{class:'re-prof-id'},
+        h('div',{class:'re-prof-name'},ME.name||(ME.email||'').split('@')[0]||'Your account'),
+        h('div',{class:'re-prof-mail'},ME.email||'—'),
+        h('div',{class:'re-prof-tags'},
+          h('span',{class:'re-badge '+(owner?'re-inv-accepted':'re-inv-pending')},owner?'Owner':'Editor'),
+          h('span',{class:'re-badge'},'Full site access'))));
+
+    /* details: display name, email, role — each says what it's for */
+    let saved=ME.name||'';
+    const nameInp=h('input',{class:'re-input',value:saved,placeholder:'e.g. James Smith',style:'max-width:230px','aria-label':'Display name'});
+    const saveName=h('button',{class:'re-btn re-btn-pri re-btn-sm',disabled:'disabled',onclick:()=>{
+      const v=nameInp.value.trim(), restore=btnBusy(saveName,'Saving…');
+      Promise.resolve(Store.saveProfileName(v)).then(()=>{
+        saved=v; ME.name=v; paintMe(); toast('Name saved');
+        restore(); sync();                                  // sync re-disables it: nothing left to save
+      }).catch(x=>{ toast(x.message||'Could not save your name','err'); restore(); });
     }},'Save');
-    nameInp.addEventListener('keydown',e=>{ if(e.key==='Enter')saveName.click(); });
-    card.append(row('Display name','A friendly name for your account.',h('div',{style:'display:flex;gap:8px;align-items:center'},nameInp,saveName)));
-    card.append(row('Password','Change the password you use to sign in.',h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>openChangePassword()},'Change password')));
-  }).catch(()=>{ card.innerHTML=''; card.append(h('p',{class:'re-set-note',style:'margin:0'},'Couldn’t load your profile just now.')); });
+    const sync=()=>{ saveName.disabled=(nameInp.value.trim()===saved); };
+    nameInp.addEventListener('input',sync);
+    nameInp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!saveName.disabled)saveName.click(); });
+    card.replaceChildren(h('div',{class:'re-set-h'},icon('user',17),'Details'),
+      setRow('Display name','Shown instead of your email across the admin.',
+        h('div',{class:'re-inline-ctl'},nameInp,saveName)),
+      setRow('Email address','The address you sign in with. Ask the site owner if it needs to change.',
+        h('span',{class:'re-profile-email'},ME.email||'—')),
+      setRow('Role',owner?'You can invite and remove editors, and change anything on the site.'
+                        :'You can edit and publish the site. Only the owner manages editors.',
+        h('span',{class:'re-badge '+(owner?'re-inv-accepted':'re-inv-pending')},owner?'Owner':'Editor')));
+
+    /* security */
+    const facts=h('div',{class:'re-facts'},
+      h('div',{class:'re-fact'},h('div',{class:'re-fact-l'},'Editor since'),h('div',{class:'re-fact-v'},dateLong(ME.created_at))),
+      h('div',{class:'re-fact'},h('div',{class:'re-fact-l'},'Last sign-in'),h('div',{class:'re-fact-v'},dateTime(ME.last_sign_in_at))));
+    sec.replaceChildren(h('div',{class:'re-set-h'},icon('shield',17),'Sign-in & security'),
+      setRow('Password','Pick a new password for this account. You’ll need your current one.',
+        h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>openChangePassword()},icon('key',14),'Change password')),
+      setRow('This device','Sign out of the admin on this browser.',
+        h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
+          reConfirm('You’ll need your email and password to get back in.',{title:'Log out?',okLabel:'Log out'}).then(ok=>{ if(ok)doLogout(); });
+        }},icon('logout',14),'Log out')),
+      facts);
+  }).catch(()=>{
+    hero.replaceChildren(h('p',{class:'re-set-note',style:'margin:0'},'Couldn’t load your profile just now — check your connection and try again.'));
+    card.remove(); sec.remove();
+  });
 }
 
 /* ── Overview ── */
@@ -348,7 +606,8 @@ function renderOverview(){
   const waiting=states.filter(s=>s.act).length;
   const pagesAll=[...document.querySelectorAll('.page')].filter(p=>p.id!=='page-post').length;
   const pagesHidden=Object.keys(WORK.hidden||{}).filter(k=>k.indexOf('page:')===0).length;
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Dashboard'),h('p',{},'Your website at a glance.')));
+  dashMain.append(pageHead('Website overview','Dashboard','What’s on your website right now, and what’s still waiting.',
+    [h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>window.open(location.origin+'/','_blank')},icon('external',14),'View live site')]));
   if(dirty.size||waiting)dashMain.append(h('div',{class:'re-banner'},
     icon('alert',18),
     h('span',{class:'re-banner-tx'},h('b',{},waiting&&!dirty.size?(waiting+' post'+(waiting===1?'':'s')+' not on the website yet')
@@ -380,7 +639,7 @@ function renderOverview(){
 /* ── Editors (invite by email via Resend; the shareable link stays as a fallback) ── */
 function inviteStatus(inv){ if(inv.accepted_at)return'Accepted'; if(inv.expires_at&&new Date(inv.expires_at)<=new Date())return'Expired'; return'Pending'; }
 function renderEditors(){
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Editors'),h('p',{},'Manage who can edit the Rallys Equities website.')));
+  dashMain.append(pageHead('Team access','Editors','Invite a teammate by email, or remove someone who no longer needs access.'));
   const err=h('div',{class:'re-err',role:'alert'});
   const em=h('input',{class:'re-input',type:'email',placeholder:'teammate@gmail.com','aria-label':'Teammate email'});
   const btn=h('button',{class:'re-btn re-btn-pri',onclick:()=>create()},'Send invite');
@@ -407,37 +666,52 @@ function renderEditors(){
   };
   function create(){ err.textContent=''; const e=(em.value||'').trim();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Enter a valid email address.'; return; }
-    btn.disabled=true; btn.textContent='Sending…';
-    Promise.resolve(Store.inviteEditor(e)).then(r=>{ btn.disabled=false; btn.textContent='Send invite'; em.value='';
+    const restore=btnBusy(btn,'Sending…');
+    Promise.resolve(Store.inviteEditor(e)).then(r=>{ restore(); em.value='';
       if(r&&r.link)showLink(r.link,e,r);
-      toast(r&&r.emailed?('Invite emailed to '+e):'Invite created — share the link', r&&r.emailed?undefined:'err'); loadList(false); })
-      .catch(x=>{ err.textContent=x.message||'Could not create invite.'; btn.disabled=false; btn.textContent='Send invite'; });
+      toast(r&&r.emailed?('Invite emailed to '+e):'Invite created — share the link', r&&r.emailed?undefined:'err'); loadList(false,true); })
+      .catch(x=>{ err.textContent=x.message||'Could not create invite.'; restore(); });
   }
   em.addEventListener('keydown',e=>{ if(e.key==='Enter')create(); });
-  /* readOnly → viewers (non-owners) see the roster but no Resend/Revoke controls */
-  function loadList(readOnly){ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Loading…'));
-    Promise.resolve(Store.listInvites()).then(rows=>{ listWrap.innerHTML='';
+  /* readOnly → viewers (non-owners) see the roster but no Resend/Revoke controls.
+     quiet → a background refresh (the fallback poll, realtime, or a just-completed
+     action): no skeletons, and the DOM is left completely alone unless the data
+     actually changed. Without this the poll tore the list down and re-shimmered it
+     every 15 seconds, which reads as the page reloading by itself. */
+  let listSig='';
+  function loadList(readOnly,quiet){
+    if(!quiet){ listSig=''; listWrap.innerHTML=''; listWrap.append(skelRows(3,true)); }
+    Promise.resolve(Store.listInvites()).then(rows=>{
+      rows=rows||[];
+      const sig=JSON.stringify(rows.map(r=>[r.id,r.email,inviteStatus(r)]));
+      if(quiet&&sig===listSig)return;              // nothing changed → don't touch the DOM
+      listSig=sig;
+      listWrap.innerHTML='';
       if(!rows.length){ listWrap.append(h('div',{class:'re-inv-empty'},readOnly?'No editors yet.':'No invites yet.')); return; }
       rows.forEach(inv=>{ const st=inviteStatus(inv); const acts=[];
         if(!readOnly && st!=='Accepted'){
-          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false); }).catch(x=>{ toast(x.message,'err'); loadList(false); }); }},icon('refresh',12),'Resend'));
-          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
+          acts.push(h('button',{class:'re-inv-act',onclick:()=>{ Promise.resolve(Store.inviteEditor(inv.email)).then(r=>{ if(r&&r.link)showLink(r.link,inv.email,r); toast(r&&r.emailed?'New invite emailed':'New link ready',r&&r.emailed?undefined:'err'); loadList(false,true); }).catch(x=>{ toast(x.message,'err'); loadList(false,true); }); }},icon('refresh',12),'Resend'));
+          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Revoke the invite for '+inv.email+'? Their link will stop working.',{title:'Revoke invite?',okLabel:'Revoke',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.revokeInvite(inv.id)).then(()=>{ toast('Invite revoked'); loadList(false,true); }).catch(x=>toast(x.message,'err')); }); }},'Revoke'));
         } else if(!readOnly && st==='Accepted'){
-          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Remove '+inv.email+' as an editor? This deletes their login — they lose access immediately.',{title:'Remove editor?',okLabel:'Remove',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.removeEditor(inv)).then(()=>{ toast('Editor removed'); loadList(false); }).catch(x=>toast(x.message,'err')); }); }},icon('trash',12),'Remove'));
+          acts.push(h('button',{class:'re-inv-act re-inv-del',onclick:()=>{ reConfirm('Remove '+inv.email+' as an editor? This deletes their login — they lose access immediately.',{title:'Remove editor?',okLabel:'Remove',danger:true}).then(ok=>{ if(!ok)return; Promise.resolve(Store.removeEditor(inv)).then(()=>{ toast('Editor removed'); loadList(false,true); }).catch(x=>toast(x.message,'err')); }); }},icon('trash',12),'Remove'));
         }
         listWrap.append(h('div',{class:'re-inv-row'},
           h('span',{class:'re-inv-email',title:inv.email},inv.email),
           h('span',{class:'re-badge re-inv-'+st.toLowerCase()},st),
           h('span',{class:'re-inv-actions'},...acts)));
       });
-    }).catch(x=>{ listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load the list: '+x.message)); });
+    }).catch(x=>{
+      if(quiet)return;                             // a failed background poll must not wipe a good list
+      listWrap.innerHTML=''; listWrap.append(h('div',{class:'re-inv-empty'},'Couldn’t load the list: '+x.message));
+    });
   }
   const ownerUI=()=>{
-    dashMain.append(h('div',{class:'re-card'},
-      h('div',{class:'re-field'},h('label',{},'Their email'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
-    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Invites'),iconBtn('refresh','Refresh invites',()=>loadList(false))));
+    dashMain.append(h('div',{class:'re-card re-set-card'},
+      h('div',{class:'re-set-h'},icon('mail',17),'Invite an editor'),
+      h('p',{class:'re-set-note'},'They get a branded email with a one-time link to set their own password. It’s valid for about 24 hours.'),
+      h('div',{class:'re-field',style:'margin-top:14px'},h('label',{},'Their email address'),h('div',{class:'re-invrow'},em,btn)), err, linkBox));
+    dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'People with access'),iconBtn('refresh','Refresh invites',()=>loadList(false))));
     dashMain.append(listWrap);
-    dashMain.append(h('p',{class:'re-footnote'},''));
     loadList(false);
   };
   /* Non-owners: read-only roster — they can see who has access but can't change it.
@@ -458,21 +732,26 @@ function renderEditors(){
     dashMain.append(listWrap);
     loadList(true);
   };
-  const gate=h('div',{class:'re-inv-empty'},'Loading…'); dashMain.append(gate);
+  const gate=h('div',{class:'re-card'},skelBar('30%'),h('div',{style:'height:14px'}),skelRows(2,true)); dashMain.append(gate);
   Promise.resolve(Store.myRole?Store.myRole():{owner:true}).then(r=>{
     gate.remove();
     const ro=!!(r&&r.owner===false);
     if(ro){ viewerUI(r.owners||[]); }
     else { ownerUI();
       /* heal invites that were accepted before we tracked it (e.g. from the old site) */
-      if(Store.reconcileInvites)Promise.resolve(Store.reconcileInvites()).then(res=>{ if(res&&res.reconciled)loadList(false); }).catch(()=>{});
+      if(Store.reconcileInvites)Promise.resolve(Store.reconcileInvites()).then(res=>{ if(res&&res.reconciled)loadList(false,true); }).catch(()=>{});
     }
     /* Live: refresh the roster the instant an invite changes (e.g. someone accepts),
-       so the admin never has to reload. Realtime is the fast path; a slow poll is a fallback. */
-    const reload=()=>loadList(ro);
-    const unsub=Store.subscribeInvites?Store.subscribeInvites(reload):function(){};
-    const poll=setInterval(reload,15000);
-    viewTeardown=()=>{ try{unsub();}catch(e){} clearInterval(poll); };
+       so the admin never has to reload. Realtime is the fast path, so the poll is only
+       a fallback for when the realtime channel didn't connect — 15s was needlessly
+       aggressive, and polling a tab nobody is looking at is pure waste. Both paths are
+       quiet: they only redraw when something actually changed. */
+    const refresh=()=>loadList(ro,true);
+    const unsub=Store.subscribeInvites?Store.subscribeInvites(refresh):function(){};
+    const poll=setInterval(()=>{ if(!document.hidden)refresh(); },45000);
+    const onVis=()=>{ if(!document.hidden)refresh(); };   // catch up on return, without a flash
+    document.addEventListener('visibilitychange',onVis);
+    viewTeardown=()=>{ try{unsub();}catch(e){} clearInterval(poll); document.removeEventListener('visibilitychange',onVis); };
   }).catch(()=>{ gate.remove(); ownerUI(); });
 }
 
@@ -515,8 +794,9 @@ function renderPostList(){
   const states=posts.map(postState);
   const onSite=states.filter(s=>s.label==='Live'||s.label==='Edited').length;
   const waiting=states.filter(s=>s.act).length;
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Blog Posts'),
-    h('p',{},'Shown on the website’s “Insights” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+onSite+' on the website')));
+  dashMain.append(pageHead('Content','Blog Posts',
+    'Shown on the website’s “Insights” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+onSite+' on the website',
+    [h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ blogEditId='new'; renderMain(); }},icon('edit',14),'Write a new post')]));
   if(waiting||dirty.size)dashMain.append(h('div',{class:'re-banner'},
     icon('alert',18),
     h('span',{class:'re-banner-tx'},
@@ -524,10 +804,10 @@ function renderPostList(){
                      :(dirty.size+' unsaved change'+(dirty.size===1?'':'s'))),
       ' — publishing puts your whole draft live.'),
     h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish now')));
-  dashMain.append(h('div',{class:'re-blog-tools'},
-    h('button',{class:'re-btn re-btn-pri',onclick:()=>{ blogEditId='new'; renderMain(); }},'Write a new post')));
+  dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},posts.length?'All posts':'Your posts')));
   const list=h('div',{class:'re-sub-list'}); dashMain.append(list);
-  if(!posts.length){ list.append(emptyState('No posts yet — write your first market insight.')); return; }
+  if(!posts.length){ list.append(emptyState('No posts yet — write your first market insight.','post',
+    h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ blogEditId='new'; renderMain(); }},'Write a new post'))); return; }
   posts.forEach((p,i)=>list.append(postRow(p,states[i])));
 }
 function postRow(p,st){
@@ -560,13 +840,13 @@ function postRow(p,st){
 
 /* ── Settings — publishing, account, and reset-to-default options ── */
 function renderSettings(){
-  dashMain.append(h('div',{class:'re-main-head'},h('h1',{},'Settings'),h('p',{},'Publishing, your account, and reset options if things get messy.')));
-  const row=(title,desc,ctl)=>h('div',{class:'re-setrow'},h('div',{class:'re-setrow-tx'},h('div',{class:'re-setrow-t'},title),h('div',{class:'re-setrow-d'},desc)),ctl);
+  dashMain.append(pageHead('Admin','Settings','Publishing, your account, and a way back if a design change goes wrong.'));
+  const row=setRow;
   const n=dirty.size;
   const waiting=(WORK.posts||[]).filter(p=>postState(p).act).length;
   const nLive=(WORK.posts||[]).filter(p=>{ const lv=livePost(p.id); return lv&&lv.published!==false; }).length;
   dashMain.append(h('div',{class:'re-card re-set-card'},
-    h('div',{class:'re-set-h'},'Publishing'),
+    h('div',{class:'re-set-h'},icon('cloud',17),'Publishing'),
     row('Waiting to go live',
       n?(n+' unsaved change'+(n===1?'':'s')+' — drafts stay private until you publish.')
        :(waiting?(waiting+' blog post'+(waiting===1?'':'s')+' saved but not on the website yet.')
@@ -576,9 +856,11 @@ function renderSettings(){
         n?h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:discardAll},'Discard'):'',
         h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish')))));
   dashMain.append(h('div',{class:'re-card re-set-card'},
-    h('div',{class:'re-set-h'},'Account & admin'),
+    h('div',{class:'re-set-h'},icon('user',17),'Account & admin'),
+    row('Your profile','Your name, email, role, and sign-in details.',
+      h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>go('profile')},'Open profile')),
     row('Password','Change the password you use to sign in here.',
-      h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>openChangePassword()},'Change password')),
+      h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>openChangePassword()},icon('key',14),'Change password')),
     row('Welcome tips','Show the first-run tips again next time you open the editor.',
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{ localStorage.removeItem('re-coached'); toast('Tips will show next time you open the editor'); }},'Show tips again'))));
   /* Resets are saved to the draft and the page reloads, so the preview matches exactly.
@@ -586,8 +868,10 @@ function renderSettings(){
   const doReset=(what,desc,mut)=>{
     reConfirm(desc+' This updates your draft and reloads the editor — nothing goes live until you publish.',{title:'Reset '+what+'?',okLabel:'Reset'}).then(ok=>{ if(!ok)return;
       mut();
-      Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ toast('Reset saved — reloading…'); setTimeout(()=>location.reload(),500); })
-        .catch(e=>toast('Could not save the reset: '+e.message,'err'));
+      /* The curtain stays up through the reload, so the reset never looks like a crash. */
+      const busy=reBusy('Restoring',what.charAt(0).toUpperCase()+what.slice(1)+' — putting the original design back.');
+      Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ busy.update('Reloading the editor…'); setTimeout(()=>location.reload(),600); })
+        .catch(e=>{ busy.close(); toast('Could not save the reset: '+e.message,'err'); });
     });
   };
   const resets=[
@@ -598,12 +882,12 @@ function renderSettings(){
     ['layout & ordering','Dragged sections and elements return to their original positions.',()=>{ WORK.order={}; }],
   ];
   dashMain.append(h('div',{class:'re-card re-set-card re-set-gold'},
-    h('div',{class:'re-set-h'},'Reset to defaults'),
+    h('div',{class:'re-set-h'},icon('restore',17),'Reset to defaults'),
     h('p',{class:'re-set-note'},'Made a mess? Put any part of the design back the way it started.'),
     ...resets.map(([what,desc,mut])=>row(what.charAt(0).toUpperCase()+what.slice(1),desc,
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>doReset(what,desc,mut)},'Reset')))));
   dashMain.append(h('div',{class:'re-card re-set-card re-set-danger'},
-    h('div',{class:'re-set-h'},'Danger zone'),
+    h('div',{class:'re-set-h'},icon('alert',17),'Danger zone'),
     row('Delete all blog posts','Removes all '+(WORK.posts||[]).length+' posts.'+(nLive?(' '+nLive+' of them '+(nLive===1?'is':'are')+' on the website.'):''),
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
         reConfirm('Delete all '+(WORK.posts||[]).length+' blog posts?'+(nLive?(' The '+nLive+' on the website come off straight away.'+pendingEditsNote()):''),{title:'Delete all posts?',okLabel:'Delete all',danger:true}).then(ok=>{ if(!ok)return;
@@ -622,9 +906,9 @@ function renderPostEditor(){
   const p=isNew?{id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:'',excerpt:'',body:'',cover:'',date:new Date().toISOString().slice(0,10),published:false}
     :(WORK.posts||[]).find(x=>x.id===blogEditId);
   if(!p){ blogEditId=null; renderPostList(); return; }
-  dashMain.append(h('div',{class:'re-main-head'},
-    h('button',{class:'re-linkbtn',onclick:()=>{ blogEditId=null; renderMain(); }},'← All posts'),
-    h('h1',{},isNew?'New post':'Edit post')));
+  dashMain.append(h('button',{class:'re-linkbtn',style:'margin-bottom:10px',onclick:()=>{ blogEditId=null; renderMain(); }},'← All posts'));
+  dashMain.append(pageHead('Insights',isNew?'New post':'Edit post',
+    isNew?'Write it here — nothing is public until you publish.':'Changes stay in your draft until you publish.'));
   /* Where this post stands right now — stated, not toggled. The buttons at the
      bottom are what changes it, so there's only ever one way to publish. */
   const st=isNew?{label:'Draft',cls:'',hint:'Nothing is published until you press “Publish”.'}:postState(p);
@@ -739,7 +1023,10 @@ function buildBar(){
   barEls.preview=tool('eye','Preview',togglePreview);
   barEls.chip=h('span',{class:'re-count'});
   barEls.discard=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:discardAll},'Discard');
-  barEls.save=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>saveDraft()},'Save draft');
+  barEls.save=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
+    const restore=btnBusy(barEls.save,'Saving…');
+    saveDraft().then(()=>{ restore(); updateSaveBar(); });   // updateSaveBar re-settles the disabled state
+  }},'Save draft');
   barEls.publish=h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:publish},'Publish');
   bar=h('div',{class:'re-bar re-ui'},
     tool('back','Dashboard',exitStudio),
@@ -820,29 +1107,89 @@ function welcomeGuide(){
   document.body.append(c);
 }
 
+/* ════════ PASSWORD STRENGTH ════════ */
+/* Four plain checks the user can see themselves passing. Only the length is a hard
+   requirement — the rest are guidance, so the meter never blocks a determined user
+   with a rule they can't discover. */
+const PW_CHECKS=[
+  {label:'8 characters or more',test:v=>v.length>=8},
+  {label:'Upper and lower case',test:v=>/[a-z]/.test(v)&&/[A-Z]/.test(v)},
+  {label:'At least one number',test:v=>/\d/.test(v)},
+  {label:'A symbol, like ! ? or @',test:v=>/[^A-Za-z0-9]/.test(v)}
+];
+const PW_WEAK=/^(password|passw0rd|12345678|123456789|qwerty123|letmein|welcome1|iloveyou|rallys123|admin123)$/i;
+function pwScore(v){
+  if(!v)return 0;
+  let s=PW_CHECKS.filter(c=>c.test(v)).length;
+  if(v.length>=14)s++;                      // length beats character-class tricks
+  if(v.length<8||PW_WEAK.test(v))s=Math.min(s,1);
+  return Math.max(0,Math.min(4,s));
+}
+const PW_LABEL=['','Too weak','Weak','Good','Strong'];
+/* A meter + live checklist bound to one input. */
+function pwMeter(input){
+  const bars=[0,1,2,3].map(()=>h('div',{class:'re-pwbar'}));
+  const lbl=h('div',{class:'re-pwlbl'},'Use at least 8 characters.');
+  const items=PW_CHECKS.map(c=>h('li',{class:'re-req'},icon('check',12),h('span',{},c.label)));
+  const node=h('div',{class:'re-pwmeter'},h('div',{class:'re-pwbars','aria-hidden':'true'},...bars),
+    lbl,h('ul',{class:'re-reqs'},...items));
+  const update=()=>{
+    const v=input.value||'';
+    const s=v?Math.max(1,pwScore(v)):0;   // anything typed shows at least one (red) bar
+    bars.forEach((b,i)=>{ b.className='re-pwbar'+(i<s?' on'+s:''); });
+    lbl.textContent=v?('Strength: '+PW_LABEL[s]):'Use at least 8 characters.';
+    items.forEach((li,i)=>li.classList.toggle('ok',PW_CHECKS[i].test(v)));
+  };
+  input.addEventListener('input',update); update();
+  return node;
+}
+
 /* ════════ CHANGE PASSWORD (modal) — `welcome`=first-time invitee ════════ */
+/* Two shapes, one flow:
+   · welcome — the invitee has no password yet, so there's nothing to verify.
+   · normal  — Supabase would happily change the password of whoever is sitting at
+     the machine, so we re-authenticate with the current password first. */
 function openChangePassword(welcome){
   const err=h('div',{class:'re-err',role:'alert'});
+  const cur=h('input',{class:'re-input',type:'password',placeholder:'Your current password',autocomplete:'current-password'});
   const p1=h('input',{class:'re-input',type:'password',placeholder:'At least 8 characters',autocomplete:'new-password'});
-  const okBtn=h('button',{class:'re-btn re-btn-pri',onclick:()=>submit()},welcome?'Create my account':'Update password');
+  const p2=h('input',{class:'re-input',type:'password',placeholder:'Type it again',autocomplete:'new-password'});
+  const label=welcome?'Create my account':'Update password';
+  const okBtn=h('button',{class:'re-btn re-btn-pri',onclick:()=>submit()},label);
   const foot=[okBtn];
   if(!welcome)foot.unshift(h('button',{class:'re-btn re-btn-ghost',onclick:()=>m.close()},'Cancel'));
+  const body=[];
+  if(welcome)body.push(h('div',{class:'re-modal-note'},icon('shield',15),
+    h('span',{},'This password is yours alone — nobody at Rallys Equities can see it. You can change it later from Profile.')));
+  else body.push(h('div',{class:'re-field'},h('label',{},'Current password'),pwWrap(cur)));
+  body.push(h('div',{class:'re-field'},h('label',{},welcome?'Create a password':'New password'),pwWrap(p1),pwMeter(p1)));
+  body.push(h('div',{class:'re-field'},h('label',{},'Confirm password'),pwWrap(p2)));
+  body.push(err);
   const m=reModal({
     title:welcome?'Welcome to Rallys Equities':'Change your password',
-    desc:welcome?'You’ve been invited to help manage the website. Pick a password below — that’s all it takes to get started.':'Set your own password for this editor account.',
-    body:[h('div',{class:'re-field'},h('label',{},welcome?'Create a password':'New password'),pwWrap(p1)),err],
-    foot, dismissible:!welcome, noX:welcome});
-  function submit(){ err.textContent='';
-    const a=p1.value||'';
-    if(a.length<8){ err.textContent='Please use at least 8 characters.'; return; }
-    okBtn.disabled=true; okBtn.textContent=welcome?'Setting up…':'Saving…';
-    Promise.resolve(Store.changePassword(a)).then(()=>{ m.close();
+    desc:welcome?'You’ve been invited to help manage the website. Pick a password and you’re in.'
+                :'You’ll use the new password the next time you sign in.',
+    body, foot, cls:'re-pwmodal', dismissible:!welcome, noX:welcome});
+  let restore=null;
+  const busy=on=>{ if(on)restore=btnBusy(okBtn,welcome?'Setting up…':'Saving…'); else if(restore){ restore(); restore=null; } };
+  function submit(){
+    err.textContent='';
+    const a=p1.value||'', b=p2.value||'', c=cur.value||'';
+    if(!welcome&&!c){ err.textContent='Enter your current password.'; cur.focus(); return; }
+    if(a.length<8){ err.textContent='Please use at least 8 characters.'; p1.focus(); return; }
+    if(PW_WEAK.test(a)){ err.textContent='That password is too easy to guess — try something else.'; p1.focus(); return; }
+    if(a!==b){ err.textContent='The two passwords don’t match.'; p2.focus(); return; }
+    if(!welcome&&a===c){ err.textContent='That’s your current password — pick a different one.'; p1.focus(); return; }
+    busy(true);
+    const verify=welcome?Promise.resolve(true):Promise.resolve(Store.verifyPassword(c));
+    verify.then(()=>Store.changePassword(a)).then(()=>{
+      m.close();
       if(welcome){ try{history.replaceState(null,'',location.pathname);}catch(e){} if(Store.markInviteAccepted)Promise.resolve(Store.markInviteAccepted()).catch(()=>{}); welcomeGuide(); }
-      else toast('Password updated — use it next time you log in.');
-    }).catch(e=>{ err.textContent=e.message||'Could not set password.'; okBtn.disabled=false; okBtn.textContent=welcome?'Create my account':'Update password'; });
+      else toast('Password updated — use it next time you sign in.');
+    }).catch(e=>{ err.textContent=(e&&e.message)||'Could not set your password.'; busy(false); });
   }
-  p1.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); });
-  setTimeout(()=>p1.focus(),50);
+  [cur,p1,p2].forEach(i=>i.addEventListener('keydown',e=>{ if(e.key==='Enter')submit(); }));
+  setTimeout(()=>(welcome?p1:cur).focus(),50);
 }
 
 /* ════════ TEXT EDITING (in-place) ════════ */
@@ -1504,6 +1851,7 @@ function renderColorGroups(){
 
 /* ════════ SAVE / PUBLISH (lives in the toolbar) ════════ */
 function updateSaveBar(){
+  updateSideStatus();               // the sidebar chip tracks the same state as the toolbar
   if(!barEls.chip)return;
   const n=dirty.size;
   barEls.chip.textContent=n?(n+' unsaved change'+(n===1?'':'s')):'All changes saved';
@@ -1523,11 +1871,15 @@ function saveDraft(msg){
    website without another round-trip. Rejects on failure — callers report it. */
 function doPublish(msg){
   const snap=cleanWork();
+  /* The one action worth a curtain: it's the slowest, it's what visitors see, and a
+     second click mid-write would push a half-formed draft. */
+  const busy=reBusy('Publishing','Putting your changes on the website — this takes a moment.');
   return Promise.resolve(Store.publish(snap)).then(()=>{
     try{localStorage.setItem('re-content',JSON.stringify(snap));}catch(e){}
     LIVE=normalize(snap); dirty.clear(); afterSaveRefresh();
+    busy.close();
     toast(msg||'Published! Your changes are now live.');
-  });
+  },e=>{ busy.close(); throw e; });
 }
 /* Publish, optionally framed around one post the user pointed at. The message has to
    match what that post's pending change actually does — putting it up, updating it,
@@ -1572,7 +1924,16 @@ document.addEventListener('keydown',e=>{
 
 /* ════════ start ════════ */
 let booted=false;
-function boot(authed){ if(booted)return; booted=true; if(authed)onAuthed(); else showLogin(); }
+function boot(authed){
+  if(booted)return; booted=true;
+  BOOT.stage(authed?'Opening your dashboard':'Almost ready',88);
+  if(authed)onAuthed(); else showLogin();
+  /* Lift the branded curtain only once the admin is genuinely painted — one frame
+     after the login card or dashboard is in the DOM, so there's no flash of the
+     public site underneath. */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>BOOT.finish()));
+}
+BOOT.stage('Checking your sign-in',68);
 Promise.resolve(Store.init()).then(boot).catch(function(){ boot(false); });
 /* Safety net: if the session check ever stalls (flaky network / token refresh),
    still show the login within a few seconds instead of leaving the bare site. */

@@ -10,3 +10,11 @@ scrape/
 .DS_Store
 supabase/.temp/
 Thumbs.db
+
+# Client working documents — inputs, not deliverables. Kept out of the repo because
+# `.vercelignore` does NOT exclude them, so committing them would publish internal
+# material on the live site. The policy PDFs that the site actually serves live in
+# assets/policies/ (see the README there for the slug -> original filename mapping).
+Rallys Policies and Procedures/
+Revised Website Content.pdf
+Website Notes.docx

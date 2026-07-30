@@ -47,6 +47,164 @@ function isOwner(user: { email?: string | null }): boolean {
 const esc = (v: unknown) =>
   String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
+// ── Branded invite email ────────────────────────────────────────────────────
+// Built to survive real mail clients, not just a browser preview:
+//   · tables + inline styles only (no flex/grid), 600px with a mobile <style> override
+//   · the logo keeps its native 140×99 aspect — served at 112×79 so it stays crisp
+//     on retina. It sits on an ivory plate because the mark is dark ink on transparent.
+//   · Outlook gets a VML roundrect so the CTA isn't a bare square, and
+//     mso-line-height-rule:exactly keeps Word's line-height from drifting.
+//   · "light only" color-scheme: Gmail/Outlook dark-mode inversion would wreck the
+//     ivory-and-gold palette, so we opt out and ship one deliberate look.
+const BRAND = {
+  ink: "#12243A",       // primary text (navy)
+  body: "#48586B",      // body copy
+  dim: "#8B93A0",       // captions
+  gold: "#9A7B1F",      // brand gold (AA on white)
+  goldLt: "#C8A84B",    // decorative gold
+  green: "#0A6B4B",     // emerald action
+  page: "#EAE5D9",      // page backdrop
+  cardLine: "#E4DCC6",
+  ivory: "#FAF8F1",
+  hair: "#EFE9D9",
+  SANS: "-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif",
+  SERIF: "Georgia,'Times New Roman',serif",
+};
+const LOGO = "https://www.rallysequities.com/assets/img/logo.png";
+
+// One gold-dot bullet row of the "what you can do" list.
+const perk = (title: string, desc: string) => `
+            <tr>
+              <td width="22" style="vertical-align:top;padding:8px 0 0;">
+                <div style="width:6px;height:6px;border-radius:50%;background:${BRAND.goldLt};font-size:0;line-height:6px;">&nbsp;</div>
+              </td>
+              <td style="padding:0 0 11px;font-family:${BRAND.SANS};font-size:14px;line-height:1.55;color:${BRAND.body};mso-line-height-rule:exactly;">
+                <b style="color:${BRAND.ink};font-weight:600;">${title}</b> &mdash; ${desc}
+              </td>
+            </tr>`;
+
+function inviteHtml(email: string, link: string): string {
+  const L = esc(link);
+  const who = esc(email);
+  return `<!doctype html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>Your Rallys Equities editor invite</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  body,table,td,a{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  table,td{ mso-table-lspace:0pt; mso-table-rspace:0pt; border-collapse:collapse; }
+  img{ -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+  @media only screen and (max-width:620px){
+    .px{ padding-left:26px!important; padding-right:26px!important; }
+    .h1{ font-size:24px!important; line-height:1.24!important; }
+    .cta a{ display:block!important; padding-left:18px!important; padding-right:18px!important; }
+    .stack{ display:block!important; width:100%!important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;width:100%;background:${BRAND.page};">
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;opacity:0;color:${BRAND.page};font-size:1px;line-height:1px;">Set your password to start managing the Rallys Equities website — the link is good for about 24 hours.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND.page};">
+    <tr><td align="center" style="padding:38px 12px 46px;">
+
+      <!-- width attr is the Outlook fallback (it ignores max-width); the style lets
+           every other client shrink the card on a narrow phone instead of overflowing -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid ${BRAND.cardLine};border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(30,40,55,.28);">
+
+        <!-- emerald rule + gold hairline: the brand's signature edge -->
+        <tr><td style="height:4px;line-height:4px;font-size:0;background:${BRAND.green};">&nbsp;</td></tr>
+        <tr><td style="height:1px;line-height:1px;font-size:0;background:${BRAND.goldLt};">&nbsp;</td></tr>
+
+        <!-- masthead: the logo lockup already carries the name, so no repeated wordmark -->
+        <tr><td align="center" class="px" style="background:${BRAND.ivory};border-bottom:1px solid ${BRAND.hair};padding:30px 40px 24px;">
+          <img src="${LOGO}" width="112" height="79" alt="Rallys Equities" style="display:block;width:112px;height:79px;margin:0 auto 14px;">
+          <div style="font-family:${BRAND.SANS};font-size:10px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:${BRAND.gold};mso-line-height-rule:exactly;line-height:14px;">Website Editor Access</div>
+        </td></tr>
+
+        <!-- invitation -->
+        <tr><td class="px" style="padding:34px 40px 0;">
+          <h1 class="h1" style="margin:0;font-family:${BRAND.SERIF};font-size:28px;font-weight:normal;line-height:1.22;color:${BRAND.ink};mso-line-height-rule:exactly;">You've been invited to manage the&nbsp;website</h1>
+          <p style="margin:14px 0 0;font-family:${BRAND.SANS};font-size:15px;line-height:1.68;color:${BRAND.body};mso-line-height-rule:exactly;">
+            Someone at <b style="color:${BRAND.ink};font-weight:600;">Rallys Equities</b> has given you editor access. Set a password and you're in — no software to install, nothing technical to configure.
+          </p>
+        </td></tr>
+
+        <!-- what the access gives them -->
+        <tr><td class="px" style="padding:24px 40px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FCFBF6;border:1px solid ${BRAND.hair};border-radius:12px;">
+            <tr><td style="padding:18px 20px 8px;">
+              <div style="font-family:${BRAND.SANS};font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:${BRAND.gold};padding-bottom:12px;mso-line-height-rule:exactly;line-height:13px;">What you'll be able to do</div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${perk("Edit any text or photo", "click it on the page and type.")}${perk("Publish market insights", "write posts for the Insights page.")}${perk("Tune the site", "colours, fonts, and which sections show.")}</table>
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <!-- CTA (VML fallback keeps the rounded button in Outlook) -->
+        <tr><td class="px" align="center" style="padding:28px 40px 0;">
+          <!--[if mso]>
+          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${L}" style="height:50px;v-text-anchor:middle;width:258px;" arcsize="24%" stroke="f" fillcolor="${BRAND.green}">
+            <w:anchorlock/>
+            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Set my password &rarr;</center>
+          </v:roundrect>
+          <![endif]-->
+          <!--[if !mso]><!-->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="cta" style="margin:0 auto;">
+            <tr><td align="center" style="border-radius:12px;background:${BRAND.green};">
+              <a href="${L}" style="display:inline-block;padding:16px 34px;font-family:${BRAND.SANS};font-size:15px;font-weight:600;line-height:1;color:#ffffff;text-decoration:none;border-radius:12px;letter-spacing:.2px;">Set my password &rarr;</a>
+            </td></tr>
+          </table>
+          <!--<![endif]-->
+          <div style="font-family:${BRAND.SANS};font-size:12px;line-height:1.6;color:${BRAND.dim};padding-top:14px;mso-line-height-rule:exactly;">
+            One-time link, valid for about 24&nbsp;hours &nbsp;·&nbsp; sent to ${who}
+          </div>
+        </td></tr>
+
+        <tr><td class="px" style="padding:26px 40px 0;"><div style="height:1px;line-height:1px;font-size:0;background:${BRAND.hair};">&nbsp;</div></td></tr>
+
+        <!-- copy-paste fallback -->
+        <tr><td class="px" style="padding:20px 40px 0;">
+          <div style="font-family:${BRAND.SANS};font-size:12px;font-weight:600;color:${BRAND.ink};padding-bottom:7px;">Button not working?</div>
+          <div style="font-family:${BRAND.SANS};font-size:11.5px;line-height:1.7;color:${BRAND.dim};padding-bottom:9px;">Paste this address into your browser:</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND.ivory};border:1px solid ${BRAND.hair};border-radius:9px;">
+            <tr><td style="padding:11px 13px;font-family:${BRAND.SANS};font-size:11.5px;line-height:1.6;word-break:break-all;">
+              <a href="${L}" style="color:${BRAND.green};text-decoration:underline;word-break:break-all;">${L}</a>
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <!-- footer -->
+        <tr><td class="px" style="padding:26px 40px 30px;">
+          <div style="font-family:${BRAND.SANS};font-size:11.5px;line-height:1.7;color:${BRAND.dim};">
+            Didn't expect this? You can safely ignore this email — the link expires on its own and no account is created until a password is set.
+          </div>
+        </td></tr>
+        <tr><td class="px" style="background:${BRAND.ivory};border-top:1px solid ${BRAND.hair};padding:20px 40px;">
+          <div style="font-family:${BRAND.SERIF};font-size:14px;color:${BRAND.gold};letter-spacing:.2px;">Rallys Equities (Pvt) Ltd</div>
+          <div style="font-family:${BRAND.SANS};font-size:11px;line-height:1.7;color:${BRAND.dim};padding-top:4px;">
+            Lahore, Pakistan &nbsp;·&nbsp; <a href="https://www.rallysequities.com" style="color:${BRAND.dim};text-decoration:underline;">rallysequities.com</a>
+          </div>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
+        <tr><td align="center" style="padding:18px 12px 0;font-family:${BRAND.SANS};font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#A79F88;mso-line-height-rule:exactly;line-height:15px;">
+          SECP-licensed brokerage &nbsp;·&nbsp; PSX TREC holder
+        </td></tr>
+      </table>
+
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
 // Send the invite as a branded email via Resend. Best-effort: returns an error
 // string on failure so the caller can still fall back to sharing the link.
 async function sendInviteEmail(email: string, link: string): Promise<string | null> {
@@ -54,49 +212,28 @@ async function sendInviteEmail(email: string, link: string): Promise<string | nu
   // Reuse the submission-alert sender if a dedicated one isn't set; last resort is Resend's sandbox address.
   const FROM = Deno.env.get("INVITE_FROM") || Deno.env.get("NOTIFY_FROM") || "Rallys Equities <onboarding@resend.dev>";
   if (!KEY) return "RESEND_API_KEY secret is not set";
-  const subject = "You're invited to edit the Rallys Equities website";
-  const safeLink = esc(link);
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light"></head>
-<body style="margin:0;padding:0;background:#E9E4D8;-webkit-text-size-adjust:100%;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#E9E4D8;">Set your password to start managing the Rallys Equities website.</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#E9E4D8;padding:34px 12px;">
-    <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;background:#ffffff;border:1px solid #E7DFC9;border-radius:18px;overflow:hidden;">
-        <tr><td style="height:5px;line-height:5px;font-size:0;background:#0A6B4B;">&nbsp;</td></tr>
-        <tr><td style="padding:32px 38px 0;">
-          <img src="https://www.rallysequities.com/assets/img/logo.png" width="48" height="48" alt="Rallys Equities" style="display:block;border:0;outline:none;text-decoration:none;border-radius:11px;margin-bottom:15px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:bold;color:#9A7B1F;letter-spacing:.3px;line-height:1.1;">Rallys Equities</div>
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#AAB1BB;margin-top:6px;">Website Editor Invite</div>
-        </td></tr>
-        <tr><td style="padding:22px 38px 4px;font-family:Arial,Helvetica,sans-serif;color:#243244;">
-          <p style="margin:0 0 12px;font-size:16px;line-height:1.65;">You've been invited to help manage the <b>Rallys Equities</b> website.</p>
-          <p style="margin:0;font-size:14px;line-height:1.7;color:#5B6674;">Set your password below and you're ready to edit content, publish posts, and update the site — no technical setup needed.</p>
-        </td></tr>
-        <tr><td style="padding:26px 38px 4px;">
-          <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:12px;background:#0A6B4B;">
-            <a href="${safeLink}" style="display:inline-block;padding:15px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:12px;">Set my password &rarr;</a>
-          </td></tr></table>
-        </td></tr>
-        <tr><td style="padding:4px 38px 22px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8A93A0;">
-          For your security, this invite expires in about 24 hours.
-        </td></tr>
-        <tr><td style="padding:0 38px;"><div style="border-top:1px solid #F1ECDF;font-size:0;line-height:0;">&nbsp;</div></td></tr>
-        <tr><td style="padding:16px 38px 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8A93A0;">
-          Button not working? Copy and paste this link into your browser:<br>
-          <a href="${safeLink}" style="color:#0A6B4B;word-break:break-all;">${safeLink}</a>
-        </td></tr>
-        <tr><td style="padding:18px 38px 30px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#AAB1BB;">
-          If you weren't expecting this invite, you can safely ignore this email.<br>
-          <span style="color:#C3B27A;font-weight:bold;">Rallys Equities (Pvt) Ltd</span> · Lahore, Pakistan
-        </td></tr>
-      </table>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:544px;"><tr>
-        <td style="padding:16px 8px 0;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:10.5px;letter-spacing:.4px;color:#AEA890;">SECP-licensed brokerage · PSX TREC holder</td>
-      </tr></table>
-    </td></tr>
-  </table>
-</body></html>`;
-  const text = `You've been invited to help manage the Rallys Equities website.\n\nSet your password and get started (valid ~24 hours):\n${link}\n\nIf you weren't expecting this, you can ignore this email.`;
+  const subject = "You're invited to manage the Rallys Equities website";
+  const html = inviteHtml(email, link);
+  const text = [
+    "RALLYS EQUITIES — WEBSITE EDITOR ACCESS",
+    "",
+    "You've been invited to manage the Rallys Equities website.",
+    "Set a password and you're in — nothing to install.",
+    "",
+    "What you'll be able to do:",
+    "  · Edit any text or photo — click it on the page and type.",
+    "  · Publish market insights to the Insights page.",
+    "  · Tune the site's colours, fonts, and which sections show.",
+    "",
+    "Set your password (one-time link, valid ~24 hours):",
+    link,
+    "",
+    `This invite was sent to ${email}.`,
+    "Didn't expect it? Ignore this email — the link expires on its own.",
+    "",
+    "Rallys Equities (Pvt) Ltd · Lahore, Pakistan · rallysequities.com",
+    "SECP-licensed brokerage · PSX TREC holder",
+  ].join("\n");
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
