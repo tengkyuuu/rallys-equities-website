@@ -17,6 +17,7 @@
   --gl:rgba(255,255,255,.04);--gb:color-mix(in srgb, var(--au) 20%, transparent);
   --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
   --up:#2ECC8A;--dn:#E84545;
+  --shadow-rgb:0,0,0;
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body,'Plus Jakarta Sans',sans-serif);background:var(--nv);color:var(--tx);overflow-x:hidden;line-height:1.65}
@@ -155,10 +156,10 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .fbc-ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .fbc-ic-fb{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
   border:1px solid color-mix(in srgb, var(--au) 28%, transparent);color:var(--g3);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6)}
 .fbc-ic-cx{background:linear-gradient(145deg,color-mix(in srgb, var(--dn) 26%, transparent),color-mix(in srgb, var(--dn) 6%, transparent));
   border:1px solid color-mix(in srgb, var(--dn) 32%, transparent);color:var(--dn);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6)}
 .fbc-card{border:1px solid var(--gb);border-radius:20px;padding:38px;background:var(--gl)}
 .fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:20px;padding:34px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
 .svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
@@ -316,7 +317,7 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 /* the .testi card is reused for leadership bios — these are biographies, not quotes, so drop the italic */
 #page-management .testi-q{font-style:normal}
 /* leadership portrait — placeholder until real photos land; swappable from /admin via data-edit-img */
-.lead-photo{width:96px;height:96px;border-radius:18px;overflow:hidden;margin-bottom:16px;background:color-mix(in srgb, var(--g) 12%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent);box-shadow:0 10px 26px -14px rgba(0,0,0,.55)}
+.lead-photo{width:96px;height:96px;border-radius:18px;overflow:hidden;margin-bottom:16px;background:color-mix(in srgb, var(--g) 12%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent);box-shadow:0 10px 26px -14px rgba(var(--shadow-rgb),.55)}
 .lead-photo img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* HOW IT WORKS */
@@ -591,7 +592,7 @@ button.pol-chip{width:100%;font-family:inherit;font-size:12px;text-align:left;co
 .ct-soc:hover{color:var(--au);border-color:var(--au);transform:translateX(2px)}
 .ct-soc:hover .ct-soc-tx b{color:var(--au)}
 .ct-cta{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:22px}
-.ct-map{margin-top:24px;border-radius:18px;overflow:hidden;border:1px solid var(--gb);height:340px;position:relative;box-shadow:0 30px 60px -34px rgba(0,0,0,.45);background:linear-gradient(135deg,color-mix(in srgb, var(--g) 14%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))}
+.ct-map{margin-top:24px;border-radius:18px;overflow:hidden;border:1px solid var(--gb);height:340px;position:relative;box-shadow:0 30px 60px -34px rgba(var(--shadow-rgb),.45);background:linear-gradient(135deg,color-mix(in srgb, var(--g) 14%, transparent),color-mix(in srgb, var(--nv) 90%, transparent))}
 .ct-map iframe{width:100%;height:100%;border:0;display:block;position:relative;z-index:1}
 .ct-mappin{position:absolute;left:18px;bottom:18px;z-index:2;background:color-mix(in srgb, var(--nv) 90%, transparent);border:1px solid var(--gb);border-radius:12px;padding:11px 15px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .ct-mappin a{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:var(--au);text-decoration:none}
@@ -708,7 +709,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 .svc-card:hover::after{opacity:1}
 /* Service icon — gilded tile */
 .svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
-  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.6);
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6);
   transition:transform .45s var(--lux-ease),box-shadow .45s var(--lux-ease)}
 .svc-card:hover .svc-icon{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 22px -4px color-mix(in srgb, var(--g3) 50%, transparent)}
 
@@ -749,7 +750,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 
 /* Brand chips — gentle lift */
 .brand-chip{transition:transform .4s var(--lux-ease),box-shadow .4s var(--lux-ease)}
-.brand-chip:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px rgba(0,0,0,.5),0 0 18px -6px color-mix(in srgb, var(--au) 40%, transparent)}
+.brand-chip:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px rgba(var(--shadow-rgb),.5),0 0 18px -6px color-mix(in srgb, var(--au) 40%, transparent)}
 
 /* PSX performer chips — gold ring blooms around the logo */
 .perf-chip img{transition:box-shadow .4s var(--lux-ease),transform .4s var(--lux-ease)}
@@ -769,7 +770,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;o
 .lux-divider i::before{left:-13px}.lux-divider i::after{right:-13px}
 
 /* CTA block — animated gilded sheen + emerald inner glow */
-.cta-block{box-shadow:0 40px 90px -40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05)}
+.cta-block{box-shadow:0 40px 90px -40px rgba(var(--shadow-rgb),.7),inset 0 1px 0 rgba(255,255,255,.05)}
 .cta-block::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse 60% 80% at 50% 0%,color-mix(in srgb, var(--au) 10%, transparent),transparent 60%),radial-gradient(ellipse 70% 90% at 50% 120%,color-mix(in srgb, var(--g3) 12%, transparent),transparent 60%)}
 
@@ -884,7 +885,7 @@ body.light #preloader.pl-admin .pl-status{color:#87681A}
 /* Back to top */
 #toTop{position:fixed;right:26px;bottom:92px;width:46px;height:46px;border-radius:50%;z-index:399;display:flex;align-items:center;justify-content:center;cursor:pointer;
   background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 72%, transparent),color-mix(in srgb, var(--nv2) 52%, transparent));border:1px solid color-mix(in srgb, var(--au) 40%, transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  box-shadow:0 10px 26px -10px rgba(0,0,0,.6);opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease),border-color .3s,box-shadow .3s}
+  box-shadow:0 10px 26px -10px rgba(var(--shadow-rgb),.6);opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease),border-color .3s,box-shadow .3s}
 #toTop.show{opacity:1;visibility:visible;transform:none}
 #toTop:hover{border-color:var(--au);box-shadow:0 0 22px -4px color-mix(in srgb, var(--au) 50%, transparent);transform:translateY(-3px)}
 
@@ -915,13 +916,15 @@ body.light{
   --tx:#12243A;--mt:color-mix(in srgb, var(--tx) 72%, transparent);--mt2:color-mix(in srgb, var(--tx) 46%, transparent);
   --gl:#FFFFFF;--gb:color-mix(in srgb, var(--tx) 12%, transparent);
   --au:#9A7B1F;--au2:#B8922A;--au3:color-mix(in srgb, var(--au) 12%, transparent);--g3:#0A6B4B;
-  --chart-grid:rgba(18,36,58,.1);--chart-axis:rgba(18,36,58,.55)}
+  --chart-grid:rgba(18,36,58,.1);--chart-axis:rgba(18,36,58,.55);
+  --shadow-rgb:18,36,58;
+}
 /* dark media banners stay dark, with light text re-asserted */
 /* only the live-data widgets stay dark "screens"; everything else goes light */
 body.light .pcard,body.light .gov-donut,body.light .map-box{
   --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
   --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:color-mix(in srgb, var(--au) 20%, transparent);--gl:rgba(255,255,255,.04);
-  --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx)}
+  --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx);--shadow-rgb:0,0,0}
 /* keep the KSE-30 / KMI-30 / ALLSHR footer cells dark (the market panel is a dark "screen"),
    else --nv goes ivory in light mode and the light text on them becomes invisible */
 body.light .pcard .ixc{background:color-mix(in srgb, #05101E 78%, transparent)}
@@ -1037,7 +1040,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 /* featured (newest) post — full-width editorial card */
 .blog-feat{display:grid;grid-template-columns:1.15fr 1fr;gap:0;background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 20%,transparent);
   border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:30px;transition:border-color .35s var(--lux-ease),box-shadow .35s var(--lux-ease),transform .35s var(--lux-ease)}
-.blog-feat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--au) 52%,transparent);box-shadow:0 26px 60px -26px rgba(0,0,0,.55)}
+.blog-feat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--au) 52%,transparent);box-shadow:0 26px 60px -26px rgba(var(--shadow-rgb),.55)}
 .blog-feat-cov{position:relative;overflow:hidden;background:var(--nv3);min-height:300px}
 .blog-feat-cov img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--lux-ease)}
 .blog-feat:hover .blog-feat-cov img{transform:scale(1.045)}
@@ -1055,7 +1058,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px}
 .blog-card{position:relative;display:flex;flex-direction:column;background:var(--nv2);border:1px solid color-mix(in srgb,var(--au) 16%,transparent);
   border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .3s var(--lux-ease),border-color .3s,box-shadow .3s}
-.blog-card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--au) 48%,transparent);box-shadow:0 22px 50px -22px rgba(0,0,0,.5)}
+.blog-card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--au) 48%,transparent);box-shadow:0 22px 50px -22px rgba(var(--shadow-rgb),.5)}
 .blog-cover{aspect-ratio:16/9;overflow:hidden;background:var(--nv3);position:relative}
 .blog-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--lux-ease)}
 .blog-card:hover .blog-cover img{transform:scale(1.05)}
@@ -1083,7 +1086,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
 .post-head{margin-bottom:26px}
 .blog-title{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:clamp(30px,4.6vw,46px);line-height:1.1;margin:0 0 16px;color:var(--tx);letter-spacing:.005em}
 .post-rule{height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--au) 55%,transparent),transparent);margin:22px 0 0}
-.blog-hero{width:100%;border-radius:18px;margin:4px 0 30px;border:1px solid color-mix(in srgb,var(--au) 18%,transparent);box-shadow:0 22px 50px -26px rgba(0,0,0,.5)}
+.blog-hero{width:100%;border-radius:18px;margin:4px 0 30px;border:1px solid color-mix(in srgb,var(--au) 18%,transparent);box-shadow:0 22px 50px -26px rgba(var(--shadow-rgb),.5)}
 .blog-post{font-size:15.5px;line-height:1.9;color:var(--mt)}
 .blog-post>p:first-of-type{font-size:17px;line-height:1.8;color:var(--tx)}
 .blog-post p{margin:0 0 18px}
@@ -1143,6 +1146,7 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
     <ul class="nav-links">
       <li><a id="nav-home" onclick="showPage('home')">Home</a></li>
       <li><a id="nav-markets" onclick="showPage('markets')">Markets</a></li>
+      <li><a id="nav-insights" onclick="showPage('insights')">Blogs</a></li>
       <li><a id="nav-services" class="ddt" onclick="showPage('services')">Services</a>
         <div class="dd"><div class="dd-inner">
           <div class="dd-col">
@@ -1216,7 +1220,6 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
           </div>
         </div></div>
       </li>
-      <li><a id="nav-insights" onclick="showPage('insights')">Insights</a></li>
       <li><a id="nav-locations" onclick="showPage('locations')">Contact Us</a></li>
     </ul>
     <div class="nav-right">
@@ -1236,6 +1239,7 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
 <div class="mnav" id="mnav">
   <div class="mnav-group"><a onclick="showPage('home')" style="font-size:15px;color:var(--tx);font-weight:600">Home</a></div>
   <div class="mnav-group"><a onclick="showPage('markets')" style="font-size:15px;color:var(--tx);font-weight:600">Markets</a></div>
+  <div class="mnav-group"><a onclick="showPage('insights')" style="font-size:15px;color:var(--tx);font-weight:600">Blogs</a></div>
   <div class="mnav-group"><span>Services</span>
     <a onclick="showPage('services')">All Services</a>
     <a onclick="showPage('trading')">Investment &amp; Trading</a>
@@ -1277,7 +1281,6 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
     <a onclick="showPage('fcf')">Projected FCF &amp; Cash Calculator</a>
     <a onclick="showPage('drawdown')">Drawdown Calculator</a>
   </div>
-  <div class="mnav-group"><a onclick="showPage('insights')" style="font-size:15px;color:var(--tx);font-weight:600">Insights</a></div>
   <div class="mnav-group"><a onclick="showPage('locations')" style="font-size:15px;color:var(--tx);font-weight:600">Contact Us</a></div>
   <button class="bbig bbig-g" onclick="openAccount()">Open Account — کھاتہ کھولیں</button>
 </div>
@@ -2875,13 +2878,13 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
 <!-- ══════ FOOTER ══════ -->
 <!-- ══════ INSIGHTS (BLOG) PAGE — posts are written in /admin → Blog Posts ══════ -->
 <div class="page" id="page-insights">
-<section class="phero"><div class="stag">Insights</div><h1>Market <em>Insights</em></h1><p>Research notes, market commentary and investor education from the Rallys Equities desk.</p></section>
+<section class="phero"><div class="stag">Blogs</div><h1>Our <em>Blogs</em></h1><p>Research notes, market commentary and investor education from the Rallys Equities desk.</p></section>
 <section class="sec">
   <div id="blogFeat"></div>
   <div class="blog-grid" id="blogList"></div>
   <div class="blog-empty" id="blogEmpty" style="display:none">
     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--au)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 17H8"/></svg>
-    <b>New insights are on the way</b>
+    <b>New blogs are on the way</b>
     <span>Our desk publishes market commentary, research notes and investor education here. Check back soon.</span>
   </div>
 </section>
@@ -2939,8 +2942,8 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
         <li><a onclick="showPage('policies')">Policies &amp; Procedures</a></li>
         <li><a onclick="showPage('rating')">Management Rating</a></li>
       </ul></div>
-      <div class="fc2"><h5>Insights &amp; Tools</h5><ul>
-        <li><a onclick="showPage('insights')">Market Insights</a></li>
+      <div class="fc2"><h5>Blogs &amp; Tools</h5><ul>
+        <li><a onclick="showPage('insights')">Blogs</a></li>
         <li><a onclick="showPage('cagr')">Investor Calculators</a></li>
         <li><a onclick="goSec('education','ir-strategies')">Top Five Strategies</a></li>
         <li><a onclick="showPage('faq')">FAQ</a></li>
@@ -3470,7 +3473,7 @@ function reToast(msg,type){
   type=type||'err';
   if(!document.getElementById('reToastCSS')){
     const st=document.createElement('style');st.id='reToastCSS';
-    st.textContent='.re-toast-wrap{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;flex-direction:column;gap:10px;width:min(92vw,430px);pointer-events:none}.re-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:11px;background:color-mix(in srgb,var(--nv2,#0c1a2e) 84%,transparent);border:1px solid var(--gb,rgba(200,168,75,.28));border-left:3px solid var(--au,#c8a84b);border-radius:13px;padding:14px 15px;box-shadow:0 14px 44px rgba(0,0,0,.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--tx,#e8eef5);font-size:13.5px;line-height:1.5;transform:translateY(-14px);opacity:0;transition:opacity .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}.re-toast.show{transform:translateY(0);opacity:1}.re-toast.err{border-left-color:var(--dn,#e5484d)}.re-toast.ok{border-left-color:var(--up,#2ecc8a)}.re-toast-ic{flex:0 0 auto;font-size:15px;margin-top:1px}.re-toast-msg{flex:1}.re-toast-x{flex:0 0 auto;cursor:pointer;color:var(--mt,#8a93a0);font-size:17px;line-height:1;background:none;border:none;padding:0 0 0 4px}.re-toast-x:hover{color:var(--tx,#fff)}@media (prefers-reduced-motion:reduce){.re-toast{transition:opacity .2s}}';
+    st.textContent='.re-toast-wrap{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;flex-direction:column;gap:10px;width:min(92vw,430px);pointer-events:none}.re-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:11px;background:color-mix(in srgb,var(--nv2,#0c1a2e) 84%,transparent);border:1px solid var(--gb,rgba(200,168,75,.28));border-left:3px solid var(--au,#c8a84b);border-radius:13px;padding:14px 15px;box-shadow:0 14px 44px rgba(var(--shadow-rgb,0,0,0),.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--tx,#e8eef5);font-size:13.5px;line-height:1.5;transform:translateY(-14px);opacity:0;transition:opacity .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}.re-toast.show{transform:translateY(0);opacity:1}.re-toast.err{border-left-color:var(--dn,#e5484d)}.re-toast.ok{border-left-color:var(--up,#2ecc8a)}.re-toast-ic{flex:0 0 auto;font-size:15px;margin-top:1px}.re-toast-msg{flex:1}.re-toast-x{flex:0 0 auto;cursor:pointer;color:var(--mt,#8a93a0);font-size:17px;line-height:1;background:none;border:none;padding:0 0 0 4px}.re-toast-x:hover{color:var(--tx,#fff)}@media (prefers-reduced-motion:reduce){.re-toast{transition:opacity .2s}}';
     document.head.appendChild(st);
   }
   let wrap=document.getElementById('reToastWrap');
@@ -4131,8 +4134,12 @@ function renderBlog(posts){
   /* No published posts → hide every route in, including the footer link (added later, so it
      has to be collected here too or visitors land on an empty page). */
   const navA=document.getElementById('nav-insights');
+  /* Promote each link to its wrapper where that wrapper holds nothing else — the same rule
+     applyHidden uses for nav <li>s. Hiding only the <a> would leave .mnav-group's padding
+     and bottom border behind as an empty row in the mobile drawer. */
   const links=[navA&&navA.parentElement,
-    ...document.querySelectorAll('.mnav [onclick*="showPage(\'insights\')"]'),
+    ...[...document.querySelectorAll('.mnav [onclick*="showPage(\'insights\')"]')]
+      .map(a=>{ const g=a.closest('.mnav-group'); return (g&&g.querySelectorAll('a').length===1)?g:a; }),
     ...[...document.querySelectorAll('footer [onclick*="showPage(\'insights\')"]')].map(a=>a.closest('li')||a)];
   links.forEach(n=>{ if(n)n.style.display=pub.length?'':'none'; });
   const feat=document.getElementById('blogFeat');
@@ -4150,7 +4157,7 @@ function renderBlog(posts){
     el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPost(0); } };
     el.innerHTML=(p.cover?'<div class="blog-feat-cov"><img loading="lazy" src="'+escH(p.cover)+'" alt=""></div>'
                          :'<div class="blog-feat-cov blog-nocov"><span>Rallys</span></div>')+
-      '<div class="blog-feat-body"><span class="blog-feat-tag">Latest insight</span>'+blogMeta(p)+
+      '<div class="blog-feat-body"><span class="blog-feat-tag">Latest blog</span>'+blogMeta(p)+
       '<h3>'+escH(p.title||'Untitled')+'</h3>'+
       (p.excerpt?'<p>'+escH(p.excerpt)+'</p>':'')+
       '<span class="blog-more">Read the full note '+ARROW+'</span></div>';
@@ -4175,14 +4182,14 @@ function openPost(i){
   const v=document.getElementById('postView'); if(!v)return;
   /* up to three other posts to read next */
   const more=posts.filter((_,n)=>n!==i).slice(0,3);
-  const moreHtml=more.length?('<div class="post-more"><div class="post-more-h">More insights</div><div class="blog-grid">'+
+  const moreHtml=more.length?('<div class="post-more"><div class="post-more-h">More blogs</div><div class="blog-grid">'+
     more.map(m=>{ const n=posts.indexOf(m);
       return '<article class="blog-card" role="link" tabindex="0" onclick="openPost('+n+')" onkeydown="if(event.key===\'Enter\'){openPost('+n+')}">'+
         (m.cover?'<div class="blog-cover"><img loading="lazy" src="'+escH(m.cover)+'" alt=""></div>':'<div class="blog-nocov"><span>Rallys</span></div>')+
         '<div class="blog-body">'+blogMeta(m)+'<h3>'+escH(m.title||'Untitled')+'</h3>'+
         '<span class="blog-more">Read more '+ARROW+'</span></div></article>';
     }).join('')+'</div></div>'):'';
-  v.innerHTML='<a class="blog-back" onclick="showPage(\'insights\')">← All insights</a>'+
+  v.innerHTML='<a class="blog-back" onclick="showPage(\'insights\')">← All blogs</a>'+
     '<div class="post-head">'+blogMeta(p)+
     '<h1 class="blog-title">'+escH(p.title||'Untitled')+'</h1>'+
     (p.excerpt?'<p class="sub" style="max-width:62ch;margin:0">'+escH(p.excerpt)+'</p>':'')+
@@ -4197,11 +4204,11 @@ function openPost(i){
   showPage('post');
 }
 /* Share targets. There are no per-post URLs (the site is a single page with no routing), so
-   "copy link" shares the Insights page rather than pretending to deep-link. */
+   "copy link" shares the Blogs page rather than pretending to deep-link. */
 function sharePost(how,i){
   const p=(window.__POSTS||[])[i]; if(!p)return;
   const url=location.origin+location.pathname;
-  const text=(p.title||'Rallys Equities insight')+' — Rallys Equities';
+  const text=(p.title||'Rallys Equities blog')+' — Rallys Equities';
   if(how==='copy'){
     const done=()=>reToast('Link copied to your clipboard.');
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>reToast('Could not copy the link.','err'));

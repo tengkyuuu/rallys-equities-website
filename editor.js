@@ -650,7 +650,7 @@ function renderOverview(){
   dashMain.append(h('div',{class:'re-qas'},
     qa('inbox','Check submissions','See messages, complaints, feedback and applications from visitors.',()=>go('submissions')),
     qa('edit','Edit content','Click text to rewrite it; drag anything to move it; hide what you don’t need.',()=>enterStudio({edit:true})),
-    qa('post','Write a blog post','Publish market insights to the site’s Insights section.',()=>{ blogEditId='new'; go('blog'); }),
+    qa('post','Write a blog post','Publish market commentary to the site’s Blogs section.',()=>{ blogEditId='new'; go('blog'); }),
     qa('image','Photos','Swap any photo — click it, or drag one photo onto another.',()=>enterStudio({edit:false,panel:'photos'})),
     qa('sliders','Site settings','Show/hide market widgets, remove pages, restore hidden pieces.',()=>enterStudio({edit:false,panel:'site'})),
     qa('palette','Theme & fonts','Adjust the site’s colors and typography.',()=>enterStudio({edit:false,panel:'theme'}))));
@@ -658,7 +658,7 @@ function renderOverview(){
     posts.length?h('button',{class:'re-linkbtn',onclick:()=>{ blogEditId=null; go('blog'); }},'View all'):''));
   const list=h('div',{class:'re-sub-list'});
   const recent=[...posts].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,3);
-  if(!recent.length)list.append(emptyState('No posts yet — write your first market insight.'));
+  if(!recent.length)list.append(emptyState('No posts yet — write your first blog post.'));
   else recent.forEach(p=>list.append(postRow(p)));
   dashMain.append(list);
 }
@@ -906,7 +906,7 @@ function renderEditors(){
   }).catch(()=>{ gate.remove(); ownerUI(); });
 }
 
-/* ── Blog Posts — written here, shown on the site's “Insights” page ──
+/* ── Blog Posts — written here, shown on the site's “Blogs” page ──
    Three separate facts decide what a visitor sees, and mixing them up is what makes
    publishing confusing. So we always resolve them into one plain status:
      · what the post says in your draft   (p.published)
@@ -946,7 +946,7 @@ function renderPostList(){
   const onSite=states.filter(s=>s.label==='Live'||s.label==='Edited').length;
   const waiting=states.filter(s=>s.act).length;
   dashMain.append(pageHead('Content','Blog Posts',
-    'Shown on the website’s “Insights” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+onSite+' on the website',
+    'Shown on the website’s “Blogs” page · '+posts.length+' post'+(posts.length===1?'':'s')+' · '+onSite+' on the website',
     [h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ blogEditId='new'; renderMain(); }},icon('edit',14),'Write a new post')]));
   if(waiting||dirty.size)dashMain.append(h('div',{class:'re-banner'},
     icon('alert',18),
@@ -957,7 +957,7 @@ function renderPostList(){
     h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish now')));
   dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},posts.length?'All posts':'Your posts')));
   const list=h('div',{class:'re-sub-list'}); dashMain.append(list);
-  if(!posts.length){ list.append(emptyState('No posts yet — write your first market insight.','post',
+  if(!posts.length){ list.append(emptyState('No posts yet — write your first blog post.','post',
     h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ blogEditId='new'; renderMain(); }},'Write a new post'))); return; }
   posts.forEach((p,i)=>list.append(postRow(p,states[i])));
 }
@@ -1008,6 +1008,15 @@ function renderSettings(){
         h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish')))));
   dashMain.append(h('div',{class:'re-card re-set-card'},
     h('div',{class:'re-set-h'},icon('user',17),'Account & admin'),
+    row('Appearance','Switch this admin panel between light and dark mode.',(()=>{
+      const dark=()=>!document.body.classList.contains('light');
+      let lbl;
+      const sw=h('button',{class:'re-toggle'+(dark()?' on':''),type:'button','aria-pressed':String(dark()),
+        onclick:()=>{ toggleTheme(); const on=dark(); sw.classList.toggle('on',on); lbl.textContent=on?'Dark mode':'Light mode'; }},
+        lbl=h('span',{class:'re-siterow-lbl'},dark()?'Dark mode':'Light mode'),
+        h('span',{class:'re-switch'}));
+      return sw;
+    })()),
     row('Your profile','Your name, email, role, and sign-in details.',
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>go('profile')},'Open profile')),
     row('Password','Change the password you use to sign in here.',
@@ -1058,7 +1067,7 @@ function renderPostEditor(){
     :(WORK.posts||[]).find(x=>x.id===blogEditId);
   if(!p){ blogEditId=null; renderPostList(); return; }
   dashMain.append(h('button',{class:'re-linkbtn',style:'margin-bottom:10px',onclick:()=>{ blogEditId=null; renderMain(); }},'← All posts'));
-  dashMain.append(pageHead('Insights',isNew?'New post':'Edit post',
+  dashMain.append(pageHead('Blogs',isNew?'New post':'Edit post',
     isNew?'Write it here — nothing is public until you publish.':'Changes stay in your draft until you publish.'));
   /* Where this post stands right now — stated, not toggled. The buttons at the
      bottom are what changes it, so there's only ever one way to publish. */
@@ -1079,7 +1088,7 @@ function renderPostEditor(){
       Store.uploadImage(file).then(u=>{ coverUrl=u; coverImg.src=u; coverImg.style.display=''; toast('Cover uploaded'); }).catch(x=>toast('Upload failed: '+x.message,'err'));
     },{aspect:16/9});
   }});
-  const excerpt=h('textarea',{class:'re-input',rows:'2',placeholder:'One or two lines shown on the Insights page…','aria-label':'Excerpt'},p.excerpt||'');
+  const excerpt=h('textarea',{class:'re-input',rows:'2',placeholder:'One or two lines shown on the Blogs page…','aria-label':'Excerpt'},p.excerpt||'');
   const body=h('div',{class:'re-postbody',contenteditable:'true','aria-label':'Post body'});
   body.innerHTML=API.sanitizePost(p.body||'')||'<p><br></p>';
   const cmd=(c,v)=>{ body.focus(); document.execCommand(c,false,v||null); };
@@ -1126,7 +1135,7 @@ function renderPostEditor(){
   /* Publish — saves AND puts it on the website. The one button that "publishes". */
   const pubBtn=h('button',{class:'re-btn re-btn-gd',onclick:()=>{
     if(!collect(true))return;
-    reConfirm('“'+title.value.trim()+'” goes on the website’s Insights page for everyone to read.'+otherPending(p.id),
+    reConfirm('“'+title.value.trim()+'” goes on the website’s Blogs page for everyone to read.'+otherPending(p.id),
       {title:wasOnSite?'Publish your edits?':'Publish this post?',okLabel:'Publish'}).then(ok=>{
         if(!ok)return;
         busy(pubBtn,'Publishing…');
@@ -2041,7 +2050,7 @@ function publishAll(p){
   const what=!p?'Everything waiting in your draft goes on the website for everyone to see.'
     :(act==='Publish edits'?('Your edits to '+t+' replace the version readers see now.')
      :act==='Publish to remove it'?(t+' comes off the website. It stays here as a draft.')
-     :(t+' goes on the website’s Insights page for everyone to read.'))+otherPending(p.id);
+     :(t+' goes on the website’s Blogs page for everyone to read.'))+otherPending(p.id);
   const done=!p?null:(act==='Publish edits'?'Updated — your edits are live'
     :act==='Publish to remove it'?'Removed from the website':'Published — it’s on the website now');
   reConfirm(what,{title:'Publish now?',okLabel:'Publish'}).then(ok=>{ if(!ok)return;
