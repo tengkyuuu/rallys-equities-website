@@ -104,8 +104,8 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .clbl{display:flex;justify-content:space-between;padding:2px 15px 6px;font-size:9px;color:var(--mt2)}
 /* header + rows share one flex layout so any column can be toggled off cleanly
    (hidden cell collapses, siblings keep their widths, no leftover gap/misalign) */
-.shdr{display:flex;align-items:center;padding:4px 15px;font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
-.srow{display:flex;align-items:center;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s}
+.shdr{display:flex;align-items:center;gap:10px;padding:4px 15px;font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
+.srow{display:flex;align-items:center;gap:10px;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s}
 .srow:hover{background:color-mix(in srgb, var(--g) 8%, transparent)}.srow:last-child{border-bottom:none}
 .sco,.sh-co{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
 .sname{font-weight:600;font-size:13px}.ssub{font-size:10px;color:var(--mt2);margin-top:1px}
