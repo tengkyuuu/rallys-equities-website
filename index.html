@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan</title>
+<meta name="description" id="metaDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" id="metaCanon" href="https://rallysequities.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rallys Equities">
+<meta property="og:title" id="ogTitle" content="Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan">
+<meta property="og:description" id="ogDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
+<meta property="og:url" id="ogUrl" content="https://rallysequities.com/">
+<meta property="og:image" content="https://rallysequities.com/assets/img/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" id="twTitle" content="Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan">
+<meta name="twitter:description" id="twDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
+<meta name="twitter:image" content="https://rallysequities.com/assets/img/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FinancialService","name":"Rallys Equities (Pvt) Ltd","url":"https://rallysequities.com/","logo":"https://rallysequities.com/assets/img/logo.png","image":"https://rallysequities.com/assets/img/logo.png","description":"Making investment in the Pakistan Stock Exchange simple, secure and transparent — licensed and regulated by the SECP & PSX.","email":"hello@rallysequities.com","telephone":"+92-42-36366667","address":{"@type":"PostalAddress","streetAddress":"LSE Building","addressLocality":"Lahore","addressCountry":"PK"},"sameAs":["https://www.facebook.com/profile.php?id=61584496977916","https://www.instagram.com/rallyssequities/","https://www.linkedin.com/company/rallys-equities"]}
+</script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" as="image" href="assets/img/page-title.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3267,6 +3283,77 @@ const NAV_PARENT={
 };
 function openAccount(){ window.open('https://aof.eclear.com.pk/repl','_blank','noopener'); }
 
+/* ══ SEO: one real, indexable URL + <title>/description per page ══
+   showPage() used to only toggle which `.page` had `.active` — every one of these
+   37 sections lived at the same address, so search engines (and shared links) only
+   ever saw the homepage. This table gives each one a real path + accurate title/
+   description (copy drawn straight from the page's own content, not invented), and
+   syncPageMeta() below wires it into showPage() so every existing call site (nav,
+   mega-menus, mobile menu, footer, "Return to Home", the CMS's page-hide feature…)
+   gets a correct URL for free without any of those 140+ call sites changing. */
+const PAGE_META={
+  home:{path:'/',title:'Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan',desc:'Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.'},
+  services:{path:'/services',title:'Our Services — Rallys Equities',desc:'From your first trade to a multi-crore portfolio, Rallys Equities has a service designed for every stage of your investment journey on the PSX.'},
+  markets:{path:'/markets',title:'PSX Live Markets — Rallys Equities',desc:'Real-time featured securities, indices and currency rates from the Pakistan Stock Exchange, brought to you by Rallys Equities.'},
+  locations:{path:'/contact',title:'Contact Us — Rallys Equities',desc:'Get in touch with Rallys Equities — phone, email, our Lahore Stock Exchange Building office, and a contact form for account opening and support.'},
+  about:{path:'/about',title:'About Us — Rallys Equities',desc:"Rallys Equities' mission, management and governance — a SECP- and PSX-licensed brokerage built on trust, transparency and disciplined execution."},
+  account:{path:'/open-account',title:'Open a Brokerage Account — Rallys Equities',desc:'Open a Rallys Equities trading account online in five simple steps — personal information, financial details, preferences, documents and review.'},
+  mission:{path:'/mission',title:'Our Mission & Vision — Rallys Equities',desc:'Building success through trust, transparency and disciplined execution on the Pakistan Stock Exchange.'},
+  management:{path:'/management',title:'Our Management — Rallys Equities',desc:"Meet the team behind Rallys Equities — decades of market experience, modern financial expertise and strong governance."},
+  rating:{path:'/rating',title:'Management Rating — Rallys Equities',desc:'A key measure of investment success — see how Rallys Equities is rated.'},
+  governance:{path:'/governance',title:'Corporate Governance — Rallys Equities',desc:'Transparent leadership, clear ownership and independent oversight at Rallys Equities.'},
+  trading:{path:'/services/trading',title:'Investment & Trading — Rallys Equities',desc:'Fast and reliable order execution on the Pakistan Stock Exchange for individual and institutional investors.'},
+  corporate:{path:'/services/corporate-accounts',title:'Corporate & Institutional Accounts — Rallys Equities',desc:'Corporate and institutional brokerage accounts from Rallys Equities, built for organizations investing on the PSX.'},
+  portfolio:{path:'/services/portfolio-management',title:'Portfolio Management — Rallys Equities',desc:'A rules-based portfolio management framework for your goals, while you retain control of every decision.'},
+  research:{path:'/services/market-research',title:'Market Research — Rallys Equities',desc:'Concise market summaries, sector snapshots and earnings highlights from the Rallys Equities research desk.'},
+  shariah:{path:'/services/shariah-investing',title:'Shariah Compliant Investing — Rallys Equities',desc:'Values-aligned, Shariah-compliant investing on the Pakistan Stock Exchange with Rallys Equities.'},
+  platforms:{path:'/services/trading-platforms',title:'Online Trading Platforms — Rallys Equities',desc:"Trade anywhere with Rallys Equities' stable web and mobile trading platforms."},
+  support:{path:'/services/support',title:'Customer Support — Rallys Equities',desc:'Customer and investor support from Rallys Equities — here to help with your account and trading questions.'},
+  portal:{path:'/investors/portal',title:'Investor Portal — Rallys Equities',desc:'The Rallys Equities investor portal — designed to promote transparency, investor protection and open communication.'},
+  education:{path:'/investors/education',title:'Investor Education — Rallys Equities',desc:'An investor education guide for smarter, more informed investing on the Pakistan Stock Exchange.'},
+  financial:{path:'/investors/financial-highlights',title:'Financial Highlights — Rallys Equities',desc:'Rallys Equities is committed to transparency and timely financial disclosure.'},
+  awareness:{path:'/investors/awareness',title:'Investor Education & Awareness — Rallys Equities',desc:'Informed investors make better decisions — know your rights and how the market protects you.'},
+  policies:{path:'/investors/policies',title:'Policies and Procedures — Rallys Equities',desc:'The compliance framework that governs how Rallys Equities operates.'},
+  cagr:{path:'/tools/cagr-calculator',title:'CAGR Calculator — Rallys Equities',desc:'Calculate the compound annual growth rate (CAGR) of your investment — a key measure of investment success.'},
+  sip:{path:'/tools/sip-calculator',title:'SIP Calculator — Rallys Equities',desc:'Estimate the potential returns on your systematic monthly investments with the Rallys Equities SIP calculator.'},
+  invest:{path:'/tools/investment-calculator',title:'Investment Calculator — Rallys Equities',desc:'Plan your wealth growth easily with the Rallys Equities investment calculator.'},
+  depr:{path:'/tools/depreciation-calculator',title:'Depreciation Calculator — Rallys Equities',desc:'See how inflation erodes the purchasing power of cash over time.'},
+  xrate:{path:'/tools/ex-rate-calculator',title:'Ex-Rate Calculator — Rallys Equities',desc:'Simplify ex-dividend, ex-bonus and ex-rights share price calculations.'},
+  dcf:{path:'/tools/dcf-calculator',title:'DCF Calculator — Rallys Equities',desc:'Estimate the intrinsic value of a company or investment using discounted cash flow analysis.'},
+  fcf:{path:'/tools/fcf-calculator',title:'Free Cash Flow Calculator — Rallys Equities',desc:'Project free cash flow and cash position from six-year averages.'},
+  drawdown:{path:'/tools/drawdown-calculator',title:'Drawdown Calculator — Rallys Equities',desc:'Measure the decline from peak to trough in an investment, and what it takes to recover.'},
+  faq:{path:'/faq',title:'Frequently Asked Questions — Rallys Equities',desc:'Answers about PSX investing, accounts, trading platforms and support at Rallys Equities.'},
+  downloads:{path:'/downloads',title:'Useful Downloads — Rallys Equities',desc:'Easy access to important resources and documents from Rallys Equities.'},
+  links:{path:'/useful-links',title:'Useful Links — Rallys Equities',desc:'Regulators and market bodies every PSX investor should know.'},
+  complaints:{path:'/complaints',title:'Submit a Complaint — Rallys Equities',desc:'Have a concern? Rallys Equities resolves complaints quickly and transparently.'},
+  careers:{path:'/careers',title:'Careers — Rallys Equities',desc:'Grow with Rallys Equities — explore career opportunities at a SECP-licensed Pakistan Stock Exchange brokerage.'},
+  feedback:{path:'/feedback',title:'Submit Feedback — Rallys Equities',desc:'Your feedback helps Rallys Equities improve. Tell us about your experience.'},
+  insights:{path:'/blog',title:'Our Blogs — Rallys Equities',desc:'Research notes, market commentary and investor education from the Rallys Equities desk.'},
+  post:{path:'/blog',title:'Our Blogs — Rallys Equities',desc:'Research notes, market commentary and investor education from the Rallys Equities desk.'}
+};
+const PATH_TO_ID={}; for(const k in PAGE_META) if(!(PAGE_META[k].path in PATH_TO_ID)) PATH_TO_ID[PAGE_META[k].path]=k;
+const ADMIN_MODE=/^\/admin\/?$/.test(location.pathname)||new URLSearchParams(location.search).has('edit');
+function setMetaTags(title,desc){
+  document.title=title;
+  const set=(elId,val)=>{ const el=document.getElementById(elId); if(el)el.setAttribute('content',val); };
+  set('metaDesc',desc); set('ogTitle',title); set('ogDesc',desc); set('twTitle',title); set('twDesc',desc);
+}
+/* mode: undefined (normal nav) → pushState if the path actually changed;
+   'replace' (initial boot-time deep link) → replaceState, no new history entry;
+   'none' (responding to a popstate) → URL is already correct, don't touch history. */
+function syncPageMeta(id,mode){
+  const m=PAGE_META[id]||PAGE_META.home;
+  setMetaTags(m.title,m.desc);
+  const url=location.origin+m.path;
+  const set=(elId,attr,val)=>{ const el=document.getElementById(elId); if(el)el.setAttribute(attr,val); };
+  set('ogUrl','content',url); set('metaCanon','href',url);
+  if(ADMIN_MODE||mode==='none')return;
+  try{
+    if(mode==='replace')history.replaceState({page:id},'',m.path);
+    else if(location.pathname!==m.path)history.pushState({page:id},'',m.path);
+  }catch(e){}
+}
+
 /* ══════ VIEW-ONLY DOCUMENT VIEWER ══════
    The client asked that policies open as view-only, not downloads. Worth being clear about
    what is and isn't achievable: a browser must receive a file in order to render it, so a
@@ -3322,7 +3409,7 @@ function closeDoc(){
   setTimeout(()=>{ ov.classList.remove('open'); fr.removeAttribute('src'); },280);   // drop the src so it stops loading
   try{ docLastFocus&&docLastFocus.focus&&docLastFocus.focus(); }catch(e){}
 }
-function showPage(id){
+function showPage(id,mode){
   const target=document.getElementById('page-'+id);
   if(target&&target.classList.contains('re-hid')&&id!=='home'){ id='home'; } // deleted page → home
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3333,6 +3420,7 @@ function showPage(id){
   if(id==='account')populateReview();
   closeMnav();
   setTimeout(drawChart,80);
+  syncPageMeta(id,mode); // mode is only ever passed by boot-time deep-link resolution and the popstate handler below
 }
 
 /* ══ MOBILE MENU ══ */
@@ -4199,9 +4287,10 @@ function openPost(i){
       '<button class="post-sh" type="button" onclick="sharePost(\'li\','+i+')">LinkedIn</button>'+
     '</div>'+moreHtml;
   showPage('post');
+  setMetaTags((p.title?p.title+' — Rallys Equities Blogs':'Rallys Equities Blogs'),(p.excerpt||PAGE_META.insights.desc).slice(0,160));
 }
-/* Share targets. There are no per-post URLs (the site is a single page with no routing), so
-   "copy link" shares the Blogs page rather than pretending to deep-link. */
+/* Share targets. Posts don't have their own slug/URL yet (only the /blog list page does), so
+   "copy link" shares the Blogs page rather than pretending to deep-link to one post. */
 function sharePost(how,i){
   const p=(window.__POSTS||[])[i]; if(!p)return;
   const url=location.origin+location.pathname;
@@ -4325,6 +4414,19 @@ fetchKSE();
 setInterval(fetchKSE,60000);
 
 document.getElementById('nav-home')?.classList.add('active');
+
+/* Deep link support: if the page was loaded directly at e.g. /services (a shared
+   link, a bookmark, a search result), show that page instead of always defaulting
+   to home — and keep the address bar in sync afterwards via Back/Forward. Skipped
+   entirely on /admin or ?edit=1, where the editor owns the address bar. */
+if(!ADMIN_MODE){
+  const bootId=PATH_TO_ID[location.pathname];
+  if(bootId&&bootId!=='home')showPage(bootId,'replace');
+  window.addEventListener('popstate',()=>{
+    const id=PATH_TO_ID[location.pathname];
+    if(id)showPage(id,'none');
+  });
+}
 
 /* ════════════════ IMMERSIVE ENGINE ════════════════ */
 (function(){
