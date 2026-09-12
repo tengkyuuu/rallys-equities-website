@@ -10,6 +10,7 @@ scrape/
 .DS_Store
 supabase/.temp/
 Thumbs.db
+.impeccable/hook.cache.json
 
 # Client working documents — inputs, not deliverables. Kept out of the repo because
 # `.vercelignore` does NOT exclude them, so committing them would publish internal

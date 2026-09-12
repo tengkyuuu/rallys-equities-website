@@ -6,19 +6,19 @@
 <title>Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan</title>
 <meta name="description" id="metaDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
 <meta name="robots" content="index,follow">
-<link rel="canonical" id="metaCanon" href="https://rallysequities.com/">
+<link rel="canonical" id="metaCanon" href="https://www.rallysequities.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Rallys Equities">
 <meta property="og:title" id="ogTitle" content="Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan">
 <meta property="og:description" id="ogDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
-<meta property="og:url" id="ogUrl" content="https://rallysequities.com/">
-<meta property="og:image" content="https://rallysequities.com/assets/img/logo.png">
+<meta property="og:url" id="ogUrl" content="https://www.rallysequities.com/">
+<meta property="og:image" content="https://www.rallysequities.com/assets/img/logo.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" id="twTitle" content="Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan">
 <meta name="twitter:description" id="twDesc" content="Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.">
-<meta name="twitter:image" content="https://rallysequities.com/assets/img/logo.png">
+<meta name="twitter:image" content="https://www.rallysequities.com/assets/img/logo.png">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FinancialService","name":"Rallys Equities (Pvt) Ltd","url":"https://rallysequities.com/","logo":"https://rallysequities.com/assets/img/logo.png","image":"https://rallysequities.com/assets/img/logo.png","description":"Making investment in the Pakistan Stock Exchange simple, secure and transparent — licensed and regulated by the SECP & PSX.","email":"hello@rallysequities.com","telephone":"+92-42-36366667","address":{"@type":"PostalAddress","streetAddress":"LSE Building","addressLocality":"Lahore","addressCountry":"PK"},"sameAs":["https://www.facebook.com/profile.php?id=61584496977916","https://www.instagram.com/rallyssequities/","https://www.linkedin.com/company/rallys-equities"]}
+{"@context":"https://schema.org","@type":"FinancialService","name":"Rallys Equities (Pvt) Ltd","url":"https://www.rallysequities.com/","logo":"https://www.rallysequities.com/assets/img/logo.png","image":"https://www.rallysequities.com/assets/img/logo.png","description":"Making investment in the Pakistan Stock Exchange simple, secure and transparent — licensed and regulated by the SECP & PSX.","email":"hello@rallysequities.com","telephone":"+92-42-36366667","address":{"@type":"PostalAddress","streetAddress":"LSE Building","addressLocality":"Lahore","addressCountry":"PK"},"sameAs":["https://www.facebook.com/profile.php?id=61584496977916","https://www.instagram.com/rallyssequities/","https://www.linkedin.com/company/rallys-equities"]}
 </script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" as="image" href="assets/img/page-title.jpg">
@@ -3341,12 +3341,44 @@ function setMetaTags(title,desc){
 /* mode: undefined (normal nav) → pushState if the path actually changed;
    'replace' (initial boot-time deep link) → replaceState, no new history entry;
    'none' (responding to a popstate) → URL is already correct, don't touch history. */
+/* Sub-pages under a hub that actually has its own landing page (Services, About) get a
+   3-level breadcrumb; Investor Relations/Tools/Misc have no real hub page to link to, so
+   those stay 2-level rather than pointing at a URL that doesn't exist. */
+const BREADCRUMB_HUB={services:'services',about:'about'};
+function syncBreadcrumb(id){
+  let tag=document.getElementById('breadcrumbLd');
+  if(id==='home'){ if(tag)tag.remove(); return; }
+  const m=PAGE_META[id]||PAGE_META.home;
+  const items=[{name:'Home',path:'/'}];
+  const hubId=BREADCRUMB_HUB[NAV_PARENT[id]];
+  if(hubId&&PAGE_META[hubId]&&PAGE_META[hubId].path!==m.path)items.push({name:PAGE_META[hubId].title.split(' — ')[0],path:PAGE_META[hubId].path});
+  items.push({name:m.title.split(' — ')[0],path:m.path});
+  if(!tag){ tag=document.createElement('script'); tag.type='application/ld+json'; tag.id='breadcrumbLd'; document.head.appendChild(tag); }
+  tag.textContent=JSON.stringify({'@context':'https://schema.org','@type':'BreadcrumbList',
+    itemListElement:items.map((it,i)=>({'@type':'ListItem',position:i+1,name:it.name,item:location.origin+it.path}))});
+}
+/* FAQPage schema, generated straight from the visible Q&A on #page-faq so it can never
+   drift out of sync with the actual content the way a hand-duplicated list would. */
+function syncFaqSchema(id){
+  let tag=document.getElementById('faqLd');
+  if(id!=='faq'){ if(tag)tag.remove(); return; }
+  const items=[...document.querySelectorAll('#page-faq .faq-item')].map(el=>({
+    q:(el.querySelector('summary')?.textContent||'').trim(),
+    a:(el.querySelector('.faq-a')?.textContent||'').trim()
+  })).filter(x=>x.q&&x.a);
+  if(!items.length){ if(tag)tag.remove(); return; }
+  if(!tag){ tag=document.createElement('script'); tag.type='application/ld+json'; tag.id='faqLd'; document.head.appendChild(tag); }
+  tag.textContent=JSON.stringify({'@context':'https://schema.org','@type':'FAQPage',
+    mainEntity:items.map(it=>({'@type':'Question',name:it.q,acceptedAnswer:{'@type':'Answer',text:it.a}}))});
+}
 function syncPageMeta(id,mode){
   const m=PAGE_META[id]||PAGE_META.home;
   setMetaTags(m.title,m.desc);
   const url=location.origin+m.path;
   const set=(elId,attr,val)=>{ const el=document.getElementById(elId); if(el)el.setAttribute(attr,val); };
   set('ogUrl','content',url); set('metaCanon','href',url);
+  syncBreadcrumb(id);
+  syncFaqSchema(id);
   if(ADMIN_MODE||mode==='none')return;
   try{
     if(mode==='replace')history.replaceState({page:id},'',m.path);
