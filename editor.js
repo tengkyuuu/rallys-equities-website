@@ -1077,6 +1077,7 @@ function renderPostEditor(){
     h('span',{class:'re-badge '+st.cls},st.label),
     h('span',{class:'re-poststat-tx'},st.hint)));
   const title=h('input',{class:'re-input',value:p.title||'',placeholder:'e.g. KSE-100 outlook for Q3','aria-label':'Post title'});
+  const slugInp=h('input',{class:'re-input',value:p.slug||'',placeholder:'auto-generated from the title','aria-label':'URL slug'});
   const date=h('input',{class:'re-input',type:'date',value:(p.date||'').slice(0,10),'aria-label':'Post date',style:'max-width:200px'});
   let coverUrl=p.cover||'';
   const coverImg=h('img',{class:'re-cover-thumb',src:coverUrl||'',alt:'',style:coverUrl?'':'display:none'});
@@ -1112,7 +1113,11 @@ function renderPostEditor(){
   /* One writer for the record; the caller decides whether it's a draft or goes live. */
   const collect=pub=>{
     if(!title.value.trim()){ toast('Give the post a title','err'); title.focus(); return null; }
-    const rec={id:p.id,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:API.sanitizePost(body.innerHTML),published:pub};
+    let slug=API.slugify(slugInp.value.trim()||title.value)||'post';
+    const others=(WORK.posts||[]).filter(x=>x.id!==p.id);
+    const base=slug; for(let n=2;others.some(x=>x.slug===slug);n++)slug=base+'-'+n;
+    slugInp.value=slug;
+    const rec={id:p.id,slug,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:API.sanitizePost(body.innerHTML),published:pub};
     const i=(WORK.posts||[]).findIndex(x=>x.id===p.id);
     if(i<0)WORK.posts.push(rec); else WORK.posts[i]=rec;
     markDirty('posts:'+p.id);
@@ -1160,6 +1165,8 @@ function renderPostEditor(){
   }},'Unpublish'):'';
   dashMain.append(h('div',{class:'re-card re-post-form'},
     h('div',{class:'re-field'},h('label',{},'Title'),title),
+    h('div',{class:'re-field'},h('label',{},'URL slug'),slugInp,
+      h('div',{style:'font-size:11px;color:var(--mt);margin-top:4px'},'Used in the post’s web address: rallysequities.com/blog/your-slug. Leave blank to generate one from the title.')),
     h('div',{class:'re-post-cols'},
       h('div',{class:'re-field'},h('label',{},'Date'),date)),
     h('div',{class:'re-field'},h('label',{},'Cover image'),

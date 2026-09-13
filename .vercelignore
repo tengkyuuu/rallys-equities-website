@@ -11,3 +11,9 @@ start-server.cmd
 .env.example
 artifact_reference.html
 *.md
+tests
+playwright.config.js
+test-results
+playwright-report
+.github
+.impeccable
