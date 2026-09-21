@@ -3066,8 +3066,9 @@ const fmtN=n=>n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionD
 const nowStr=()=>new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{timeZone:'Asia/Karachi'})),h=pk.getHours(),m=pk.getMinutes(),d=pk.getDay();return d>0&&d<6&&(h>9||(h===9&&m>=30))&&(h<15||(h===15&&m<=30));};
 
-/* Real PSX index data via our Supabase Edge Function (server-side → no CORS, no key exposed).
-   Only the indices + hero chart are real (PSX, delayed); individual stock rows stay simulated. */
+/* Real PSX data via our Vercel serverless function (server-side → no CORS, no key exposed).
+   Indices, hero chart, AND individual stock rows are real (PSX, delayed ~15 min) when the
+   /api/market fetch succeeds; the PSX[] array below only drives the fallback simulation. */
 let LIVE=null, LIVESTOCKS=null, tickerReal=false, mktDirty=true;
 function fmtVol(n){ return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n||0); }
 const escHtml=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
