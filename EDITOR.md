@@ -23,6 +23,7 @@ This document covers (1) what was built, (2) one-time setup, and (3) a plain-Eng
 | Type | Examples |
 |---|---|
 | Text | headings, paragraphs, section tags, button labels, card titles/descriptions, footer, page-hero titles, calculator write-ups |
+| Prices & plans | account-plan cards on Services (name, price, line under the price, features, button, which plan is highlighted, show/hide, order) and the account-opening form's options (name, description, price line) |
 | Images | logo, hero/section photos, service banners, "why choose us", infographics |
 | Colors | brand gold, emerald, backgrounds, text, market up/down — globally, for both dark & light mode |
 
@@ -49,11 +50,13 @@ Commit & push. Vercel redeploys as usual. The public site stays static; it only 
 
 1. **Open the editor:** add `?edit=1` to your website address (e.g. `https://yoursite.com/?edit=1`) and press Enter.
 2. **Log in** with the email and password we set up for you.
-3. **Edit text:** click any text → type your change → click away. (A small toolbar lets you make text **bold**/*italic* or add a link.)
-4. **Change an image:** hover over a picture → click **Change image** → upload a new one or pick from your library.
-5. **Change colors:** click **Colors** (side panel) → switch between **Dark** and **Light** tabs → use the color pickers (grouped by what they affect, like "Brand Gold" or "Backgrounds"). You see changes instantly.
-6. **Save or Publish:** your edits are a private **draft** until you press **Publish**. Publish makes them live for everyone. Use **Discard** to undo all unsaved changes.
-7. **Done?** Remove `?edit=1` (or click *Preview as visitor*) to see the site as the public does.
+3. **Edit text:** click any text → type your change → click **Done** (or press **Enter**). **Cancel** (or **Esc**) throws that edit away. The small toolbar also does **bold**/*italic*/links, and once a piece of text has been changed it shows **Original**, which puts the wording back the way it shipped. **Shift+Enter** adds a line break. Clicking a **button** opens a small "Button text" box instead.
+4. **Change prices & plans:** click **Pricing** in the toolbar (or **Prices & plans** on the dashboard), or just click any plan card. Each plan is one line showing its price, with its **Show on the website** and **Highlight** switches right there; click the plan's name to open its details. Inside: the price (quick picks: **PKR** starts an amount, then just type the number; **Free**, **Custom**, **On request**), the line under it, the features (one per line) and the button text. Any box you've changed shows **Restore original**; **Restore this plan to the original** resets the whole plan. Plans you've changed are marked **Edited**; hidden ones are marked **Hidden** and stay faded on the page while you edit. The account types in the online application form are in the last section of the same panel.
+   - **Undo** (top toolbar, or Ctrl+Z) steps back through your changes. If you undo or restore everything, the toolbar goes back to "All changes saved". If you try to close the tab with unsaved changes, the browser asks first.
+5. **Change an image:** hover over a picture → click **Change image** → upload a new one or pick from your library.
+6. **Change colors:** click **Colors** (side panel) → switch between **Dark** and **Light** tabs → use the color pickers (grouped by what they affect, like "Brand Gold" or "Backgrounds"). You see changes instantly.
+7. **Save or Publish:** your edits are a private **draft** until you press **Publish**. Publish makes them live for everyone. Use **Discard** to undo all unsaved changes.
+8. **Done?** Remove `?edit=1` (or click *Preview as visitor*) to see the site as the public does.
 
 > Tip: nothing you click can break the site. If a color looks wrong, each color group has a **Reset** button. If text looks wrong, press **Undo**.
 
@@ -105,6 +108,18 @@ Commit & push. Vercel redeploys as usual. The public site stays static; it only 
     - Realtime is the fast path, so the poll is only a fallback for a channel that didn't connect: 15s → 45s, skipped entirely while the tab is hidden, with a quiet catch-up on `visibilitychange`.
     - `softRefresh()` rebuilt the whole view on every background fetch, and boot fires it twice (draft, then the published snapshot) — usually with identical content. It now compares a `viewSig()` of everything a view actually reads and skips the repaint when nothing changed.
     - Verified: 100s / two poll cycles on Editors → **0** skeleton bursts and 0 row rebuilds; a genuinely changed roster (invite accepted, one added, one gone) still appears, still without skeletons; manual Refresh still shows one.
+
+- **Phase 12 — Pricing panel + text-editing bug fixes ✅:**
+  - **Pricing panel** (toolbar **Pricing**, dashboard **Prices & plans**, or click any plan card / account-form option). Stored in `overrides.pricing` as *differences only* (`plans.<id>.{name,price,period,features[],btn,show}`, `featured`, `badge`, `show`, `form.<option>.{name,desc,price}`); `applyPricing()` in `index.html` merges them over defaults snapshotted from the markup at boot, so an emptied field falls back to the original. Plan order reuses `overrides.order.plans` (cards carry `data-rekey="plans.<id>"`), so the panel's ↑/↓ and the generic drag handle share one source of truth. Long prices shrink (`.prc-mid` / `.prc-long`); the grid re-centres for 1–2 visible plans. Cards are edited as one unit: no raw contenteditable, and the hover toolbar's hide acts on the plan's `show` flag. Settings → Reset gained **Prices & plans**.
+  - **Bugs fixed:** (1) pressing Space/Enter in a button label fired the button (e.g. jumped to the Account page) and Chrome never accepted typing inside a `<button>` anyway — buttons now open a "Button text" dialog, and any click inside text being edited is swallowed; (2) every edit session leaked an Escape listener, so Esc on a later edit restored the *first* session's text and saved it while the screen showed something else — listeners are per-session now, Esc cancels only the current edit, Enter commits; (3) `walkPath` read the key segment `h21` as "21st `<h>`" instead of "1st `<h2>`", so edits to untagged headings never re-applied after a reload; (4) Undo and Discard updated the saved data but left edited text on screen; (5) the shared prompt dialog's Enter re-clicked whatever focus returned to; (6) **Add link** ended the edit before the link was applied; (7) Ctrl+Z inside a panel text box popped the editor's undo stack instead of the box's own.
+  - Covered by `tests/pricing-editor.spec.js` (runs against the local-preview store).
+- **Phase 13 — editing UX pass ✅:**
+  - **Restore original, everywhere.** The editor fetches the site's untouched markup once (`SOURCE_DOC`) and resolves any edit key against it (`sourceNode`/`originalHTML`, using the engine's `walkPath`), so the text toolbar can offer **Original** for any edited text and the button dialog shows the original label. Landing back on the original wording *deletes* the override (`commitText`) rather than storing a copy. Pricing boxes show **Restore original** once they differ from the default.
+  - **Pricing panel:** plans are collapsible one-liners (`prcOpen`) with the price, **Edited**/**Hidden** tags, and the show/highlight switches always visible; clicking a card opens just that plan. Price quick picks gained **PKR** (`applyPriceChip` — starts an amount, keeps a number already typed) and highlight the pick that matches the current value; form price lines get **PKR** / **Free · No minimum**. "Restore this plan" is disabled until the plan differs.
+  - **Text toolbar:** visible **Cancel** / **Done** buttons (Esc/Enter still work); the move/hide bar steps aside while typing.
+  - **Undo button** in the studio toolbar (`doUndo`, shared with Ctrl+Z); image undo now also puts the previous photo back on screen.
+  - **Honest change count:** `markSaved()` snapshots the draft on load/save/publish/discard; when the working copy matches it again (`workSig`, key-order-insensitive), "unsaved changes" clears itself.
+  - **Leave guard:** `beforeunload` warns when there are unsaved changes; the editor's own reloads (`reloadEditor`, logout) skip it.
 
 ### Storage modes
 - **Supabase configured** (`editor/supabase-config.js` filled): real email+password login; draft/publish to the `site_content` table; image uploads to the `content-images` bucket; published content fetched by all visitors.

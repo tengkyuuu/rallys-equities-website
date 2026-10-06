@@ -209,6 +209,10 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .prc-features{display:flex;flex-direction:column;gap:9px;margin:18px 0;list-style:none}
 .prc-features li{font-size:12px;color:var(--mt);display:flex;align-items:center;gap:8px}
 .prc-features li::before{content:'✓';color:var(--g3);font-weight:700;font-size:11px}
+.prc-price.prc-mid{font-size:26px}.prc-price.prc-long{font-size:21px;line-height:1.15}
+.price-grid[data-n="2"]{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto}
+.price-grid[data-n="1"]{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}
+.prc-off{display:none!important}
 
 /* LOCATION */
 .loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:48px}
@@ -1024,7 +1028,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   .sec,.sec-sm{padding:52px 18px}
   .svc-grid,.testi-grid,.reg-grid,.disc-grid,.fbc-grid{grid-template-columns:1fr}
   .how-steps{grid-template-columns:1fr}.how-arrow{display:none}
-  .sdg,.loc-grid,.ctc-grid,.price-grid,.ao-wrap{grid-template-columns:1fr}
+  .sdg,.loc-grid,.ctc-grid,.price-grid,.price-grid[data-n],.ao-wrap{grid-template-columns:1fr}
   .ao-side{display:none}.ao-main{padding:24px 18px}
   .fgrid{grid-template-columns:1fr}
   .nxt-steps{grid-template-columns:1fr}
@@ -1702,13 +1706,13 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
   </div>
 </section>
 
-<!-- PRICING -->
-<section class="sec sec-alt">
-  <div style="text-align:center"><div class="stag">Account Types</div><h2 class="sh">Choose Your <em>Account</em> <span>Plan</span></h2><p class="sub" style="margin:0 auto;text-align:center">All accounts are SECP regulated with CDC asset protection. No hidden fees.</p></div>
-  <div class="price-grid">
-    <div class="prc"><div class="prc-name">Individual</div><div class="prc-price">Free</div><div class="prc-period">Account opening · Competitive rates</div><ul class="prc-features"><li>PSX equity trading</li><li>Real-time market data</li><li>Online trading platforms (mobile &amp; web)</li><li>Market research &amp; insights</li><li>Dedicated customer support</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Get Started</button></div>
-    <div class="prc feat"><div class="prc-badge">Most Popular</div><div class="prc-name">Shariah Compliant</div><div class="prc-price">Free</div><div class="prc-period">Values-aligned investing</div><ul class="prc-features"><li>Everything in Individual</li><li>Screened Shariah-compliant universes</li><li>Portfolio construction &amp; periodic reviews</li><li>Dividend-purification guidance</li><li>Rules-based investing education</li></ul><button class="bbig bbig-g" style="width:100%;justify-content:center" onclick="openAccount()">Open Account</button></div>
-    <div class="prc"><div class="prc-name">Corporate</div><div class="prc-price" style="font-size:26px">Custom</div><div class="prc-period">For businesses &amp; institutions</div><ul class="prc-features"><li>Professional institutional guidance</li><li>Portfolio management framework</li><li>Dedicated relationship manager</li><li>Priority market research access</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Contact Us</button></div>
+<!-- PRICING — plan cards are managed from /admin → Pricing (applyPricing); data-plan ids are stable keys -->
+<section class="sec sec-alt" id="pricing-sec">
+  <div style="text-align:center"><div class="stag" data-edit="plans.tag">Account Types</div><h2 class="sh" data-edit="plans.heading">Choose Your <em>Account</em> <span>Plan</span></h2><p class="sub" style="margin:0 auto;text-align:center" data-edit="plans.sub">All accounts are SECP regulated with CDC asset protection. No hidden fees.</p></div>
+  <div class="price-grid" data-rekey="plans">
+    <div class="prc" data-plan="individual" data-rekey="plans.individual"><div class="prc-name">Individual</div><div class="prc-price">Free</div><div class="prc-period">Account opening · Competitive rates</div><ul class="prc-features"><li>PSX equity trading</li><li>Real-time market data</li><li>Online trading platforms (mobile &amp; web)</li><li>Market research &amp; insights</li><li>Dedicated customer support</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Get Started</button></div>
+    <div class="prc feat" data-plan="shariah" data-rekey="plans.shariah"><div class="prc-badge">Most Popular</div><div class="prc-name">Shariah Compliant</div><div class="prc-price">Free</div><div class="prc-period">Values-aligned investing</div><ul class="prc-features"><li>Everything in Individual</li><li>Screened Shariah-compliant universes</li><li>Portfolio construction &amp; periodic reviews</li><li>Dividend-purification guidance</li><li>Rules-based investing education</li></ul><button class="bbig bbig-g" style="width:100%;justify-content:center" onclick="openAccount()">Open Account</button></div>
+    <div class="prc" data-plan="corporate" data-rekey="plans.corporate"><div class="prc-name">Corporate</div><div class="prc-price">Custom</div><div class="prc-period">For businesses &amp; institutions</div><ul class="prc-features"><li>Professional institutional guidance</li><li>Portfolio management framework</li><li>Dedicated relationship manager</li><li>Priority market research access</li></ul><button class="bbig bbig-o" style="width:100%;justify-content:center" onclick="showPage('account')">Contact Us</button></div>
   </div>
 </section>
 <div class="cta-block" style="margin-top:72px"><div class="cta-inner"><h2>Ready to <em>Start</em> <span>Investing?</span></h2><p>Join thousands of Pakistanis who trust Rallys Equities with their financial future.</p><div class="cta-btns"><button class="bbig bbig-g" onclick="openAccount()">Open Account Now</button><button class="bbig bbig-o" onclick="showPage('locations')">Visit Our Office</button></div></div></div>
@@ -1953,9 +1957,9 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
         <div style="margin-bottom:22px">
           <label class="flbl" style="margin-bottom:12px;display:block">Account Type <span class="req">*</span></label>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px" id="acTypeGrid">
-            <div class="ac-opt active-opt" data-val="standard" onclick="selAcType(this)"><div style="font-size:13px;font-weight:700;margin-bottom:4px">Standard</div><div style="font-size:10px;color:var(--mt);line-height:1.6">Full PSX access, mutual funds, IPOs. Best for most investors.</div><div style="font-size:11px;color:var(--g3);font-weight:600;margin-top:8px">Free · No minimum</div></div>
-            <div class="ac-opt" data-val="halal" onclick="selAcType(this)"><div style="font-size:13px;font-weight:700;margin-bottom:4px">🕌 Halal Account</div><div style="font-size:10px;color:var(--mt);line-height:1.6">KMI-30 Shariah-screened. Certified by our advisory board.</div><div style="font-size:11px;color:var(--g3);font-weight:600;margin-top:8px">Free · No minimum</div></div>
-            <div class="ac-opt" data-val="premium" onclick="selAcType(this)"><div style="font-size:13px;font-weight:700;margin-bottom:4px">Premium</div><div style="font-size:10px;color:var(--mt);line-height:1.6">Dedicated advisor, advanced analytics. PKR 50L+ portfolios.</div><div style="font-size:11px;color:var(--au);font-weight:600;margin-top:8px">PKR 50L minimum</div></div>
+            <div class="ac-opt active-opt" data-val="standard" onclick="selAcType(this)"><div class="ac-n" style="font-size:13px;font-weight:700;margin-bottom:4px">Standard</div><div class="ac-d" style="font-size:10px;color:var(--mt);line-height:1.6">Full PSX access, mutual funds, IPOs. Best for most investors.</div><div class="ac-p" style="font-size:11px;color:var(--g3);font-weight:600;margin-top:8px">Free · No minimum</div></div>
+            <div class="ac-opt" data-val="halal" onclick="selAcType(this)"><div class="ac-n" style="font-size:13px;font-weight:700;margin-bottom:4px">🕌 Halal Account</div><div class="ac-d" style="font-size:10px;color:var(--mt);line-height:1.6">KMI-30 Shariah-screened. Certified by our advisory board.</div><div class="ac-p" style="font-size:11px;color:var(--g3);font-weight:600;margin-top:8px">Free · No minimum</div></div>
+            <div class="ac-opt" data-val="premium" onclick="selAcType(this)"><div class="ac-n" style="font-size:13px;font-weight:700;margin-bottom:4px">Premium</div><div class="ac-d" style="font-size:10px;color:var(--mt);line-height:1.6">Dedicated advisor, advanced analytics. PKR 50L+ portfolios.</div><div class="ac-p" style="font-size:11px;color:var(--au);font-weight:600;margin-top:8px">PKR 50L minimum</div></div>
           </div>
         </div>
         <div style="margin-bottom:22px">
@@ -4101,7 +4105,7 @@ function injectThemeOverrides(theme){
    element has no data-edit attribute. */
 function walkPath(node,path){
   for(const seg of path.split('-')){
-    const m=seg.match(/^([a-z]+)(\d+)$/i); if(!m)return null;
+    const m=seg.match(/^(h[1-6]|[a-z]+)(\d+)$/i); if(!m)return null;   // h21 = 1st <h2>, not 21st <h>
     const tag=m[1].toUpperCase(); let cnt=+m[2], found=null;
     for(const c of node.children){ if(c.tagName===tag && --cnt===0){ found=c; break; } }
     if(!found)return null; node=found;
@@ -4183,6 +4187,60 @@ function applyOrder(order){
     order[pk].forEach(k=>{ const c=map[k]; if(c)parent.appendChild(c); });
   }
 }
+/* ── Pricing: plan cards + account-form options, driven by overrides.pricing.
+   Only changed fields are stored; the rest falls back to the markup's own wording,
+   snapshotted once before any override has touched these nodes. */
+let PRICING_DEFAULTS=null;
+function pricingDefaults(){
+  if(PRICING_DEFAULTS)return PRICING_DEFAULTS;
+  const tx=(r,s)=>{ const n=r.querySelector(s); return n?n.textContent.trim():''; };
+  const plans={},order=[]; let featured='',badge='Most Popular';
+  document.querySelectorAll('.prc[data-plan]').forEach(c=>{
+    const id=c.dataset.plan; order.push(id);
+    if(c.classList.contains('feat')){ featured=id; badge=tx(c,'.prc-badge')||badge; }
+    plans[id]={name:tx(c,'.prc-name'),price:tx(c,'.prc-price'),period:tx(c,'.prc-period'),
+      features:[...c.querySelectorAll('.prc-features li')].map(li=>li.textContent.trim()),btn:tx(c,'button')};
+  });
+  const form={};
+  document.querySelectorAll('.ac-opt[data-val]').forEach(o=>{ form[o.dataset.val]={name:tx(o,'.ac-n'),desc:tx(o,'.ac-d'),price:tx(o,'.ac-p')}; });
+  return PRICING_DEFAULTS={plans,order,featured,badge,form};
+}
+function pricingValue(p){
+  const d=pricingDefaults(); p=p||{};
+  const plans={};
+  for(const id of d.order){ const o=(p.plans&&p.plans[id])||{}; plans[id]={...d.plans[id],...o,show:o.show!==false}; }
+  const form={};
+  for(const k in d.form)form[k]={...d.form[k],...((p.form&&p.form[k])||{})};
+  return {plans,form,order:d.order,show:p.show!==false,
+    featured:p.featured!=null?p.featured:d.featured, badge:p.badge?p.badge:d.badge};
+}
+function applyPricing(p){
+  const v=pricingValue(p);
+  const setT=(n,t)=>{ if(n&&n.textContent!==t)n.textContent=t; };
+  const sec=document.getElementById('pricing-sec'); if(sec)sec.classList.toggle('prc-off',!v.show);
+  let shown=0;
+  document.querySelectorAll('.prc[data-plan]').forEach(c=>{
+    const id=c.dataset.plan, x=v.plans[id]; if(!x)return;
+    setT(c.querySelector('.prc-name'),x.name); setT(c.querySelector('.prc-period'),x.period);
+    const pr=c.querySelector('.prc-price');
+    if(pr){ setT(pr,x.price); const L=x.price.length; pr.classList.toggle('prc-mid',L>4&&L<=10); pr.classList.toggle('prc-long',L>10); }
+    const ul=c.querySelector('.prc-features');
+    if(ul&&[...ul.children].map(li=>li.textContent).join('\n')!==x.features.join('\n'))
+      ul.replaceChildren(...x.features.map(t=>{ const li=document.createElement('li'); li.textContent=t; return li; }));
+    const btn=c.querySelector('button'); setT(btn,x.btn);
+    const feat=v.featured===id;
+    c.classList.toggle('feat',feat);
+    let b=c.querySelector('.prc-badge');
+    if(feat){ if(!b){ b=document.createElement('div'); b.className='prc-badge'; c.prepend(b); } setT(b,v.badge); }
+    else if(b)b.remove();
+    if(btn){ btn.classList.toggle('bbig-g',feat); btn.classList.toggle('bbig-o',!feat); }
+    c.classList.toggle('prc-off',!x.show); if(x.show)shown++;
+  });
+  const grid=document.querySelector('.price-grid');
+  if(grid){ if(shown&&shown<v.order.length)grid.dataset.n=String(shown); else delete grid.dataset.n; }
+  document.querySelectorAll('.ac-opt[data-val]').forEach(o=>{ const x=v.form[o.dataset.val]; if(!x)return;
+    setT(o.querySelector('.ac-n'),x.name); setT(o.querySelector('.ac-d'),x.desc); setT(o.querySelector('.ac-p'),x.price); });
+}
 function applyOverrides(data){
   if(!data||typeof data!=='object') return;
   OVERRIDES=data;
@@ -4194,6 +4252,7 @@ function applyOverrides(data){
   for(const k in t){ reTargets('data-edit',k).forEach(el=>{ el.innerHTML=sanitizeFragment(t[k]); }); }
   const im=data.img||{}, meta=data.imgMeta||{};
   for(const k in im){ reTargets('data-edit-img',k).forEach(img=>{ if(img.tagName!=='IMG')return; img.src=im[k]; const m=meta[k]; if(m){ if(m.srcset!=null)img.srcset=m.srcset; if(m.alt!=null)img.alt=m.alt; } }); }
+  applyPricing(data.pricing);
   applyHidden(data.hidden);
   applyOrder(ord);
   renderBlog(data.posts);
@@ -4425,6 +4484,7 @@ function loadPublishedContent(){
 window.RE_API={
   applyOverrides, injectThemeOverrides, applyFonts, sanitizeFragment, sanitizePost, getEditKey, cssVar, refreshCalcInfo,
   applyHidden, applyOrder, sigStampKids, reResolve, renderBlog, showPage, slugify,
+  applyPricing, pricingDefaults, pricingValue, walkPath,
   get overrides(){ return OVERRIDES; },
   setOverrides(v){ applyOverrides(v||{}); },
   get calcInfo(){ return CALC_INFO; },

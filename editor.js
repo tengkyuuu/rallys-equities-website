@@ -65,6 +65,8 @@ const ICONS={
   shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
   lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   circle:'<circle cx="12" cy="12" r="9"/>',
+  tag:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.2"/>',
+  down:'<path d="m6 9 6 6 6-6"/>',
   cloud:'<path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.78A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 5 19z"/><path d="m9 14 3-3 3 3"/><path d="M12 11v6"/>',
   chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
   briefcase:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
@@ -116,6 +118,7 @@ const dateLong=v=>{ const t=Date.parse(v||''); return t?new Date(t).toLocaleDate
 const dateTime=v=>{ const t=Date.parse(v||''); return t?new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}):'—'; };
 /* Locked = live/dynamic widgets + the editor's own UI. Everything else (incl. nav labels & logo) is editable. */
 const LOCKED='.pcard,#mktTbody,#tickerWrap,#heroStocks,#perfGrid,.ticker,.live-badge,.theme-toggle,#toTop,.wa-fab,.ham,.re-bar,.re-panel,.re-overlay,.re-fmt,.re-img-btn,.re-coach,.re-toast,.re-dash,.re-login,.cnt';
+const PRC_CARD='.prc[data-plan],.ac-opt[data-val]';   // pricing cards — edited as a unit through the Pricing panel
 function toast(msg,type){
   let t=$('.re-toast'); if(!t){t=h('div',{class:'re-toast',role:'status','aria-live':'polite'});document.body.append(t);}
   t.className='re-toast '+(type==='err'?'err':'ok');
@@ -217,7 +220,7 @@ function rePrompt(msg,opts){ opts=opts||{};
     let settled=false;
     const fin=v=>{ if(settled)return; settled=true; m.close(); res(v); };
     const inp=h('input',{class:'re-input',type:'text',value:opts.value||'',placeholder:opts.placeholder||'','aria-label':opts.title||'Value'});
-    inp.addEventListener('keydown',e=>{ if(e.key==='Enter')fin(inp.value.trim()); });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); fin(inp.value.trim()); } });   // else the Enter re-clicks whatever focus returns to
     const ok=h('button',{class:'re-btn re-btn-pri',onclick:()=>fin(inp.value.trim())},opts.okLabel||'OK');
     const cancel=h('button',{class:'re-btn re-btn-ghost',onclick:()=>fin(null)},'Cancel');
     const m=reModal({title:opts.title||'Enter a value',desc:msg||'',body:[h('div',{class:'re-field'},inp)],foot:[cancel,ok],noX:true,
@@ -232,7 +235,7 @@ function pwWrap(inp){
 }
 
 /* ---------- working state ---------- */
-const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{},fonts:{},hidden:{},order:{},posts:[]});
+const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{},fonts:{},hidden:{},order:{},pricing:{},posts:[]});
 let WORK=blank();          // full working overrides (loaded from draft)
 let LIVE=blank();          // last known *published* snapshot — what visitors see right now
 /* Seed it from the cache the site itself keeps, so post statuses are right on the
@@ -243,6 +246,16 @@ const undo=[];             // {kind,key,prev}
 let editing=false;
 
 function markDirty(id){ dirty.add(id); updateSaveBar(); }
+/* Signature of the last saved draft. Undoing or restoring everything back to it
+   clears "unsaved changes" — the count reflects real differences, not keystrokes. */
+let SAVED_SIG=null;
+function canon(v){
+  if(Array.isArray(v))return v.map(canon);
+  if(v&&typeof v==='object'){ const o={}; Object.keys(v).sort().forEach(k=>{ const c=canon(v[k]); if(c&&typeof c==='object'&&!Array.isArray(c)&&!Object.keys(c).length)return; o[k]=c; }); return o; }
+  return v;
+}
+const workSig=()=>JSON.stringify(canon(Object.assign({},WORK,{version:0})));
+function markSaved(){ SAVED_SIG=workSig(); }
 
 /* ════════ STORE ADAPTERS ════════ */
 function localStore(){
@@ -400,7 +413,7 @@ function onAuthed(){
      request stalls, the visitor would otherwise be left staring at the live site. */
   if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard();
   /* Then load the saved draft in the background and refresh once it arrives. */
-  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); })
+  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); markSaved(); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); })
     .catch(e=>{ console.warn('[editor] could not load draft',e); });
   /* …and the published snapshot, so every screen can say what is actually on the
      website right now vs. what is still only in the draft. */
@@ -417,11 +430,11 @@ function migrateHidden(hidden){ hidden=hidden||{};
   for(const oldK in HIDDEN_MIGRATE){ if(oldK in hidden){ const v=hidden[oldK]; delete hidden[oldK]; hidden[HIDDEN_MIGRATE[oldK]]=v; } }
   return hidden;
 }
-function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:migrateHidden(d.hidden||{}),order:d.order||{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
+function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:migrateHidden(d.hidden||{}),order:d.order||{},pricing:(d.pricing&&typeof d.pricing==='object')?d.pricing:{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
 function doLogout(){
   const busy=reBusy('Signing out','Closing your session on this device…');
   Promise.resolve(Store.logout())
-    .then(()=>{ location.search=location.search.replace(/[?&]edit=1/,'')||''; })
+    .then(()=>{ leaving=true; location.search=location.search.replace(/[?&]edit=1/,'')||''; })
     .catch(e=>{ busy.close(); toast(e.message||'Could not sign out','err'); });
 }
 
@@ -506,6 +519,7 @@ function ensureDash(){
       navItem('editors','users','Editors',()=>go('editors')),
       h('div',{class:'re-side-cap'},'Website'),
       navItem('','edit','Edit website',()=>enterStudio({edit:true})),
+      navItem('','tag','Prices & plans',()=>enterStudio({edit:true,panel:'pricing'})),
       navItem('','sliders','Site settings',()=>enterStudio({edit:false,panel:'site'})),
       navItem('','external','View live site',()=>window.open(location.origin+'/','_blank'))),
     h('div',{class:'re-side-foot'},
@@ -650,6 +664,7 @@ function renderOverview(){
   dashMain.append(h('div',{class:'re-qas'},
     qa('inbox','Check submissions','See messages, complaints, feedback and applications from visitors.',()=>go('submissions')),
     qa('edit','Edit content','Click text to rewrite it; drag anything to move it; hide what you don’t need.',()=>enterStudio({edit:true})),
+    qa('tag','Prices & plans','Change what each account plan costs and includes, highlight one, or hide it.',()=>enterStudio({edit:true,panel:'pricing'})),
     qa('post','Write a blog post','Publish market commentary to the site’s Blogs section.',()=>{ blogEditId='new'; go('blog'); }),
     qa('image','Photos','Swap any photo — click it, or drag one photo onto another.',()=>enterStudio({edit:false,panel:'photos'})),
     qa('sliders','Site settings','Show/hide market widgets, remove pages, restore hidden pieces.',()=>enterStudio({edit:false,panel:'site'})),
@@ -1030,13 +1045,14 @@ function renderSettings(){
       mut();
       /* The curtain stays up through the reload, so the reset never looks like a crash. */
       const busy=reBusy('Restoring',what.charAt(0).toUpperCase()+what.slice(1)+' — putting the original design back.');
-      Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ busy.update('Reloading the editor…'); setTimeout(()=>location.reload(),600); })
+      Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ busy.update('Reloading the editor…'); setTimeout(reloadEditor,600); })
         .catch(e=>{ busy.close(); toast('Could not save the reset: '+e.message,'err'); });
     });
   };
   const resets=[
     ['colors & fonts','Back to the original brand palette and typography.',()=>{ WORK.theme={dark:{},light:{}}; WORK.fonts={}; }],
     ['text edits','Every heading and paragraph returns to its original wording.',()=>{ WORK.text={}; }],
+    ['prices & plans','Plan prices, features, highlight, order and visibility return to the original.',()=>{ WORK.pricing={}; delete WORK.order.plans; }],
     ['images','All photos return to the site’s original images.',()=>{ WORK.img={}; WORK.imgMeta={}; }],
     ['hidden elements & pages','Everything you hid or deleted comes back.',()=>{ WORK.hidden={}; }],
     ['layout & ordering','Dragged sections and elements return to their original positions.',()=>{ WORK.order={}; }],
@@ -1188,6 +1204,7 @@ function buildBar(){
   const tool=(ic,lbl,fn)=>h('button',{class:'re-tool',type:'button',onclick:fn,'aria-label':lbl,title:lbl},icon(ic,16),h('span',{class:'re-tool-lbl'},lbl));
   barEls.editSw=h('button',{class:'re-toggle',type:'button','aria-pressed':'false',onclick:()=>setEditing(!editing)},h('span',{class:'re-switch'}),h('span',{class:'re-toggle-lbl'},'Edit mode'));
   barEls.preview=tool('eye','Preview',togglePreview);
+  barEls.undo=tool('restore','Undo',doUndo); barEls.undo.title='Undo your last change (Ctrl+Z)'; barEls.undo.disabled=true;
   barEls.chip=h('span',{class:'re-count'});
   barEls.discard=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:discardAll},'Discard');
   barEls.save=h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
@@ -1199,12 +1216,13 @@ function buildBar(){
     tool('back','Dashboard',exitStudio),
     h('span',{class:'re-bar-div'}),
     barEls.editSw,
+    tool('tag','Pricing',()=>openPricing()),
     tool('image','Photos',openPhotos),
     tool('palette','Theme',openColors),
     tool('sliders','Site',openSite),
     barEls.preview,
     h('span',{class:'re-spacer'}),
-    barEls.chip, barEls.discard, barEls.save, barEls.publish);
+    barEls.undo, barEls.chip, barEls.discard, barEls.save, barEls.publish);
   document.body.append(bar);
 }
 /* The studio isn't a separate URL (both surfaces live at /admin), but the browser's
@@ -1223,6 +1241,7 @@ function enterStudio(opts){
   if(opts.panel==='photos')openPhotos();
   if(opts.panel==='theme')openColors();
   if(opts.panel==='site')openSite();
+  if(opts.panel==='pricing')openPricing();
   updateSaveBar();
   maybeCoach();
   if(!studioHist){ try{ history.pushState({reStudio:1},''); studioHist=true; }catch(e){} }
@@ -1246,7 +1265,7 @@ function exitStudio(){
 }
 /* Browser Back while the studio is open → back to the dashboard, not off the page. */
 window.addEventListener('popstate',()=>{ studioHist=false; if(document.body.classList.contains('re-on'))closeStudio(); });
-function closePanels(){ [photosPanel,colorPanel,sitePanel].forEach(p=>p&&p.classList.remove('open')); }
+function closePanels(){ [photosPanel,colorPanel,sitePanel,pricingPanel].forEach(p=>p&&p.classList.remove('open')); }
 function setEditing(v){
   editing=v;
   document.body.classList.toggle('re-editing',v);
@@ -1261,7 +1280,7 @@ function togglePreview(){
 }
 /* first-run coach, shown once when the studio opens */
 function maybeCoach(){ if(localStorage.getItem('re-coached'))return; localStorage.setItem('re-coached','1');
-  const c=h('div',{class:'re-coach re-ui',html:'<b>Welcome to your editor</b><br>• Flip <b>Edit mode</b> on, then click any highlighted text.<br>• <b>Photos</b> swaps images; <b>Theme</b> recolors the site.<br>• <b>Save draft</b> keeps changes private — <b>Publish</b> makes them live.'});
+  const c=h('div',{class:'re-coach re-ui',html:'<b>Welcome to your editor</b><br>• Flip <b>Edit mode</b> on, then click any highlighted text. <b>Enter</b> finishes, <b>Esc</b> cancels.<br>• <b>Pricing</b> changes plan prices, or just click a plan card.<br>• <b>Photos</b> swaps images; <b>Theme</b> recolors the site.<br>• <b>Save draft</b> keeps changes private — <b>Publish</b> makes them live.'});
   c.append(h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>c.remove()},'Got it'));
   document.body.append(c);
 }
@@ -1374,6 +1393,7 @@ function eligibleText(el){
   if(!el)return null;
   const free=el.closest&&el.closest('[data-edit-free]'); if(free)return free;   // whitelisted labels inside locked widgets
   if(el.closest(LOCKED))return null;
+  if(el.closest(PRC_CARD))return null;                 // plan cards edit through the Pricing panel
   const tagged=el.closest('[data-edit]'); if(tagged&&!tagged.closest(LOCKED))return tagged;
   let n=el;
   while(n&&n!==document.body){ if(n.closest&&n.closest(LOCKED))return null; if(isTextLeaf(n))return n; n=n.parentElement; }
@@ -1382,50 +1402,106 @@ function eligibleText(el){
 document.addEventListener('click',e=>{
   if(!editing||document.body.classList.contains('re-preview'))return;
   if(e.target.closest('.re-ui,.re-fmt,.re-img-btn,.re-panel,.re-overlay,.re-bar'))return;
+  /* A click inside text being edited (or the click a browser synthesizes when you press
+     Space/Enter in a button label) must never run that button's or link's own action. */
+  const live=e.target.closest('[contenteditable="true"]');
+  if(live){ e.preventDefault(); e.stopPropagation(); return; }
+  const card=e.target.closest(PRC_CARD);
+  if(card){ e.preventDefault(); e.stopPropagation(); openPricing(prcTarget(card),prcFieldOf(e.target)); return; }
   const t=eligibleText(e.target);
   if(!t)return;
-  if(t.getAttribute('contenteditable')==='true')return;
   e.preventDefault();e.stopPropagation();
-  startTextEdit(t);
+  if(t.tagName==='BUTTON')editButtonLabel(t); else startTextEdit(t);
 },true);
+/* Chrome won't put a typing caret inside a <button>, even a contenteditable one —
+   so button labels are edited in a small dialog instead of in place. */
+function editButtonLabel(el){
+  const key=el.dataset.edit||API.getEditKey(el);
+  if(!el.dataset.edit)el.dataset.edit=key;
+  const before=el.innerHTML;
+  const orig=originalHTML(key), origText=orig!=null?(()=>{ const t=document.createElement('div'); t.innerHTML=orig; return t.textContent.trim(); })():'';
+  rePrompt(orig!=null&&origText!==el.textContent.trim()?'Original: “'+origText+'” — type it back to restore.':'',{title:'Button text',value:el.textContent.trim(),okLabel:'Save'}).then(v=>{
+    if(!v)return;
+    if(!ORIG.has(key))ORIG.set(key,{el,html:before});
+    if(orig!=null&&v===origText)el.innerHTML=orig; else el.textContent=v;
+    commitText(el,key,before,API.sanitizeFragment(el.innerHTML));
+  });
+}
 
 let fmtBar;
+const ORIG=new Map();      // key → {el, html} before this session's first edit, so Discard can put it back
+/* The site's untouched markup, fetched once, so any text can be put back to how it shipped
+   (overrides are already applied to the live DOM, so it can't answer that itself). */
+let SOURCE_DOC=null;
+fetch('/',{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{ if(t)SOURCE_DOC=new DOMParser().parseFromString(t,'text/html'); }).catch(()=>{});
+function sourceNode(key){
+  if(!SOURCE_DOC)return null;
+  const hit=SOURCE_DOC.querySelector('[data-edit="'+CSS.escape(key)+'"],[data-rekey="'+CSS.escape(key)+'"]'); if(hit)return hit;
+  const slash=key.lastIndexOf('/');
+  if(slash>0){ const a=sourceNode(key.slice(0,slash)); return a?API.walkPath(a,key.slice(slash+1)):null; }
+  const dot=key.indexOf('.'); if(dot<0)return null;
+  const base=key.slice(0,dot), root=base==='site'?SOURCE_DOC.documentElement:SOURCE_DOC.getElementById('page-'+base);
+  return root?API.walkPath(root,key.slice(dot+1)):null;
+}
+function originalHTML(key){ const n=sourceNode(key); return n?API.sanitizeFragment(n.innerHTML):null; }
+/* record a text change; landing back on the original wording drops the override instead of storing a copy */
+function commitText(el,key,before,after){
+  if(after===API.sanitizeFragment(before))return;
+  undo.push({kind:'text',key,prev:WORK.text[key],el,before});
+  if(after===originalHTML(key)){ delete WORK.text[key]; el.classList.remove('re-dirty'); }
+  else{ WORK.text[key]=after; el.classList.add('re-dirty'); }
+  markDirty('text:'+key);
+}
 function startTextEdit(el){
   const key=el.dataset.edit||API.getEditKey(el);
   if(!el.dataset.edit)el.dataset.edit=key;
   const before=el.innerHTML;
+  if(!ORIG.has(key))ORIG.set(key,{el,html:before});
   el.setAttribute('contenteditable','true');
   el.classList.add('vis'); // ensure revealed
   el.focus();
-  showFmtBar(el);
+  const cancel=()=>{ el.innerHTML=before; el.blur(); };
+  clearElBar();
+  showFmtBar(el,{key,done:()=>el.blur(),cancel});
+  const onKey=ev=>{
+    if(ev.key==='Escape'){ ev.preventDefault(); ev.stopPropagation(); cancel(); }
+    else if(ev.key==='Enter'&&!ev.shiftKey){ ev.preventDefault(); el.blur(); }   // Shift+Enter = line break
+  };
   const finish=()=>{
+    if(el._reHold)return;                          // a toolbar dialog (Add link) took focus — still editing
+    el.removeEventListener('blur',finish); el.removeEventListener('keydown',onKey);
     el.removeAttribute('contenteditable');
     hideFmtBar();
     const after=API.sanitizeFragment(el.innerHTML);
     el.innerHTML=after;
-    if(after!==API.sanitizeFragment(before)){
-      undo.push({kind:'text',key,prev:WORK.text[key]});
-      WORK.text[key]=after; el.classList.add('re-dirty'); markDirty('text:'+key);
-    }
-    el.removeEventListener('blur',finish);
+    commitText(el,key,before,after);
   };
   el.addEventListener('blur',finish);
-  el.addEventListener('keydown',ev=>{ if(ev.key==='Escape'){el.innerHTML=before;el.blur();} });
+  el.addEventListener('keydown',onKey);
 }
-function showFmtBar(el){
+function showFmtBar(el,o){
   hideFmtBar();
   const cmd=c=>{document.execCommand(c,false);el.focus();};
-  const fbtn=(label,kids,fn)=>h('button',{type:'button','aria-label':label,title:label,onmousedown:e=>{e.preventDefault();fn();}},kids);
+  const fbtn=(label,kids,fn,cls)=>h('button',{type:'button','aria-label':label,title:label,class:cls||null,onmousedown:e=>{e.preventDefault();fn();}},kids);
+  const orig=originalHTML(o.key);
+  const restorable=orig!=null&&orig!==API.sanitizeFragment(el.innerHTML);
   fmtBar=h('div',{class:'re-fmt re-ui'},
     fbtn('Bold',h('b',{},'B'),()=>cmd('bold')),
     fbtn('Italic',h('i',{},'I'),()=>cmd('italic')),
     fbtn('Underline',h('u',{},'U'),()=>cmd('underline')),
-    fbtn('Add link',icon('link',14),()=>{ const sel=window.getSelection(); const range=sel&&sel.rangeCount?sel.getRangeAt(0).cloneRange():null; rePrompt('',{title:'Add a link',placeholder:'https://…',okLabel:'Add link'}).then(u=>{ el.focus(); if(!u)return; if(range&&sel){sel.removeAllRanges();sel.addRange(range);} document.execCommand('createLink',false,u); }); }),
-    fbtn('Clear formatting',icon('eraser',14),()=>{document.execCommand('removeFormat',false);document.execCommand('unlink',false);el.focus();}));
+    fbtn('Add link',icon('link',14),()=>{ const sel=window.getSelection(); const range=sel&&sel.rangeCount?sel.getRangeAt(0).cloneRange():null;
+      el._reHold=true;
+      rePrompt('',{title:'Add a link',placeholder:'https://…',okLabel:'Add link'}).then(u=>{ el._reHold=false; el.focus(); if(!u)return; if(range&&sel){sel.removeAllRanges();sel.addRange(range);} document.execCommand('createLink',false,u); }); }),
+    fbtn('Clear formatting',icon('eraser',14),()=>{document.execCommand('removeFormat',false);document.execCommand('unlink',false);el.focus();}),
+    restorable?h('span',{class:'re-fmt-div'}):'',
+    restorable?fbtn('Put back the original wording',[icon('restore',13),h('span',{},'Original')],()=>{ el.innerHTML=orig; el.blur(); },'re-fmt-txt'):'',
+    h('span',{class:'re-fmt-div'}),
+    fbtn('Cancel (Esc)',[icon('x',13),h('span',{},'Cancel')],o.cancel,'re-fmt-txt'),
+    fbtn('Done (Enter)',[icon('check',13),h('span',{},'Done')],o.done,'re-fmt-txt re-fmt-done'));
   document.body.append(fmtBar);
   const r=el.getBoundingClientRect();
-  fmtBar.style.left=Math.max(8,r.left)+'px';
-  fmtBar.style.top=Math.max(60,r.top+window.scrollY-40)+'px';
+  fmtBar.style.left=Math.max(8,Math.min(r.left,window.innerWidth-fmtBar.offsetWidth-8))+'px';
+  fmtBar.style.top=Math.max(60,r.top+window.scrollY-44)+'px';
 }
 function hideFmtBar(){ if(fmtBar){fmtBar.remove();fmtBar=null;} }
 
@@ -1454,6 +1530,12 @@ document.addEventListener('mousemove',e=>{
   if(e.target.closest('.re-ui,.re-bar,.re-panel,.re-fmt,.re-img-btn,.re-overlay,.re-coach')){ clearHoverText(); return; }
   const t=eligibleText(e.target);
   if(t!==hoverText){ clearHoverText(); if(t&&t.getAttribute('contenteditable')!=='true'){ hoverText=t; t.classList.add('re-hoverable'); } }
+});
+/* plan cards light up as one clickable unit */
+let prcHover=null;
+document.addEventListener('mousemove',e=>{
+  const c=(editing&&!document.body.classList.contains('re-preview')&&e.target.closest)?e.target.closest(PRC_CARD):null;
+  if(c!==prcHover){ if(prcHover)prcHover.classList.remove('re-prc-hover'); prcHover=c; if(c)c.classList.add('re-prc-hover'); }
 });
 
 /* ════════ CUSTOMIZE: hover toolbar (drag · parent · hide), reorder, image drag ════════ */
@@ -1491,6 +1573,8 @@ function blockTarget(t){
   if(t.closest('.re-ui,.re-fmt,.re-img-btn,.re-elbar,.re-bar,.re-panel,.re-overlay,.re-coach,.re-toast'))return null;
   const w=widgetRoot(t); if(w)return w;
   if(t.closest(LOCKED))return null;
+  const plan=t.closest('.prc[data-plan]'); if(plan)return plan;   // move/hide the whole plan, never a piece of it
+  if(t.closest('.ac-opt'))return null;                             // form options: hiding one would break the form
   const el=t.closest('p,h1,h2,h3,h4,h5,h6,img,figure,li,ul,ol,table,blockquote,section,article,a,button,div,span');
   if(!el||el===document.body||el===document.documentElement||el.classList.contains('page'))return null;
   return el;
@@ -1519,12 +1603,14 @@ function setElTarget(el){
 function clearElBar(){ setElTarget(null); }
 document.addEventListener('mousemove',e=>{
   if(!editing||document.body.classList.contains('re-preview')||dragEl){ if(!dragEl&&elTarget)clearElBar(); return; }
+  if(fmtBar){ if(elTarget)clearElBar(); return; }               // typing in text — the move/hide bar would sit on top of Done/Cancel
   if(e.target.closest&&e.target.closest('.re-elbar'))return;   // keep it while reaching for its buttons
   const t=blockTarget(e.target);
   if(t!==elTarget)setElTarget(t);
 });
 function hideElement(el){
   if(!el)return;
+  if(el.matches('.prc[data-plan]')){ pricingUndo(); setPlanShow(el.dataset.plan,false); clearElBar(); toast('Plan hidden from visitors — switch it back on in Pricing, or Ctrl+Z'); return; }
   const key=keyFor(el);
   WORK.hidden[key]=labelFor(el);
   API.applyHidden(WORK.hidden);
@@ -1580,6 +1666,7 @@ function commitElDrag(){
       WORK.order[pkey]=cur;
       undo.push({kind:'order',key:pkey,prevSaved,prevList});
       markDirty('order:'+pkey);
+      if(pkey==='plans')refreshPricingPanel();
       toast('Moved — publish to make it permanent');
     }
   }
@@ -1639,7 +1726,7 @@ function replaceImageFile(img,f){
     toast('Uploading…');
     Store.uploadImage(file).then(url=>{
       const k=imgKeyOf(img);
-      undo.push({kind:'img',key:k,prev:WORK.img[k]});
+      undo.push({kind:'img',key:k,prev:WORK.img[k],el:img,src:img.getAttribute('src')});
       WORK.img[k]=url; img.src=url; img.classList.add('re-dirty');
       markDirty('img:'+k); toast('Image updated');
     }).catch(err=>toast('Upload failed: '+err.message,'err'));
@@ -1688,6 +1775,177 @@ function renderSite(){
           h('span',{class:'re-hidlbl',title:k},WORK.hidden[k]||k),
           h('button',{class:'re-inv-act',onclick:()=>{ delete WORK.hidden[k]; API.applyHidden(WORK.hidden); markDirty('hidden:'+k); renderSite(); toast('Restored'); }},icon('restore',12),'Restore'))))
       :h('p',{class:'re-panel-hint'},'Nothing hidden yet. In Edit mode, hover any element and use the trash button to hide it.')));
+}
+
+/* ════════ PRICING PANEL — plan cards (Services page) + account-form options ════════
+   WORK.pricing holds only what differs from the site's own wording, so emptying a
+   box falls back to the original instead of leaving a blank card. */
+let pricingPanel;
+const PLAN_FIELDS=[['name','Plan name'],['price','Price'],['period','Line under the price'],['features','What’s included — one per line'],['btn','Button label']];
+const FORM_FIELDS=[['name','Option name'],['desc','Short description'],['price','Price line']];
+const PRICE_CHIPS=['PKR','Free','Custom','On request'];
+const FORM_PRICE_CHIPS=['PKR','Free · No minimum'];
+const prcOpen=new Set();   // plan sections expanded in the panel (this session)
+/* "PKR" starts an amount (keeping any number already typed); the others replace the price */
+function applyPriceChip(inp,t){
+  const v=inp.value.trim();
+  inp.value=t!=='PKR'?t:/^PKR\b/i.test(v)?v:/\d/.test(v)?'PKR '+v.replace(/^(Rs\.?|₨)\s*/i,''):'PKR ';
+  inp.dispatchEvent(new Event('input'));
+  inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+}
+const chipOn=(t,v)=>{ v=v.trim(); return t==='PKR'?/^PKR\b/i.test(v):v.toLowerCase()===t.toLowerCase(); };
+function PR(){ return WORK.pricing||(WORK.pricing={}); }
+function pricingUndo(){ undo.push({kind:'pricing',prev:JSON.parse(JSON.stringify(PR()))}); }
+function commitPricing(id){ API.applyPricing(WORK.pricing); markDirty('pricing:'+id); }
+function refreshPricingPanel(){ if(pricingPanel&&pricingPanel.classList.contains('open'))renderPricing(); }
+function planOverride(id){ const p=PR(); p.plans=p.plans||{}; return p.plans[id]=p.plans[id]||{}; }
+function prunePlan(id){ const p=PR(); if(p.plans&&p.plans[id]&&!Object.keys(p.plans[id]).length)delete p.plans[id]; }
+function setPlanField(id,field,val){
+  const d=API.pricingDefaults().plans[id], o=planOverride(id);
+  const same=field==='features'?val.join('\n')===d.features.join('\n'):(val===''||val===d[field]);
+  if(same)delete o[field]; else o[field]=val;
+  prunePlan(id); commitPricing(id+'.'+field);
+}
+function setPlanShow(id,on){
+  const o=planOverride(id); if(on)delete o.show; else o.show=false;
+  prunePlan(id); commitPricing(id+'.show'); refreshPricingPanel();
+}
+function setFormField(k,field,val){
+  const d=API.pricingDefaults().form[k], p=PR(); p.form=p.form||{};
+  const o=p.form[k]=p.form[k]||{};
+  if(val===''||val===d[field])delete o[field]; else o[field]=val;
+  if(!Object.keys(o).length)delete p.form[k];
+  commitPricing('form.'+k+'.'+field);
+}
+function movePlan(id,dir){
+  const kids=[...document.querySelectorAll('.price-grid > .prc[data-plan]')];
+  const i=kids.findIndex(c=>c.dataset.plan===id), j=i+dir;
+  if(i<0||j<0||j>=kids.length)return;
+  const prevList=kids.map(c=>c.dataset.rekey), prevSaved=WORK.order.plans||null, list=prevList.slice();
+  [list[i],list[j]]=[list[j],list[i]];
+  WORK.order.plans=list; API.applyOrder({plans:list});
+  undo.push({kind:'order',key:'plans',prevSaved,prevList}); markDirty('order:plans');
+  renderPricing();
+}
+function prcTarget(card){ return card.matches('.prc')?card.dataset.plan:'form:'+card.dataset.val; }
+function prcFieldOf(t){
+  if(t.closest('.prc-badge'))return 'badge';
+  if(t.closest('.prc-price,.ac-p'))return 'price';
+  if(t.closest('.prc-name,.ac-n'))return 'name';
+  if(t.closest('.prc-period'))return 'period';
+  if(t.closest('.prc-features'))return 'features';
+  if(t.closest('.ac-d'))return 'desc';
+  if(t.closest('button'))return 'btn';
+  return 'price';
+}
+/* target: a plan id, 'form:<option>', or nothing (open on the plans section) */
+function openPricing(target,field){
+  if(!pricingPanel)pricingPanel=makePanel('re-pricing','tag','Pricing');
+  [photosPanel,colorPanel,sitePanel].forEach(p=>p&&p.classList.remove('open'));
+  if(!target){
+    const pg=document.getElementById('pricing-sec')&&document.getElementById('pricing-sec').closest('.page');
+    const jump=!!(pg&&!pg.classList.contains('active'));   // fresh page → jump; a smooth scroll down a long page takes seconds
+    if(jump)API.showPage(pg.id.replace('page-',''));
+    setTimeout(()=>{ const s=document.getElementById('pricing-sec'); if(s)s.scrollIntoView({behavior:jump?'instant':'smooth',block:'start'}); },80);
+  }
+  pricingPanel.classList.add('open');
+  if(target&&field!=='badge')prcOpen.add(target.indexOf('form:')===0?'form':target);
+  renderPricing();
+  if(!target)return;
+  const tag=field==='badge'?'badge':target+'.'+(field||'price');
+  const inp=pricingPanel._body.querySelector('[data-f="'+tag+'"]');
+  if(!inp)return;
+  const b=pricingPanel._body;
+  b.scrollTop+=inp.getBoundingClientRect().top-b.getBoundingClientRect().top-90;
+  inp.focus({preventScroll:true}); if(inp.tagName==='INPUT')inp.select();
+  inp.classList.add('re-flash'); setTimeout(()=>inp.classList.remove('re-flash'),1400);
+}
+function renderPricing(){
+  const b=pricingPanel._body, keep=b.scrollTop; b.innerHTML='';
+  const v=API.pricingValue(WORK.pricing), d=API.pricingDefaults();
+  const sw=(label,on,onch)=>h('button',{class:'re-toggle re-siterow'+(on?' on':''),type:'button','aria-pressed':String(on),onclick:()=>onch(!on)},
+    h('span',{class:'re-siterow-lbl'},label),h('span',{class:'re-switch'}));
+  const norm=(s,multi)=>multi?s.split('\n').map(x=>x.trim()).filter(Boolean).join('\n'):s.trim();
+  /* one box: label row with a "Restore original" link that appears only once the box differs */
+  const field=(tag,label,value,def,onVal,o)=>{
+    o=o||{};
+    const multi=!!o.multi;
+    const inp=h(multi?'textarea':'input',{class:'re-input','data-f':tag,'aria-label':label,placeholder:multi?'One item per line':(def||''),rows:multi?String(Math.max(3,value.split('\n').length+1)):null});
+    inp.value=value;
+    const restore=h('button',{class:'re-prc-restore',type:'button',title:'Original: '+def.replace(/\n/g,' · '),
+      onclick:()=>{ pricingUndo(); inp.value=def; onVal(def); sync(); toast(label+' restored'); }},icon('restore',12),'Restore original');
+    const chips=o.chips?o.chips.map(t=>h('button',{class:'re-chip2',type:'button',onclick:()=>applyPriceChip(inp,t)},t)):[];
+    const sync=()=>{
+      const edited=norm(inp.value,multi)!==norm(def,multi);
+      restore.hidden=!edited; inp.classList.toggle('re-edited',edited);
+      chips.forEach((c,i)=>c.classList.toggle('on',chipOn(o.chips[i],inp.value)));
+      if(o.onSync)o.onSync();
+    };
+    let armed=false;                     // one undo step per visit to a box, not one per keystroke
+    inp.addEventListener('focus',()=>{ armed=false; });
+    inp.addEventListener('input',()=>{ if(!armed){ pricingUndo(); armed=true; } onVal(inp.value); sync(); });
+    const wrap=h('div',{class:'re-field re-prc-field'},h('div',{class:'re-prc-lblrow'},h('label',{},label),restore),inp,
+      chips.length?h('div',{class:'re-prc-chips',role:'group','aria-label':'Quick picks'},...chips):'');
+    sync();
+    return {inp,wrap};
+  };
+  /* collapsible section: the header toggles, the switches stay visible, the boxes fold away */
+  const section=(key,cls,headKids,acts,always,body)=>{
+    const open=prcOpen.has(key);
+    const tog=h('button',{class:'re-prc-tog',type:'button','aria-expanded':String(open),
+      onclick:()=>{ if(prcOpen.has(key))prcOpen.delete(key); else prcOpen.add(key); renderPricing(); }},
+      h('span',{class:'re-prc-chev'+(open?' open':'')},icon('chevr',14)),...headKids);
+    return h('div',{class:'re-group re-prc-card'+(cls?' '+cls:''),'data-sec':key},
+      h('div',{class:'re-prc-head'},tog,acts?h('span',{class:'re-prc-acts'},...acts):''),
+      ...always, open?h('div',{class:'re-prc-body'},...body):'');
+  };
+
+  b.append(h('p',{class:'re-panel-hint'},'Change what each plan costs and includes. The page updates as you type; nothing is public until you Publish. Open a plan to edit it.'));
+  const badge=field('badge','Highlight label',v.badge,d.badge,val=>{ const p=PR(); if(!val.trim()||val.trim()===d.badge)delete p.badge; else p.badge=val.trim(); commitPricing('badge'); });
+  b.append(h('div',{class:'re-group'},h('div',{class:'re-group-h'},'Plans section'),
+    sw('Show the plans on the website',v.show,on=>{ pricingUndo(); const p=PR(); if(on)delete p.show; else p.show=false; commitPricing('show'); renderPricing(); toast(on?'Plans are visible again':'Plans hidden from visitors'); }),
+    badge.wrap));
+
+  const ids=[...document.querySelectorAll('.price-grid > .prc[data-plan]')].map(c=>c.dataset.plan);
+  ids.forEach((id,i)=>{
+    const x=v.plans[id], dd=d.plans[id];
+    const title=h('span',{class:'re-prc-title'},x.name||dd.name);
+    const sumPrice=h('span',{class:'re-prc-sum'},x.price);
+    const editedTag=h('span',{class:'re-prc-tag re-prc-tag-ed'},'Edited');
+    let resetBtn=null;
+    const syncHead=()=>{ const o=(PR().plans||{})[id]||{}; editedTag.hidden=!Object.keys(o).some(k=>k!=='show'); if(resetBtn)resetBtn.disabled=!Object.keys(o).length; };
+    const up=iconBtn('up','Move earlier',()=>movePlan(id,-1)), down=iconBtn('down','Move later',()=>movePlan(id,1));
+    up.disabled=i===0; down.disabled=i===ids.length-1;
+    const body=PLAN_FIELDS.map(([f,label])=>{
+      const multi=f==='features', def=multi?dd.features.join('\n'):dd[f];
+      return field(id+'.'+f,label,multi?x.features.join('\n'):x[f],def,val=>{
+        setPlanField(id,f,multi?val.split('\n').map(s=>s.trim()).filter(Boolean):val.trim());
+        if(f==='name')title.textContent=val.trim()||dd.name;
+        if(f==='price')sumPrice.textContent=val.trim()||dd.price;
+      },{multi,chips:f==='price'?PRICE_CHIPS:null,onSync:syncHead}).wrap;
+    });
+    body.push(resetBtn=h('button',{class:'re-btn re-btn-ghost re-btn-sm re-prc-resetplan',type:'button',
+      onclick:()=>{ pricingUndo(); const p=PR(); if(p.plans)delete p.plans[id]; commitPricing(id+'.reset'); renderPricing(); toast(dd.name+' restored to the original'); }},
+      icon('restore',13),'Restore this plan to the original'));
+    b.append(section(id,x.show?'':'re-prc-off',
+      [title,sumPrice,x.show?'':h('span',{class:'re-prc-tag'},'Hidden'),editedTag],[up,down],
+      [sw(x.show?'Shown on the website':'Hidden from visitors',x.show,on=>{ pricingUndo(); setPlanShow(id,on); }),
+       sw('Highlight as “'+v.badge+'”',v.featured===id,on=>{ pricingUndo(); const p=PR(), nv=on?id:''; if(nv===d.featured)delete p.featured; else p.featured=nv; commitPricing('featured'); renderPricing(); })],
+      body));
+    syncHead();
+  });
+
+  const fk=Object.keys(d.form);
+  if(fk.length){
+    const body=[];
+    fk.forEach(k=>{
+      body.push(h('div',{class:'re-prc-sub'},d.form[k].name));
+      FORM_FIELDS.forEach(([f,label])=>body.push(field('form:'+k+'.'+f,label,v.form[k][f],d.form[k][f],val=>setFormField(k,f,val.trim()),{chips:f==='price'?FORM_PRICE_CHIPS:null}).wrap));
+    });
+    b.append(section('form','',[h('span',{class:'re-prc-title'},'Account-opening form'),h('span',{class:'re-prc-sum'},fk.length+' account types')],null,
+      [h('p',{class:'re-panel-hint re-prc-formhint'},'The account types people choose when they apply online.')],body));
+  }
+  b.scrollTop=keep;
 }
 
 /* ════════ IMAGE EDITOR — crop · stretch · rotate/flip · filters ════════
@@ -1867,7 +2125,7 @@ function openMedia(img){
   const key=img.dataset.editImg||API.getEditKey(img);
   if(!img.dataset.editImg)img.dataset.editImg=key;
   const lib=[...new Set([...document.images].map(i=>i.getAttribute('src')).filter(s=>s&&/^assets\//.test(s)))].sort();
-  const apply=url=>{ undo.push({kind:'img',key,prev:WORK.img[key]}); WORK.img[key]=url; img.src=url; img.classList.add('re-dirty'); markDirty('img:'+key); m.close(); toast('Image updated'); };
+  const apply=url=>{ undo.push({kind:'img',key,prev:WORK.img[key],el:img,src:img.getAttribute('src')}); WORK.img[key]=url; img.src=url; img.classList.add('re-dirty'); markDirty('img:'+key); m.close(); toast('Image updated'); };
   const uploadFile=f=>{ toast('Uploading…'); Store.uploadImage(f).then(apply).catch(err=>toast('Upload failed: '+err.message,'err')); };
   const handleFile=f=>{ if(!f)return; if(!/^image\/(png|jpeg|webp)$/.test(f.type)){toast('Use a PNG, JPG or WEBP image','err');return;} if(f.size>5e6){toast('Max 5 MB','err');return;} openImageEditor(f,uploadFile); };
   const fileInp=h('input',{type:'file',accept:'image/png,image/jpeg,image/webp',style:'display:none',onchange:e=>handleFile(e.target.files[0])});
@@ -2018,7 +2276,9 @@ function renderColorGroups(){
 
 /* ════════ SAVE / PUBLISH (lives in the toolbar) ════════ */
 function updateSaveBar(){
+  if(dirty.size&&SAVED_SIG!=null&&workSig()===SAVED_SIG){ dirty.clear(); ORIG.clear(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); }
   updateSideStatus();               // the sidebar chip tracks the same state as the toolbar
+  if(barEls.undo)barEls.undo.disabled=!undo.length;
   if(!barEls.chip)return;
   const n=dirty.size;
   barEls.chip.textContent=n?(n+' unsaved change'+(n===1?'':'s')):'All changes saved';
@@ -2031,7 +2291,7 @@ function afterSaveRefresh(){ updateSaveBar(); softRefresh(); }
 /* Save the draft (private). Resolves true/false so callers can react. */
 function saveDraft(msg){
   if(typeof msg!=='string')msg=null;   // guard: also wired to a click handler
-  return Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ dirty.clear(); afterSaveRefresh(); toast(msg||'Draft saved (not yet public)'); return true; })
+  return Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh(); toast(msg||'Draft saved (not yet public)'); return true; })
     .catch(e=>{ toast('Save failed: '+e.message,'err'); return false; });
 }
 /* Push the whole draft live. LIVE tracks it so every screen can show what's on the
@@ -2043,7 +2303,7 @@ function doPublish(msg){
   const busy=reBusy('Publishing','Putting your changes on the website — this takes a moment.');
   return Promise.resolve(Store.publish(snap)).then(()=>{
     try{localStorage.setItem('re-content',JSON.stringify(snap));}catch(e){}
-    LIVE=normalize(snap); dirty.clear(); afterSaveRefresh();
+    LIVE=normalize(snap); dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh();
     busy.close();
     toast(msg||'Published! Your changes are now live.');
   },e=>{ busy.close(); throw e; });
@@ -2066,14 +2326,23 @@ function publishAll(p){
 function publish(){ reConfirm('This makes your changes live for everyone visiting the website.',{title:'Publish changes?',okLabel:'Publish'}).then(ok=>{ if(!ok)return;
   doPublish().catch(e=>toast('Publish failed: '+e.message,'err')); }); }
 function discardAll(){ reConfirm('This throws away every change since your last save.',{title:'Discard changes?',okLabel:'Discard',danger:true}).then(ok=>{ if(!ok)return;
-  const structural=[...dirty].some(k=>k.indexOf('order:')===0||k.indexOf('hidden:')===0);
-  if(structural){ location.reload(); return; }   // reordered/hidden DOM needs a clean slate
-  Store.getDraft().then(d=>{ WORK=normalize(d); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); dirty.clear();afterSaveRefresh();toast('Changes discarded'); }); }); }
+  const structural=[...dirty].some(k=>/^(order|hidden|img):/.test(k));
+  if(structural){ reloadEditor(); return; }   // reordered/hidden DOM or swapped images need a clean slate
+  Store.getDraft().then(d=>{
+    ORIG.forEach(o=>{ o.el.innerHTML=o.html; o.el.classList.remove('re-dirty'); }); ORIG.clear();   // overrides only add — put back what they can't
+    WORK=normalize(d); markSaved(); API.setOverrides(WORK); refreshPricingPanel(); API.refreshCalcInfo&&API.refreshCalcInfo(); document.querySelectorAll('.re-dirty').forEach(n=>n.classList.remove('re-dirty')); dirty.clear();afterSaveRefresh();toast('Changes discarded'); }); }); }
 
-/* global undo (Ctrl/Cmd-Z) */
-document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&editing){ const u=undo.pop(); if(!u)return; e.preventDefault();
-  if(u.kind==='text'){ if(u.prev==null)delete WORK.text[u.key];else WORK.text[u.key]=u.prev; }
-  if(u.kind==='img'){ if(u.prev==null)delete WORK.img[u.key];else WORK.img[u.key]=u.prev; }
+/* global undo — the toolbar's Undo button and Ctrl/Cmd-Z */
+document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&editing){
+  const a=document.activeElement;
+  if(a&&(a.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;   // let the box undo its own typing
+  if(undo.length){ e.preventDefault(); doUndo(); }
+}});
+function doUndo(){
+  const u=undo.pop(); if(!u)return;
+  if(u.kind==='text'){ if(u.prev==null)delete WORK.text[u.key];else WORK.text[u.key]=u.prev; if(u.el)u.el.innerHTML=u.before; }
+  if(u.kind==='pricing'){ WORK.pricing=u.prev; refreshPricingPanel(); }
+  if(u.kind==='img'){ if(u.prev==null)delete WORK.img[u.key];else WORK.img[u.key]=u.prev; if(u.el&&u.src)u.el.setAttribute('src',u.src); }
   if(u.kind==='hidden'){ delete WORK.hidden[u.key]; API.applyHidden(WORK.hidden); if(sitePanel&&sitePanel.classList.contains('open'))renderSite(); }
   if(u.kind==='order'){ if(u.prevSaved)WORK.order[u.key]=u.prevSaved; else delete WORK.order[u.key]; if(u.prevList&&u.prevList.length)API.applyOrder({[u.key]:u.prevList}); }
   if(u.kind==='imgswap'){
@@ -2081,7 +2350,15 @@ document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowe
     if(u.prevB==null)delete WORK.img[u.b];else WORK.img[u.b]=u.prevB;
     if(u.elA)u.elA.src=u.sa; if(u.elB)u.elB.src=u.sb;
   }
-  API.setOverrides(WORK); toast('Undo'); }});
+  API.setOverrides(WORK);
+  if(u.kind==='order'&&u.key==='plans')refreshPricingPanel();
+  updateSaveBar();
+  toast('Undone');
+}
+/* Closing the tab or navigating away would silently drop unsaved edits. */
+let leaving=false;   // set right before the editor's own deliberate reloads
+function reloadEditor(){ leaving=true; location.reload(); }
+window.addEventListener('beforeunload',e=>{ if(dirty.size&&!leaving){ e.preventDefault(); e.returnValue=''; } });
 /* ESC closes an open side panel (when no dialog is open and not editing text) */
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape'||$('.re-overlay'))return;
