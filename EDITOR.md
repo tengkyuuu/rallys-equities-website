@@ -17,7 +17,7 @@ This document covers (1) what was built, (2) one-time setup, and (3) a plain-Eng
   edit it, hover an image to replace it, and open the **Colors** panel to recolor the site (with
   separate Dark-mode and Light-mode controls). Changes are saved as a **draft** (private) and go live
   when you press **Publish**.
-- The **live market data, ticker, and charts are intentionally not editable** (they are simulated/live).
+- The **live market data, ticker, and charts are intentionally not editable**. They show real PSX data or say it's unavailable; see [MARKET-DATA.md](MARKET-DATA.md).
 
 ### What's editable
 | Type | Examples |

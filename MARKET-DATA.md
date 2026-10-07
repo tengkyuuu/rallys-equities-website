@@ -1,55 +1,75 @@
-# Live market data (real PSX)
+# Market data (PSX)
 
-The site shows **real Pakistan Stock Exchange data**: the KSE-100 index (plus KSE-30, KMI-30 and
-the All-Share index), the intraday KSE-100 chart, and **live prices for every listed company** —
-not just a curated few. All of it is fetched server-side from PSX's own public data
-(`dps.psx.com.pk`) and is delayed ~15 minutes.
+> **Current status (October 2026): no live prices.** PSX now answers every request to its data
+> portal with **403 Forbidden**, so `/api/market` returns 502 and the site shows
+> **"Market data unavailable"** with a link to the PSX Data Portal. The site never shows invented
+> or placeholder numbers. To bring prices back, Rallys needs a data source it is licensed to use:
+> see [Getting prices back](#getting-prices-back).
 
-Because a browser can't call PSX directly (no CORS), a **Vercel serverless function**
-([`api/market.js`](api/market.js)) fetches everything server-side and the website polls
-`/api/market` once a minute. If that request ever fails, the site falls back to a realistic
-simulation automatically — it never visibly breaks, it just silently stops being real for that
-poll and the badge switches to "SIMULATED."
+## The rule: real or nothing
 
-> **Labelling:** the index panel reads **"PSX · DELAYED"** with a note that prices are ~15-min
-> delayed. This is the honest, low-compliance-risk framing for a SECP-licensed broker. For *true
-> real-time* display you'd need to license PSX's real-time feed.
+Every market number on the site comes from `/api/market`. There is **no simulation fallback**
+and no hard-coded figures in the page.
+
+| Situation | What visitors see |
+|---|---|
+| Waiting for the first response | "Loading market data…" and dashes (—) instead of values |
+| `/api/market` fails and has never succeeded this visit | **MARKET DATA UNAVAILABLE**; the panel, ticker and Markets table say prices are temporarily unavailable and link to the PSX Data Portal |
+| `/api/market` succeeds | **PSX · DELAYED**, with the indices, chart, company rows, ticker and full Markets table from the response |
+| It succeeded earlier, then a refresh fails | The last real figures stay up; they are PSX's own and still labelled delayed |
+
+Other details:
+- The 1W/1M/YTD chart tabs are disabled unless the response includes real daily history (`indices.KSE100.eod`).
+- Company rows and ticker items appear only for symbols the response actually contains.
+- The fixed "PKR Exchange Rates" block was removed because it was never live.
+
+This behaviour is covered by [`tests/market-data.spec.js`](tests/market-data.spec.js), which
+mocks `/api/market` as down, loading and live.
+
+The `PSX` array in `index.html` lists names and sectors only (featured rows, ticker order, the
+logo wall). It holds no prices.
 
 ---
 
 ## How it works
 
-`api/market.js` deploys automatically with the site on Vercel (no separate setup, no secrets or
-API keys needed) and does three things per request, in parallel:
+The browser can't call PSX directly (no CORS), so a **Vercel serverless function**
+([`api/market.js`](api/market.js)) fetches the data server-side. The site polls `/api/market`
+once a minute and expects this response:
 
-1. **Indices** — `dps.psx.com.pk/timeseries/eod/{KSE100,KSE30,KMI30,ALLSHR}` for current value,
-   previous close, and ~1 year of daily closes (powers the 1W/1M/YTD chart tabs).
-2. **Intraday chart** — `dps.psx.com.pk/timeseries/int/KSE100` for the live 1D hero chart.
-3. **Every listed company's live price** — scrapes PSX's own `market-watch` page (price, change,
-   %, volume, name, sector for the whole exchange), enriched with readable sector names from
-   `dps.psx.com.pk/symbols`.
+```json
+{ "indices": { "KSE100": { "current", "prevClose", "change", "changePct", "asOf", "series": [...], "eod": [[ms, close], ...] },
+               "KSE30": {...}, "KMI30": {...}, "ALLSHR": {...} },
+  "stocks":  { "HBL": [price, change, changePct, volume, name, sector], ... },
+  "delayed": true }
+```
 
-The frontend ([index.html](index.html), `fetchKSE()`) calls `/api/market`, and if the response
-includes a non-empty `stocks` object, every stock row on the site — the featured board and the
-ticker — uses those real prices. The `PSX` array in `index.html` (with its `base` prices and
-`beta` values) only drives the **fallback simulation** used when `/api/market` is unreachable.
+Today `api/market.js` builds that response from PSX's data portal (`dps.psx.com.pk`):
+`timeseries/eod/*` for the indices, `timeseries/int/KSE100` for the intraday chart, `market-watch`
+for company prices and `symbols` for sector names. **All four now return 403.**
 
-### Check it worked
-Load the live site — the panel should show the current KSE-100 value and a green
-**PSX · DELAYED** badge with "Live prices from PSX · delayed ~15 min" during / after market hours.
-If it instead says **SIMULATED — Indicative data (live feed unavailable)**, the live fetch failed;
-check Vercel's function logs for `/api/market`.
+## Getting prices back
+
+PSX's own terms say commercial use of its website data is *"strictly prohibited unless acquired
+with prior approval of PSX"*, so don't work around the 403. The options:
+
+1. **Rallys's own trading or back-office vendor.** As a PSX broker, Rallys already receives market
+   data; ask the vendor for a delayed feed or API for the website.
+2. **A PSX-authorized data vendor**, e.g. Capital Stake (contact@capitalstake.com), which offers
+   real-time, delayed and end-of-day APIs. PSX publishes the full list of authorized vendors.
+3. **PSX directly:** marketdatarequest@psx.com.pk.
+
+Free sources were checked in October 2026 and none are usable on a commercial website:
+- **TradingView widgets:** PSX symbols show "only available on TradingView".
+- **Yahoo Finance:** PSX prices stopped updating in July 2024.
+- **Free "PSX APIs":** they re-serve the same blocked portal.
+- **Twelve Data and EODHD:** PSX needs a paid plan, and the free plans are personal or testing use only.
+
+Once a source is chosen, only `api/market.js` changes: map the provider's response to the shape
+above. The front end needs no changes, and prices return automatically.
 
 ---
 
-## Notes & limits
-- **Source:** PSX's own public data portal and market-watch page. It's PSX's own data feeding a
-  PSX brokerage's site, but for production it's worth confirming acceptable-use with PSX and
-  keeping the "delayed" labelling.
-- **If the numbers ever stop updating:** PSX may have changed a page's markup/endpoint or be
-  rate-limiting Vercel's region. The site keeps working (simulated) meanwhile — check the Vercel
-  function logs for `/api/market`.
+## Notes
 - **Legacy/unused:** [`supabase/functions/market/index.ts`](supabase/functions/market/index.ts)
-  was an earlier version of this (indices only, no per-stock prices, Supabase Edge Functions
-  instead of Vercel). The frontend no longer calls it — `/api/market` replaced it. It's left in
-  the repo but isn't deployed or referenced; safe to delete or ignore.
+  is an earlier, indices-only version. Nothing calls it, so it's safe to delete or ignore.

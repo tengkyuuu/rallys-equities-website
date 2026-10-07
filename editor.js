@@ -1543,7 +1543,7 @@ document.addEventListener('mousemove',e=>{
 const WIDGETS=[['.ticker','Ticker tape'],['.pcard','Live market panel'],['#perfGrid','Performance snapshot'],['.live-badge','PSX Live badge'],['.wa-fab','WhatsApp button']];
 /* Every piece of the live market panel, individually toggleable (data itself stays locked) */
 const PCARD_PARTS=[
-  ['sel:.pcard .pstatus','Status bar (Simulated · clock)'],
+  ['sel:.pcard .pstatus','Status bar (data status · clock)'],
   ['sel:.pcard .pidxl','Index name'],
   ['sel:.pcard .pidxv','Index value (big price)'],
   ['sel:.pcard .pidxc','Change line (▲ +1.06%)'],

@@ -387,11 +387,21 @@ a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus 
 .mkt-table tbody tr:hover{background:color-mix(in srgb, var(--g) 9%, transparent)}
 .mkt-table td{padding:11px 16px;text-align:right;font-variant-numeric:tabular-nums;font-size:13.5px}
 .mkt-table td:first-child{text-align:left}
-.cur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
-.cur-c{background:var(--gl);border:1px solid var(--gb);border-radius:12px;padding:16px}
-.cur-p{font-size:10px;color:var(--mt2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
-.cur-v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
-.cur-ch{font-size:11px;margin-top:2px;font-weight:600}
+/* market data unavailable / loading — the widgets say so instead of showing numbers */
+.pcard.is-down .ptabs,.pcard.is-down .cw,.pcard.is-down .clbl,.pcard.is-down .shdr,.pcard.is-down #heroStocks{display:none}
+.pdown{display:none;padding:26px 18px 24px;text-align:center;font-size:12.5px;line-height:1.7;color:var(--mt)}
+.pcard.is-down .pdown{display:block}
+.pdown a,.mkt-down a,.ti-note a{color:var(--g3);font-weight:700;text-decoration:none;white-space:nowrap}
+.pdown a:hover,.mkt-down a:hover,.ti-note a:hover{text-decoration:underline}
+.psdot.off{background:var(--mt2);animation:none}
+.pslbl.off{color:var(--mt)}
+.pnote{padding:14px 17px;font-size:11.5px;color:var(--mt2);text-align:center}
+.mkt-table td.mkt-down{text-align:center;padding:30px 16px;color:var(--mt);font-size:13px;line-height:1.7}
+.ticker-wrap.is-static{animation:none;width:auto;justify-content:center}
+.ti-note{color:var(--mt);border-right:none;gap:4px}
+.ti-note .tn-s{display:none}
+@media(max-width:600px){.ti-note{padding:0 12px}.ti-note .tn-l{display:none}.ti-note .tn-s{display:inline}}
+.ptab:disabled{opacity:.35;cursor:default}
 
 /* FOOTER */
 /* ══════ FOOTER ══════ */
@@ -1034,7 +1044,7 @@ html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on sma
   .nxt-steps{grid-template-columns:1fr}
   .cta-block{margin:0 18px 56px}.cta-inner{padding:44px 20px}.cta-inner h2{font-size:32px}
   footer{padding:0 18px 96px}   /* footer own breakpoints handle its internal grids; extra bottom clears the FABs */
-  .mkt-idx{grid-template-columns:1fr 1fr}.cur-grid{grid-template-columns:1fr 1fr}
+  .mkt-idx{grid-template-columns:1fr 1fr}
 }
 /* Phones: clean, dedicated header — logo + theme toggle + menu button.
    "Open Account" & "Log In" live in the slide-out menu drawer, so the top bar never overflows. */
@@ -1331,18 +1341,18 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
     </div>
   </div>
   <div class="hero-r">
-    <div class="pcard">
+    <div class="pcard is-down">
       <div class="pstatus">
-        <div style="display:flex;align-items:center"><div class="psdot"></div><span class="pslbl" id="dataLbl">SIMULATED</span><span id="dataSub" style="color:var(--mt2);font-size:9px;margin-left:5px">— Indicative data</span></div>
+        <div style="display:flex;align-items:center"><div class="psdot off"></div><span class="pslbl off" id="dataLbl">MARKET DATA</span><span id="dataSub" style="color:var(--mt2);font-size:9px;margin-left:5px">— loading…</span></div>
         <span class="pstime" id="psxClock">--:--:--</span>
       </div>
       <div class="phead">
         <div>
           <div class="pidxl" data-edit="pcard.idxlabel" data-edit-free="1">KSE-100 Index</div>
-          <div class="pidxv" id="k100">180,301.70</div>
-          <div class="pidxc" id="k100c" style="color:var(--up)">▲ +1,886.91 (+1.06%)</div>
+          <div class="pidxv" id="k100">—</div>
+          <div class="pidxc" id="k100c"></div>
           <div class="pctx" id="pCtx" style="display:none;font-size:9px;color:var(--mt2);margin-top:2px;font-weight:600"></div>
-          <div class="pvol" style="font-size:9px;color:var(--mt2);margin-top:2px" data-edit="pcard.vol" data-edit-free="1">Vol: 284.6M · 09:30–15:30 PKT</div>
+          <div class="pvol" style="font-size:9px;color:var(--mt2);margin-top:2px" data-edit="pcard.vol" data-edit-free="1">Trading hours 09:30–15:30 PKT</div>
         </div>
         <div class="ptabs">
           <button class="ptab on" onclick="ptab(this)">1D</button>
@@ -1355,10 +1365,11 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
       <div class="clbl"><span>09:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span></div>
       <div class="shdr"><span class="sh-co" data-edit="pcard.th1" data-edit-free="1">Company</span><span class="sh-price" data-edit="pcard.th2" data-edit-free="1">Price</span><span class="sh-chg" data-edit="pcard.th3" data-edit-free="1">Chg</span><span class="sh-pct" data-edit="pcard.th4" data-edit-free="1">%</span></div>
       <div id="heroStocks"></div>
+      <div class="pdown" id="pDown" role="status">Loading market data…</div>
       <div class="idxrow">
-        <div class="ixc"><div class="ixn" data-edit="pcard.ix1" data-edit-free="1">KSE-30</div><div class="ixv" id="k30">53,716.03</div><div class="ixch" style="color:var(--up)">▲ +1.14%</div></div>
-        <div class="ixc"><div class="ixn" data-edit="pcard.ix2" data-edit-free="1">KMI-30</div><div class="ixv" id="k30m">257,327.46</div><div class="ixch" style="color:var(--up)">▲ +1.23%</div></div>
-        <div class="ixc"><div class="ixn" data-edit="pcard.ix3" data-edit-free="1">ALLSHR</div><div class="ixv" id="kase">108,938.83</div><div class="ixch" style="color:var(--up)">▲ +0.89%</div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix1" data-edit-free="1">KSE-30</div><div class="ixv" id="k30">—</div><div class="ixch"></div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix2" data-edit-free="1">KMI-30</div><div class="ixv" id="k30m">—</div><div class="ixch"></div></div>
+        <div class="ixc"><div class="ixn" data-edit="pcard.ix3" data-edit-free="1">ALLSHR</div><div class="ixv" id="kase">—</div><div class="ixch"></div></div>
       </div>
     </div>
   </div>
@@ -1720,13 +1731,13 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
 
 <!-- ══════ MARKETS PAGE ══════ -->
 <div class="page" id="page-markets">
-<section class="phero phero-bull"><div class="stag">Live Market Data</div><h1>PSX <em>Live</em> <span>Markets</span></h1><p>Real-time featured securities, indices and currency rates from the Pakistan Stock Exchange.</p></section>
+<section class="phero phero-bull"><div class="stag">Live Market Data</div><h1>PSX <em>Live</em> <span>Markets</span></h1><p>Index values and stock prices from the Pakistan Stock Exchange, delayed about 15 minutes.</p></section>
 <section class="sec" style="padding-top:52px">
   <span class="urdu">پاکستان اسٹاک ایکسچینج — لائیو ریٹس</span>
   <div class="mkt-idx">
-    <div class="mkt-idxc"><div class="mkt-idxn">KSE-100</div><div class="mkt-idxv" id="mk100">180,301.70</div><div class="mkt-idxc2" id="mk100c" style="color:var(--up)">▲ +1.06%</div></div>
-    <div class="mkt-idxc"><div class="mkt-idxn">KSE-30</div><div class="mkt-idxv" id="mk30">53,716.03</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.14%</div></div>
-    <div class="mkt-idxc"><div class="mkt-idxn">KMI-30 (Halal)</div><div class="mkt-idxv" id="mkmi">257,327.46</div><div class="mkt-idxc2" style="color:var(--up)">▲ +1.23%</div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KSE-100</div><div class="mkt-idxv" id="mk100">—</div><div class="mkt-idxc2" id="mk100c"></div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KSE-30</div><div class="mkt-idxv" id="mk30">—</div><div class="mkt-idxc2" id="mk30c"></div></div>
+    <div class="mkt-idxc"><div class="mkt-idxn">KMI-30 (Halal)</div><div class="mkt-idxv" id="mkmi">—</div><div class="mkt-idxc2" id="mkmic"></div></div>
   </div>
   <div class="mkt-table-wrap">
     <div class="mkt-table-head" style="flex-wrap:wrap;gap:10px"><span class="mkt-table-title">All PSX Securities</span><input type="text" id="mktSearch" placeholder="🔍 Search any of ~490 listed companies…" oninput="mktSearchInput()" style="flex:1;min-width:180px;max-width:280px;background:var(--nv3);border:1px solid var(--gb);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:12px;outline:none"><span style="font-size:10px;color:var(--mt2)" id="mktTime">updating...</span></div>
@@ -1737,13 +1748,6 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
     </tr></thead><tbody id="mktTbody"></tbody></table></div>
   </div>
   <p style="font-size:11px;color:var(--mt2);margin-top:12px;line-height:1.6">Live prices for every PSX-listed company, sourced from the Pakistan Stock Exchange (delayed ~15 min) and sorted by most active. Use the search above to find any stock. For live, tradable quotes and execution, <a onclick="openAccount()" style="color:var(--g3);cursor:pointer">open an account</a>.</p>
-  <div style="margin-top:24px"><div style="font-size:13px;font-weight:700;color:var(--au);margin-bottom:14px">PKR Exchange Rates</div>
-  <div class="cur-grid">
-    <div class="cur-c"><div class="cur-p">USD / PKR</div><div class="cur-v">279.45</div><div class="cur-ch" style="color:var(--up)">+0.12</div></div>
-    <div class="cur-c"><div class="cur-p">EUR / PKR</div><div class="cur-v">303.20</div><div class="cur-ch" style="color:var(--up)">+0.31</div></div>
-    <div class="cur-c"><div class="cur-p">GBP / PKR</div><div class="cur-v">355.80</div><div class="cur-ch" style="color:var(--dn)">-0.18</div></div>
-    <div class="cur-c"><div class="cur-p">SAR / PKR</div><div class="cur-v">74.45</div><div class="cur-ch" style="color:var(--up)">+0.05</div></div>
-  </div></div>
 </section>
 </div><!-- end markets -->
 
@@ -3020,155 +3024,126 @@ try{if(localStorage.getItem('re-theme')==='light')document.body.classList.add('l
 <script src="ga-config.js"></script>
 <script>
 /* ══════════════════════════════════════
-   PSX DATA ENGINE — 3-layer strategy
-   1. Try Yahoo Finance via CORS proxy
-   2. Try AllOrigins proxy
-   3. Fall back to high-fidelity simulation
+   PSX MARKET DATA — real or nothing.
+   Every number comes from /api/market. Until a response arrives, or whenever the feed
+   is unavailable, the widgets say so instead of showing figures: a licensed brokerage
+   must never display invented prices. (There is deliberately no simulation fallback.)
 ══════════════════════════════════════ */
-/* Featured securities from rallysequities.com */
+/* Featured securities — names and sectors only; prices always come from the feed */
 const PSX = [
-  {sym:'ATRL', name:'Attock Refinery Ltd',     base:520.00,   vol:'3.2M',  sector:'Refinery',  beta:1.30},
-  {sym:'MEBL', name:'Meezan Bank Ltd',         base:245.50,   vol:'4.8M',  sector:'Banks',     beta:0.82},
-  {sym:'PSO',  name:'Pakistan State Oil',      base:289.80,   vol:'3.8M',  sector:'Energy',    beta:1.30},
-  {sym:'HBL',  name:'Habib Bank Limited',      base:190.20,   vol:'5.1M',  sector:'Banks',     beta:0.90},
-  {sym:'PPL',  name:'Pakistan Petroleum',      base:142.60,   vol:'5.5M',  sector:'Energy',    beta:1.15},
-  {sym:'NBP',  name:'National Bank of Pak.',   base:78.40,    vol:'6.1M',  sector:'Banks',     beta:0.95},
-  {sym:'FABL', name:'Faysal Bank Ltd',         base:62.30,    vol:'4.4M',  sector:'Banks',     beta:0.85},
-  {sym:'TRG',  name:'TRG Pakistan Ltd',        base:66.50,    vol:'9.6M',  sector:'Technology',beta:1.50},
-  {sym:'NESTLE',name:'Nestlé Pakistan',        base:7450.00,  vol:'0.02M', sector:'FMCG',      beta:0.50},
-  {sym:'NPL',  name:'Nishat Power Ltd',        base:28.60,    vol:'1.8M',  sector:'Power',     beta:0.90},
-  {sym:'KEL',  name:'K-Electric Ltd',          base:5.40,     vol:'22.5M', sector:'Power',     beta:1.10},
-  {sym:'FCCL', name:'Fauji Cement Co.',        base:42.80,    vol:'8.3M',  sector:'Cement',    beta:1.15},
-  {sym:'UNITY',name:'Unity Foods Ltd',         base:32.60,    vol:'7.2M',  sector:'FMCG',      beta:1.25},
-  {sym:'PSX',  name:'Pakistan Stock Exchange', base:26.40,    vol:'3.4M',  sector:'Financial', beta:1.00},
-  {sym:'ABOT', name:'Abbott Laboratories',     base:980.00,   vol:'0.1M',  sector:'Pharma',    beta:0.70},
-  {sym:'HMB',  name:'Habib Metropolitan Bank', base:118.50,   vol:'1.4M',  sector:'Banks',     beta:0.80},
-  {sym:'BAFL', name:'Bank Alfalah Ltd',        base:82.70,    vol:'5.7M',  sector:'Banks',     beta:0.88},
-  {sym:'AICL', name:'Adamjee Insurance',       base:72.50,    vol:'1.1M',  sector:'Insurance', beta:0.85},
-  {sym:'SEARL',name:'The Searle Company',      base:88.40,    vol:'3.9M',  sector:'Pharma',    beta:1.20},
-  {sym:'UPFL', name:'Unilever Pakistan Foods', base:23500.00, vol:'0.005M',sector:'FMCG',      beta:0.40},
-  {sym:'DCR',  name:'Dolmen City REIT',        base:12.80,    vol:'2.1M',  sector:'REIT',      beta:0.60},
-  {sym:'PGLC', name:'Pak Gulf Leasing Co.',    base:28.90,    vol:'0.3M',  sector:'Leasing',   beta:0.70},
-  {sym:'AGL',  name:'Agritech Ltd',            base:6.80,     vol:'4.6M',  sector:'Chemicals', beta:1.40},
+  {sym:'ATRL', name:'Attock Refinery Ltd',     sector:'Refinery'},
+  {sym:'MEBL', name:'Meezan Bank Ltd',         sector:'Banks'},
+  {sym:'PSO',  name:'Pakistan State Oil',      sector:'Energy'},
+  {sym:'HBL',  name:'Habib Bank Limited',      sector:'Banks'},
+  {sym:'PPL',  name:'Pakistan Petroleum',      sector:'Energy'},
+  {sym:'NBP',  name:'National Bank of Pak.',   sector:'Banks'},
+  {sym:'FABL', name:'Faysal Bank Ltd',         sector:'Banks'},
+  {sym:'TRG',  name:'TRG Pakistan Ltd',        sector:'Technology'},
+  {sym:'NESTLE',name:'Nestlé Pakistan',        sector:'FMCG'},
+  {sym:'NPL',  name:'Nishat Power Ltd',        sector:'Power'},
+  {sym:'KEL',  name:'K-Electric Ltd',          sector:'Power'},
+  {sym:'FCCL', name:'Fauji Cement Co.',        sector:'Cement'},
+  {sym:'UNITY',name:'Unity Foods Ltd',         sector:'FMCG'},
+  {sym:'PSX',  name:'Pakistan Stock Exchange', sector:'Financial'},
+  {sym:'ABOT', name:'Abbott Laboratories',     sector:'Pharma'},
+  {sym:'HMB',  name:'Habib Metropolitan Bank', sector:'Banks'},
+  {sym:'BAFL', name:'Bank Alfalah Ltd',        sector:'Banks'},
+  {sym:'AICL', name:'Adamjee Insurance',       sector:'Insurance'},
+  {sym:'SEARL',name:'The Searle Company',      sector:'Pharma'},
+  {sym:'UPFL', name:'Unilever Pakistan Foods', sector:'FMCG'},
+  {sym:'DCR',  name:'Dolmen City REIT',        sector:'REIT'},
+  {sym:'PGLC', name:'Pak Gulf Leasing Co.',    sector:'Leasing'},
+  {sym:'AGL',  name:'Agritech Ltd',            sector:'Chemicals'},
 ];
+const TICKER_SYMS=['ATRL','MEBL','PSO','HBL','PPL','NBP','FABL','TRG','NESTLE','KEL','FCCL','UNITY','ABOT','BAFL','SEARL'];
+const PSX_PORTAL='https://dps.psx.com.pk/';
+const PSX_LINK=t=>`<a href="${PSX_PORTAL}" target="_blank" rel="noopener noreferrer">${t} ↗</a>`;
 
-let sp={}, sc={}, so={};
-PSX.forEach(s=>{
-  so[s.sym]=s.base;
-  sp[s.sym]=s.base*(1+(Math.random()-.49)*.006);
-  sc[s.sym]=sp[s.sym]-so[s.sym];
-});
-
-let kse=180301.70, kse0=178414.79, k30=53716.03, kmi=257327.46, kas=108938.83;
-let kseH=[], chartCtx=null, dataMode='sim', chartData=null, chartRange='1D', SIM_EOD=null;
-
-// Seed chart history
-(()=>{let v=kse*.986;for(let i=0;i<88;i++){v+=(Math.random()-.47)*24;kseH.push(Math.round(v*100)/100);}kseH.push(kse);})();
+let kse=null, kse0=null, k30=null, kmi=null, kas=null;
+/* 'loading' until the first answer · 'live' once real data arrived · 'down' if it never did */
+let kseH=[], chartCtx=null, dataMode='loading', chartData=null, chartRange='1D';
 
 const fmt=n=>n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtN=n=>n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
 const nowStr=()=>new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 const isPSXOpen=()=>{const n=new Date(),pk=new Date(n.toLocaleString('en-US',{timeZone:'Asia/Karachi'})),h=pk.getHours(),m=pk.getMinutes(),d=pk.getDay();return d>0&&d<6&&(h>9||(h===9&&m>=30))&&(h<15||(h===15&&m<=30));};
 
-/* Real PSX data via our Vercel serverless function (server-side → no CORS, no key exposed).
-   Indices, hero chart, AND individual stock rows are real (PSX, delayed ~15 min) when the
-   /api/market fetch succeeds; the PSX[] array below only drives the fallback simulation. */
-let LIVE=null, LIVESTOCKS=null, tickerReal=false, mktDirty=true;
+/* Real PSX data via our Vercel serverless function (server-side → no CORS, no key exposed). */
+let LIVE=null, LIVESTOCKS=null, mktDirty=true;
 function fmtVol(n){ return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n||0); }
 const escHtml=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const isLive=()=>dataMode==='live'&&kse!=null;
 async function fetchKSE(){
+  let ok=false;
   try{
     const r=await fetch('/api/market',{signal:AbortSignal.timeout(6000)});  // Vercel serverless → real PSX data (same-origin)
-    if(!r.ok)return false;
-    const j=await r.json();
+    const j=r.ok?await r.json():null;
     const ix=j&&j.indices;
-    if(!ix||!ix.KSE100)return false;
-    LIVE=ix;
-    kse=ix.KSE100.current; kse0=ix.KSE100.prevClose;
-    if(ix.KSE30)  k30=ix.KSE30.current;
-    if(ix.KMI30)  kmi=ix.KMI30.current;
-    if(ix.ALLSHR) kas=ix.ALLSHR.current;
-    if(Array.isArray(ix.KSE100.series)&&ix.KSE100.series.length>4) kseH=ix.KSE100.series.slice();
-    // real per-stock prices from PSX (fallback: keep simulation if unavailable)
-    LIVESTOCKS=(j.stocks&&Object.keys(j.stocks).length)?j.stocks:null;
-    if(LIVESTOCKS){
-      PSX.forEach(s=>{const d=LIVESTOCKS[s.sym];if(d&&d[0]>0){so[s.sym]=d[0]-d[1];sp[s.sym]=d[0];sc[s.sym]=d[1];if(d[3]>0)s.vol=fmtVol(d[3]);}});
-      if(!tickerReal){tickerReal=true;buildTicker();}   // rebuild marquee once with real prices
-      mktDirty=true;                                    // full board changed → allow re-render
+    if(ix&&ix.KSE100&&ix.KSE100.current>0){
+      LIVE=ix;
+      kse=ix.KSE100.current; kse0=ix.KSE100.prevClose;
+      k30=ix.KSE30?ix.KSE30.current:null; kmi=ix.KMI30?ix.KMI30.current:null; kas=ix.ALLSHR?ix.ALLSHR.current:null;
+      kseH=Array.isArray(ix.KSE100.series)?ix.KSE100.series.slice():[];
+      LIVESTOCKS=(j.stocks&&Object.keys(j.stocks).length)?j.stocks:null;
+      ok=true;
     }
-    dataMode='live';
-    updateAllUI(); setDataStatus(); applyChartRange();
-    return true;
-  }catch(e){ return false; }
+  }catch(e){}
+  if(ok)dataMode='live';
+  else if(dataMode!=='live')dataMode='down';   // a failed refresh after real data keeps those (real, PSX-dated) figures
+  mktDirty=true;
+  buildTicker(); updateAllUI(); setDataStatus(); applyChartRange();
+  return ok;
 }
 
 function setDataStatus(){
-  const lbl=document.getElementById('dataLbl');
-  if(lbl){
-    if(dataMode==='live'){lbl.textContent='PSX · DELAYED';lbl.style.color='var(--up)';}
-    else{lbl.textContent='SIMULATED';lbl.style.color='var(--mt)';}
-  }
+  const live=isLive(), loading=dataMode==='loading';
+  const lbl=document.getElementById('dataLbl'), dot=document.querySelector('.pcard .psdot');
+  if(lbl){ lbl.textContent=live?'PSX · DELAYED':loading?'MARKET DATA':'MARKET DATA UNAVAILABLE'; lbl.classList.toggle('off',!live); }
+  if(dot)dot.classList.toggle('off',!live);
   const sub=document.getElementById('dataSub');
-  if(sub)sub.textContent=dataMode==='live'?(LIVESTOCKS?'— Live prices from PSX · delayed ~15 min':'— KSE-100 from PSX · ~15-min delayed · stock rows indicative'):'— Indicative data (live feed unavailable)';
+  if(sub)sub.textContent=live?'— Prices from PSX · delayed ~15 min':loading?'— loading…':'— live prices are temporarily unavailable';
+  const card=document.querySelector('.pcard'); if(card)card.classList.toggle('is-down',!live);
+  const pd=document.getElementById('pDown');
+  if(pd)pd.innerHTML=loading?'Loading market data…':'Live market prices are temporarily unavailable.<br>'+PSX_LINK('View live prices on the PSX Data Portal');
   const ms=document.getElementById('mktStatus');if(ms)ms.textContent=isPSXOpen()?'PSX Open':'PSX Closed';
 }
 
-/* Simulation tick */
-let tickN=0;
-function simTick(){
-  tickN++;
-  const drift=(Math.random()-.471)*13;
-  if(dataMode!=='live'){           // when live, indices come from PSX — don't fake them
-    kse+=drift;k30+=drift*.39;kmi+=drift*.66;kas+=drift*.04;
-    kseH.push(Math.round(kse*100)/100);
-    if(kseH.length>120)kseH.shift();
-  }
-  if(!LIVESTOCKS){                  // only simulate stock rows when real PSX prices aren't available
-    PSX.forEach(s=>{
-      const d=drift*s.beta*.013+(Math.random()-.5)*.0006*s.base;
-      sp[s.sym]=Math.max(sp[s.sym]+d,s.base*.7);
-      sc[s.sym]=sp[s.sym]-so[s.sym];
-    });
-  }
-  updateAllUI();
+/* ▲ +1.23% from a {changePct} record; empty when there's nothing real to show */
+function setChange(el,info,withPoints){
+  if(!el)return;
+  if(!isLive()||!info||!isFinite(info.changePct)){ el.textContent=''; return; }
+  const up=info.changePct>=0;
+  el.style.color=up?'var(--up)':'var(--dn)';
+  const pct=(up?'+':'')+info.changePct.toFixed(2)+'%';
+  el.textContent=(up?'▲ ':'▼ ')+(withPoints?(up?'+':'')+info.change.toFixed(2)+' ('+pct+')':pct);
 }
-
-function setSubIdx(id,val,live){
-  const el=document.getElementById(id);if(!el)return;
-  el.textContent=fmtN(val);
-  if(live){const ch=el.parentElement&&el.parentElement.querySelector('.ixch');
-    if(ch){const up=live.changePct>=0;ch.style.color=up?'var(--up)':'var(--dn)';ch.textContent=(up?'▲ +':'▼ −')+Math.abs(live.changePct).toFixed(2)+'%';}}
-}
+function setIdxValue(id,val){ const el=document.getElementById(id); if(el)el.textContent=isLive()&&val!=null?fmtN(val):'—'; }
 function updateAllUI(){
-  /* Hero KSE */
-  const d=kse-kse0,pct=(d/kse0*100),up=d>=0;
-  const ek=document.getElementById('k100'),ec=document.getElementById('k100c');
-  if(ek)ek.textContent=fmtN(kse);
-  /* #k100c shows the SELECTED PERIOD's change, not always today's — only the live
-     1D tick may write here; 1W/1M/YTD set their own figure in applyChartRange(). */
-  if(ec&&chartRange==='1D'){ec.style.color=up?'var(--up)':'var(--dn)';ec.textContent=`${up?'▲':'▼'} ${up?'+':''}${d.toFixed(2)} (${up?'+':''}${pct.toFixed(2)}%)`;}
+  const ix=LIVE||{};
+  /* Hero KSE — #k100c shows the SELECTED PERIOD's change; 1W/1M/YTD set it in applyChartRange() */
+  setIdxValue('k100',kse);
+  if(chartRange==='1D')setChange(document.getElementById('k100c'),ix.KSE100,true);
   /* Markets page indices */
-  const mk=document.getElementById('mk100'),mkc=document.getElementById('mk100c'),mk3=document.getElementById('mk30'),mkmi=document.getElementById('mkmi');
-  if(mk)mk.textContent=fmtN(kse);
-  if(mkc){mkc.style.color=up?'var(--up)':'var(--dn)';mkc.textContent=`${up?'▲':'▼'} ${up?'+':''}${pct.toFixed(2)}%`;}
-  if(mk3)mk3.textContent=fmtN(k30);
-  if(mkmi)mkmi.textContent=fmtN(kmi);
-  /* Sub-indices on hero (+ real change % when live) */
-  setSubIdx('k30',  k30, LIVE&&LIVE.KSE30);
-  setSubIdx('k30m', kmi, LIVE&&LIVE.KMI30);
-  setSubIdx('kase', kas, LIVE&&LIVE.ALLSHR);
-  /* Clock */
-  const cl=document.getElementById('psxClock');if(cl)cl.textContent=nowStr();
-  /* Stocks */
+  setIdxValue('mk100',kse); setChange(document.getElementById('mk100c'),ix.KSE100);
+  setIdxValue('mk30',k30);  setChange(document.getElementById('mk30c'),ix.KSE30);
+  setIdxValue('mkmi',kmi);  setChange(document.getElementById('mkmic'),ix.KMI30);
+  /* Sub-indices on hero */
+  [['k30',k30,ix.KSE30],['k30m',kmi,ix.KMI30],['kase',kas,ix.ALLSHR]].forEach(([id,v,info])=>{
+    setIdxValue(id,v); const el=document.getElementById(id); setChange(el&&el.parentElement&&el.parentElement.querySelector('.ixch'),info);
+  });
+  tickClock();
   renderHeroStocks();renderMktTable();
-  /* Chart */
   drawChart();
 }
+function tickClock(){ const cl=document.getElementById('psxClock');if(cl)cl.textContent=nowStr(); }
 
 function renderHeroStocks(){
   const el=document.getElementById('heroStocks');if(!el)return;
-  el.innerHTML=PSX.slice(0,5).map(s=>{
-    const p=sp[s.sym],ch=sc[s.sym],pch=(ch/so[s.sym]*100),up=ch>=0;
+  if(!isLive()){ el.innerHTML=''; return; }                       // the card shows its "unavailable" note instead
+  const rows=LIVESTOCKS?PSX.filter(s=>LIVESTOCKS[s.sym]&&LIVESTOCKS[s.sym][0]>0).slice(0,5):[];
+  if(!rows.length){ el.innerHTML='<div class="pnote">Company prices are temporarily unavailable.</div>'; return; }
+  el.innerHTML=rows.map(s=>{
+    const d=LIVESTOCKS[s.sym],p=d[0],ch=d[1]||0,pch=d[2]||0,up=ch>=0;
     return `<div class="srow"><div class="sco"><img class="slogo" src="${slogoSrc(s.sym)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${s.sym}',24)"><div><div class="sname">${s.sym}</div><div class="ssub">${s.name.slice(0,14)}</div></div></div><div class="sprice">${fmt(p)}</div><div class="schg" style="color:${up?'var(--up)':'var(--dn)'}">${up?'+':''}${ch.toFixed(2)}</div><div class="spct"><span class="pill ${up?'pill-u':'pill-d'}">${up?'▲':'▼'}${Math.abs(pch).toFixed(2)}%</span></div></div>`;
   }).join('');
 }
@@ -3188,14 +3163,16 @@ function reMono(sym,size){
 function mktSearchInput(){ mktDirty=true; renderMktTable(); }
 function renderMktTable(){
   const el=document.getElementById('mktTbody');if(!el)return;
-  if(LIVESTOCKS&&!mktDirty)return;   // full board doesn't change between 60s refreshes — skip 3s re-renders
-  const q=((document.getElementById('mktSearch')||{}).value||'').trim().toLowerCase();
-  let list;
-  if(LIVESTOCKS){                    // full PSX board, real prices, most-active first
-    list=Object.keys(LIVESTOCKS).map(sym=>{const d=LIVESTOCKS[sym];return {sym,name:d[4]||sym,price:d[0],ch:d[1]||0,pch:d[2]||0,vol:fmtVol(d[3]),rawVol:d[3]||0,sector:d[5]||''};}).sort((a,b)=>b.rawVol-a.rawVol);
-  }else{                             // simulated fallback (curated featured list)
-    list=PSX.map(s=>({sym:s.sym,name:s.name,price:sp[s.sym],ch:sc[s.sym],pch:(sc[s.sym]/so[s.sym]*100),vol:s.vol,rawVol:0,sector:s.sector}));
+  if(!mktDirty)return;               // only re-render when data or the search changed
+  const tm=document.getElementById('mktTime');
+  if(!isLive()||!LIVESTOCKS){
+    el.innerHTML=`<tr><td colspan="6" class="mkt-down">${dataMode==='loading'?'Loading prices…':'Live prices are temporarily unavailable.<br>'+PSX_LINK('View them on the PSX Data Portal')}</td></tr>`;
+    if(tm)tm.textContent=dataMode==='loading'?'Loading…':'Prices unavailable';
+    mktDirty=false; return;
   }
+  const q=((document.getElementById('mktSearch')||{}).value||'').trim().toLowerCase();
+  /* full PSX board, real prices, most-active first */
+  const list=Object.keys(LIVESTOCKS).map(sym=>{const d=LIVESTOCKS[sym];return {sym,name:d[4]||sym,price:d[0],ch:d[1]||0,pch:d[2]||0,vol:fmtVol(d[3]),rawVol:d[3]||0,sector:d[5]||''};}).sort((a,b)=>b.rawVol-a.rawVol);
   const f=q?list.filter(x=>x.sym.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||(x.sector||'').toLowerCase().includes(q)):list;
   if(!f.length){
     el.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mt2);font-size:13px">No securities match “${escHtml(q)}”. Try a symbol like <strong style="color:var(--au)">MEBL</strong> or a sector like <strong style="color:var(--au)">banks</strong>.</td></tr>`;
@@ -3205,16 +3182,18 @@ function renderMktTable(){
     }).join('');
   }
   mktDirty=false;
-  const tm=document.getElementById('mktTime');if(tm)tm.textContent=(LIVESTOCKS?f.length+' of '+list.length+' listed · ':'Indicative · ')+nowStr()+' PKT';
+  if(tm)tm.textContent=f.length+' of '+list.length+' listed · updated '+nowStr();
 }
 
 /* Chart */
 function drawChart(){
   const canvas=document.getElementById('heroChart');if(!canvas)return;
-  if(!chartCtx){canvas.width=canvas.offsetWidth||390;canvas.height=90;chartCtx=canvas.getContext('2d');}
+  if(!chartCtx)chartCtx=canvas.getContext('2d');
+  if(canvas.offsetWidth&&canvas.width!==canvas.offsetWidth){canvas.width=canvas.offsetWidth;canvas.height=90;}   // was hidden until data arrived
   const ctx=chartCtx,w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
   const src=(chartData&&chartData.length>1?chartData:kseH);
+  if(!isLive()||src.length<2)return;                 // no real series → no line
   const data=src.slice(-120),mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
   const pts=data.map((v,i)=>[(i/(data.length-1))*w,h-((v-mn)/range)*(h-6)-3]);
   const up=data[data.length-1]>=data[0],col=up?cssVar('--up',canvas):cssVar('--dn',canvas);
@@ -3231,19 +3210,17 @@ function drawChart(){
 /* Ticker */
 function buildTicker(){
   const el=document.getElementById('tickerWrap');if(!el)return;
-  const seeds=[
-    {s:'KSE-100',t:'idx'},{s:'ATRL'},{s:'MEBL'},{s:'PSO'},{s:'HBL'},{s:'PPL'},
-    {s:'NBP'},{s:'FABL'},{s:'TRG'},{s:'NESTLE'},{s:'KEL'},{s:'FCCL'},{s:'UNITY'},
-    {s:'USD/PKR',t:'cur'},{s:'KSE-30',t:'idx'},{s:'ABOT'},{s:'BAFL'},{s:'SEARL'}
-  ];
-  const all=[...seeds,...seeds,...seeds];
-  el.innerHTML=all.map(t=>{
-    if(t.t==='cur')return`<div class="ti"><span class="ts">USD/PKR</span><span class="tp">279.45</span><span class="tu">+0.12%</span></div>`;
-    if(t.t==='idx'){const v=t.s==='KSE-100'?kse:k30;const d=t.s==='KSE-100'?(kse-kse0)/kse0*100:0.87;const u=d>=0;return`<div class="ti"><span class="ts">${t.s}</span><span class="tp">${fmtN(v)}</span><span class="${u?'tu':'td'}">${u?'+':''}${d.toFixed(2)}%</span></div>`;}
-    const st=PSX.find(p=>p.sym===t.s);if(!st)return'';
-    const p=sp[t.s]||st.base,ch=sc[t.s]||0,pch=(ch/so[t.s]*100),up=ch>=0;
-    return`<div class="ti"><img class="slogo" src="${slogoSrc(t.s)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${t.s}',16)"><span class="ts">${t.s}</span><span class="tp">${fmt(p)}</span><span class="${up?'tu':'td'}">${up?'+':''}${pch.toFixed(2)}%</span></div>`;
-  }).join('');
+  const items=[];
+  if(isLive()){
+    const idx=(name,info)=>{ if(!info||!(info.current>0))return; const u=info.changePct>=0;
+      items.push(`<div class="ti"><span class="ts">${name}</span><span class="tp">${fmtN(info.current)}</span><span class="${u?'tu':'td'}">${u?'+':''}${info.changePct.toFixed(2)}%</span></div>`); };
+    idx('KSE-100',LIVE.KSE100); idx('KSE-30',LIVE.KSE30); idx('KMI-30',LIVE.KMI30);
+    if(LIVESTOCKS)TICKER_SYMS.forEach(s=>{ const d=LIVESTOCKS[s]; if(!d||!(d[0]>0))return; const pch=d[2]||0,up=pch>=0;
+      items.push(`<div class="ti"><img class="slogo" src="${slogoSrc(s)}" alt="" loading="lazy" onerror="this.outerHTML=reMono('${s}',16)"><span class="ts">${s}</span><span class="tp">${fmt(d[0])}</span><span class="${up?'tu':'td'}">${up?'+':''}${pch.toFixed(2)}%</span></div>`); });
+  }
+  el.classList.toggle('is-static',!items.length);
+  el.innerHTML=items.length?items.join('').repeat(3)
+    :`<div class="ti ti-note">${dataMode==='loading'?'Loading PSX market data…':'<span class="tn-l">PSX market prices are temporarily unavailable</span><span class="tn-s">Live PSX prices unavailable</span> · '+PSX_LINK('View on the PSX Data Portal')}</div>`;
 }
 
 /* PSX performers logo wall (original "Power Your Portfolio" section) */
@@ -3302,7 +3279,7 @@ function openAccount(){ window.open('https://aof.eclear.com.pk/repl','_blank','n
 const PAGE_META={
   home:{path:'/',title:'Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan',desc:'Rallys Equities (Pvt) Ltd makes investing in the Pakistan Stock Exchange (PSX) simple, secure and transparent — a licensed, SECP-regulated brokerage house.'},
   services:{path:'/services',title:'Our Services — Rallys Equities',desc:'From your first trade to a multi-crore portfolio, Rallys Equities has a service designed for every stage of your investment journey on the PSX.'},
-  markets:{path:'/markets',title:'PSX Live Markets — Rallys Equities',desc:'Real-time featured securities, indices and currency rates from the Pakistan Stock Exchange, brought to you by Rallys Equities.'},
+  markets:{path:'/markets',title:'PSX Live Markets — Rallys Equities',desc:'PSX index values and stock prices (delayed about 15 minutes), brought to you by Rallys Equities.'},
   locations:{path:'/contact',title:'Contact Us — Rallys Equities',desc:'Get in touch with Rallys Equities — phone, email, our Lahore Stock Exchange Building office, and a contact form for account opening and support.'},
   about:{path:'/about',title:'About Us — Rallys Equities',desc:"Rallys Equities' mission, management and governance — a SECP- and PSX-licensed brokerage built on trust, transparency and disciplined execution."},
   account:{path:'/open-account',title:'Open a Brokerage Account — Rallys Equities',desc:'Open a Rallys Equities trading account online in five simple steps — personal information, financial details, preferences, documents and review.'},
@@ -3488,27 +3465,17 @@ function ptab(el){
   chartRange=(el.textContent||'1D').trim();
   applyChartRange();
 }
-/* When there's no live feed, 1W/1M/YTD still need SOMETHING real to show — a flat
-   reuse of the intraday buffer (the old behavior) made every tab look identical.
-   This builds one stable, plausible daily-close history ending at today's actual
-   opening reference (kse0), so each range genuinely differs. Clearly labelled
-   "SIMULATED" elsewhere on the card — this is indicative, not real PSX history. */
-function genSimEod(){
-  const N=262,day=864e5,today=Date.now();
-  let seed=(Math.round(kse0)%9973)+17;
-  const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
-  const closes=[kse0];                             // walk backward from today's reference close
-  for(let i=1;i<N;i++){const pct=(rnd()-0.478)*0.024;closes.push(closes[i-1]/(1+pct));}
-  closes.reverse();                                 // oldest → newest; last entry === kse0
-  return closes.map((v,i)=>[today-day*(N-1-i),Math.round(v*100)/100]);
-}
 /* Switch the hero chart between 1D (live intraday) and 1W/1M/YTD (real PSX daily
-   history when available, otherwise the simulated series above). The change badge
-   and caption always describe the exact slice being drawn, so the number, the
-   label, and the shape of the line never disagree with each other. */
+   history). Without real daily history those tabs are disabled — never invented.
+   The change badge and caption always describe the exact slice being drawn. */
 function applyChartRange(){
-  let eod=LIVE&&LIVE.KSE100&&LIVE.KSE100.eod;      // [[ms,close],…] oldest→newest
-  if(!eod||eod.length<2){ if(!SIM_EOD)SIM_EOD=genSimEod(); eod=SIM_EOD; }
+  const eod=isLive()&&LIVE.KSE100&&LIVE.KSE100.eod;  // [[ms,close],…] oldest→newest
+  const hasEod=!!(eod&&eod.length>=2);
+  document.querySelectorAll('.pcard .ptab').forEach(b=>{
+    const multi=b.textContent.trim()!=='1D'; b.disabled=multi&&!hasEod;
+    if(multi&&!hasEod&&b.classList.contains('on')){ b.classList.remove('on'); chartRange='1D'; }
+  });
+  if(chartRange==='1D'){ const d1=[...document.querySelectorAll('.pcard .ptab')].find(b=>b.textContent.trim()==='1D'); if(d1&&!document.querySelector('.pcard .ptab.on'))d1.classList.add('on'); }
   const clbl=document.querySelector('.pcard .clbl'),pctx=document.getElementById('pCtx');
   const setLabels=arr=>{if(clbl)clbl.innerHTML=arr.map(l=>`<span>${l}</span>`).join('');};
   const f=ms=>new Date(ms).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
@@ -4569,12 +4536,12 @@ renderCalcInfo();
 buildTicker();
 renderPerfGrid();
 initReveal();
-setTimeout(()=>{drawChart();renderHeroStocks();updateAllUI();renderMktTable();setDataStatus();},120);
-setInterval(simTick,3000);
+updateAllUI(); setDataStatus(); applyChartRange();   // "loading" state — no figures until real data arrives
+setInterval(tickClock,1000);
 startCounters();
 loadPublishedContent();   // async: refresh from Supabase published content (no-op if unconfigured)
 
-// Real PSX index data (KSE-100 + sub-indices) via our Edge Function; refresh every minute.
+// Real PSX data via /api/market; refresh every minute. A failure shows "unavailable", never invented numbers.
 fetchKSE();
 setInterval(fetchKSE,60000);
 
