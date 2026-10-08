@@ -10,31 +10,10 @@ const UA = 'Mozilla/5.0 (compatible; RallysEquities/1.0; +https://rallysequities
 const SYMBOLS = ['KSE100', 'KSE30', 'KMI30', 'ALLSHR'];
 const decodeEnt = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'");
 
-// PSX now rejects data calls (404) unless they carry the page's per-load token as
-// an X-Req-Id header, the same way its own front-end JS does. We read the token
-// from the portal homepage and reuse it for a few minutes; on a 404 we refresh once.
-const PSX = 'https://dps.psx.com.pk';
-let tok = { v: null, at: 0 };
-async function psxToken(force) {
-  if (!force && tok.v && Date.now() - tok.at < 5 * 60 * 1000) return tok.v;
-  const r = await fetch(PSX + '/', { headers: { 'User-Agent': UA } });
-  if (!r.ok) throw new Error('PSX homepage HTTP ' + r.status);
-  const m = (await r.text()).match(/"_k"\s*:\s*"([^"]+)"/);
-  if (!m) throw new Error('PSX token not found');
-  tok = { v: m[1], at: Date.now() };
-  return tok.v;
-}
-async function psxFetch(path, accept) {
-  const go = async (force) => fetch(PSX + path, {
-    headers: { 'User-Agent': UA, 'Accept': accept || '*/*', 'X-Req-Id': await psxToken(force), 'X-Requested-With': 'XMLHttpRequest', 'Referer': PSX + '/' },
-  });
-  let r = await go(false);
-  if (r.status === 404) r = await go(true);
-  return r;
-}
-
 async function psx(path) {
-  const r = await psxFetch('/timeseries/' + path, 'application/json');
+  const r = await fetch('https://dps.psx.com.pk/timeseries/' + path, {
+    headers: { 'User-Agent': UA, 'Accept': 'application/json' },
+  });
   if (!r.ok) throw new Error('PSX ' + path + ' HTTP ' + r.status);
   const j = await r.json();
   if (j.status !== 1 || !Array.isArray(j.data)) throw new Error('PSX ' + path + ' bad payload');
@@ -51,7 +30,7 @@ function summarize(eod) {
 // Parse PSX's market-watch table (one fetch = every listed company's live price).
 // Each row's data-order cells are: [symbol, LDCP(prevClose), open, high, low, CURRENT, change, change%, volume]
 async function marketWatch() {
-  const r = await psxFetch('/market-watch');
+  const r = await fetch('https://dps.psx.com.pk/market-watch', { headers: { 'User-Agent': UA } });
   if (!r.ok) throw new Error('market-watch HTTP ' + r.status);
   const html = await r.text();
   const tb = html.match(/<tbody[\s\S]*?<\/tbody>/i);
@@ -73,7 +52,7 @@ async function marketWatch() {
 
 // Readable sector names (market-watch only has numeric sector codes)
 async function symbolsMeta() {
-  const r = await psxFetch('/symbols');
+  const r = await fetch('https://dps.psx.com.pk/symbols', { headers: { 'User-Agent': UA } });
   if (!r.ok) throw new Error('symbols HTTP ' + r.status);
   const arr = await r.json();
   const m = {};
