@@ -5,7 +5,7 @@ import SectionTitle from '@/components/ui/SectionTitle';
 export type Showcase = {
   /** Anchor id, linked from the nav and footer (e.g. /services#svc-trading). */
   id: string;
-  /** Put the tool on the left. */
+  /** Put the illustration on the left. */
   reverse?: boolean;
   tag: string;
   title: ReactNode;
@@ -14,11 +14,11 @@ export type Showcase = {
   features: Feature[];
   /** The call-to-action button. */
   action: ReactNode;
-  /** The interactive tool beside the copy (components/services/tools). */
+  /** The animated illustration beside the copy (components/services/visuals). */
   illustration: ReactNode;
 };
 
-/** One headline service on /services: copy, three features and a button beside an interactive tool. */
+/** One headline service on /services: copy, three features and a button beside an illustration. */
 export default function ServiceShowcase({ s }: { s: Showcase }) {
   return (
     <div className={s.reverse ? 'sdg rev' : 'sdg'} id={s.id}>
