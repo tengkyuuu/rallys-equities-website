@@ -108,7 +108,9 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint, a production-dependency au
 
 ## Deployment
 
-Vercel builds this as a standard Next.js app (`vercel.json` pins the framework). Pages render per
+Vercel builds this as a standard Next.js app. `vercel.json` pins the framework and the `.next` output
+folder, overriding the project's dashboard settings (the old static site used `.`, which breaks a
+Next.js build with `NEXT_NO_ROUTES_MANIFEST`). Pages render per
 request, because the CSP nonce must be fresh each time. Content and posts are cached for 60 seconds and
 refreshed immediately when an editor publishes.
 
