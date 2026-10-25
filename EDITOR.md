@@ -10,10 +10,10 @@ This document covers (1) what was built, (2) one-time setup, and (3) a plain-Eng
 ## 1. How it works (overview)
 
 - The website's built-in content is the **default**. The editor saves a small **overrides** record
-  (changed text, image URLs, and theme colors) to **Supabase**. On every page load the live site
-  fetches the published overrides and applies them. If Supabase is unreachable or empty, the site
-  simply shows its built-in defaults — it never breaks.
-- **Editing** happens in the page itself: open the site with `?edit=1`, log in, then click any text to
+  (changed text, image URLs, and theme colors) to **Supabase**. The site reads the published record on
+  the server (cached for 60 seconds, refreshed the moment an editor publishes) and applies it to every
+  page. If Supabase is unreachable or empty, the site simply shows its built-in defaults — it never breaks.
+- **Editing** happens in the page itself: open **`/admin`**, log in, then click any text to
   edit it, hover an image to replace it, and open the **Colors** panel to recolor the site (with
   separate Dark-mode and Light-mode controls). Changes are saved as a **draft** (private) and go live
   when you press **Publish**.
@@ -38,17 +38,26 @@ This document covers (1) what was built, (2) one-time setup, and (3) a plain-Eng
 4. **Authentication → Users → Add user** → enter the client's **email + password**. That's their login.
 
 ### b. Point the site at your project
-Edit [`editor/supabase-config.js`](editor/supabase-config.js) and paste your **Project URL** and **anon key**.
-(The anon key is safe in the browser — Row-Level Security means the public can only *read* published content.)
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel (Project → Settings →
+Environment Variables); see [`.env.example`](.env.example). Without them the site uses the production
+project. (The anon key is safe in the browser — Row-Level Security means the public can only *read*
+published content.)
 
 ### c. Deploy
-Commit & push. Vercel redeploys as usual. The public site stays static; it only adds a tiny content fetch.
+Commit & push. Vercel redeploys as usual.
+
+### How the editor is wired in (developers)
+The editor itself is [`public/editor.js`](public/editor.js) / [`public/editor.css`](public/editor.css),
+unchanged in behaviour from the original site. [`/admin`](app/(site)/admin/page.tsx) renders every page
+into one document (the editor previews and edits across pages there) and
+[`AdminBridge`](components/admin/AdminBridge.tsx) exposes the same `window.RE_API` the original page did,
+backed by [`lib/overrides/engine.ts`](lib/overrides/engine.ts), before loading the editor.
 
 ---
 
 ## 3. How to edit your site (client guide)
 
-1. **Open the editor:** add `?edit=1` to your website address (e.g. `https://yoursite.com/?edit=1`) and press Enter.
+1. **Open the editor:** go to `/admin` on your website (e.g. `https://www.rallysequities.com/admin`). Old `?edit=1` links still work and take you there.
 2. **Log in** with the email and password we set up for you.
 3. **Edit text:** click any text → type your change → click **Done** (or press **Enter**). **Cancel** (or **Esc**) throws that edit away. The small toolbar also does **bold**/*italic*/links, and once a piece of text has been changed it shows **Original**, which puts the wording back the way it shipped. **Shift+Enter** adds a line break. Clicking a **button** opens a small "Button text" box instead.
 4. **Change prices & plans:** click **Pricing** in the toolbar (or **Prices & plans** on the dashboard), or just click any plan card. Each plan is one line showing its price, with its **Show on the website** and **Highlight** switches right there; click the plan's name to open its details. Inside: the price (quick picks: **PKR** starts an amount, then just type the number; **Free**, **Custom**, **On request**), the line under it, the features (one per line) and the button text. Any box you've changed shows **Restore original**; **Restore this plan to the original** resets the whole plan. Plans you've changed are marked **Edited**; hidden ones are marked **Hidden** and stay faded on the page while you edit. The account types in the online application form are in the last section of the same panel.
@@ -56,13 +65,13 @@ Commit & push. Vercel redeploys as usual. The public site stays static; it only 
 5. **Change an image:** hover over a picture → click **Change image** → upload a new one or pick from your library.
 6. **Change colors:** click **Colors** (side panel) → switch between **Dark** and **Light** tabs → use the color pickers (grouped by what they affect, like "Brand Gold" or "Backgrounds"). You see changes instantly.
 7. **Save or Publish:** your edits are a private **draft** until you press **Publish**. Publish makes them live for everyone. Use **Discard** to undo all unsaved changes.
-8. **Done?** Remove `?edit=1` (or click *Preview as visitor*) to see the site as the public does.
+8. **Done?** Click *View live site* (or *Preview*) to see the site as the public does. Published changes show for visitors straight away.
 
 > Tip: nothing you click can break the site. If a color looks wrong, each color group has a **Reset** button. If text looks wrong, press **Undo**.
 
 ---
 
-## 4. Implementation log (changes made to the codebase)
+## 4. Implementation log (history — file names below refer to the pre-Next.js single-file site)
 
 > Built in phases; each is reviewed before the next.
 
@@ -122,8 +131,8 @@ Commit & push. Vercel redeploys as usual. The public site stays static; it only 
   - **Leave guard:** `beforeunload` warns when there are unsaved changes; the editor's own reloads (`reloadEditor`, logout) skip it.
 
 ### Storage modes
-- **Supabase configured** (`editor/supabase-config.js` filled): real email+password login; draft/publish to the `site_content` table; image uploads to the `content-images` bucket; published content fetched by all visitors.
-- **Not configured (local preview):** the editor still runs — login takes any passphrase and edits save to **this browser only** (localStorage). Lets you trial the editor before wiring Supabase.
+- **Supabase** (always, since the Next.js migration): real email+password login; draft/publish to the `site_content` table; image uploads to the `content-images` bucket; the site reads the published record on the server.
+- The editor's local-preview store (any passphrase, localStorage) still exists in `editor.js` but is no longer reachable: the public site only shows published Supabase content. For testing, `npm test` runs the editor against [`tests/mock-supabase.mjs`](tests/mock-supabase.mjs).
 
 ### QA performed (headless Chrome, zero console errors)
 Public site unchanged when no overrides; charts/particles/icons/donut paint and recolor in light mode; editor login → edit-mode → inline text edit (markup preserved, scripts stripped) → image replace (library + upload) → color edits in **both** dark & light with correct per-mode persistence → Publish → public reload reflects published content. Live market data/charts remain locked (not editable).

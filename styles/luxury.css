@@ -1,0 +1,138 @@
+/* ════════════════════════════════════════════════════════════════
+   LUXURY LAYER — Liquid-glass depth, gold gradients, refined motion
+   (palette & fonts unchanged; layered over the base styles above)
+   ════════════════════════════════════════════════════════════════ */
+:root{--au-grad:linear-gradient(100deg,#C8A84B 0%,#E2C070 28%,#F4E6BC 50%,#E2C070 72%,#C8A84B 100%);--lux-ease:cubic-bezier(.22,.61,.36,1);--chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42)}
+
+/* Layered ambient background — fixed emerald + gold light pools for depth */
+body{background:
+  radial-gradient(ellipse 52% 42% at 14% 10%,color-mix(in srgb, var(--g3) 5.5%, transparent),transparent 60%),
+  radial-gradient(ellipse 48% 44% at 88% 90%,color-mix(in srgb, var(--au) 5%, transparent),transparent 62%),
+  radial-gradient(ellipse 60% 50% at 50% 120%,color-mix(in srgb, var(--g2) 5%, transparent),transparent 60%),
+  var(--nv);
+  background-attachment:fixed}
+/* Fine film grain for tactile, premium surface */
+body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.038;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* Animated gold-leaf shimmer on accent words + stat numbers */
+.sh span,.phero h1 span,.cta-inner h2 span,.snum,.lt-main{
+  background:var(--au-grad);background-size:220% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;animation:goldShine 7s linear infinite}
+@keyframes goldShine{to{background-position:-220% center}}
+.snum{filter:drop-shadow(0 0 16px color-mix(in srgb, var(--au) 22%, transparent))}
+.sh em,.phero h1 em,.cta-inner h2 em{text-shadow:0 0 26px color-mix(in srgb, var(--g3) 28%, transparent)}
+
+/* Refined section tag — glass label with a softened edge + a live glow dot.
+   Purely decorative (not a button), so no hover/lift affordance. */
+.stag{background:linear-gradient(180deg,color-mix(in srgb, var(--g3) 12%, transparent),color-mix(in srgb, var(--g3) 4%, transparent));
+  border-color:color-mix(in srgb, var(--g3) 35%, transparent);box-shadow:0 0 0 1px color-mix(in srgb, var(--g3) 6%, transparent),0 6px 18px -8px color-mix(in srgb, var(--g3) 40%, transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.stag::before{content:'';width:5px;height:5px;flex:none;border-radius:50%;background:var(--g3);
+  box-shadow:0 0 7px 1px color-mix(in srgb, var(--g3) 70%, transparent);animation:blink 2.2s infinite}
+@media(prefers-reduced-motion:reduce){.stag::before{animation:none}}
+
+/* ── GLASS CARDS — frosted depth + gradient gold border + hover glow ── */
+.svc-card,.testi,.calc-card,.reg-card,.ctc-card,.loc-card,.faq-item,.fbc-card{
+  background:
+    linear-gradient(158deg,color-mix(in srgb, var(--nv3) 50%, transparent),color-mix(in srgb, var(--nv2) 32%, transparent)) padding-box,
+    linear-gradient(150deg,color-mix(in srgb, var(--au) 40%, transparent),color-mix(in srgb, var(--g3) 14%, transparent) 42%,color-mix(in srgb, var(--au) 5%, transparent) 80%) border-box;
+  border:1px solid transparent!important;
+  -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
+  box-shadow:0 20px 46px -20px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.045);
+  transition:transform .45s var(--lux-ease),box-shadow .45s var(--lux-ease),background .45s var(--lux-ease)}
+.svc-card:hover,.testi:hover,.reg-card:hover,.ctc-card:hover,.loc-card:hover,.fbc-card:hover{
+  transform:translateY(-7px);
+  background:
+    linear-gradient(158deg,color-mix(in srgb, var(--nv3) 62%, transparent),color-mix(in srgb, var(--nv2) 40%, transparent)) padding-box,
+    linear-gradient(150deg,color-mix(in srgb, var(--au2) 85%, transparent),color-mix(in srgb, var(--g3) 40%, transparent) 50%,color-mix(in srgb, var(--au) 20%, transparent)) border-box;
+  box-shadow:0 34px 64px -24px rgba(0,0,0,.72),0 0 34px -8px color-mix(in srgb, var(--g3) 30%, transparent),inset 0 1px 0 rgba(255,255,255,.09)}
+.svc-card::before{height:2px;background:linear-gradient(90deg,transparent,var(--au),var(--g3),transparent)}
+/* Soft radial glow that blooms behind the icon on hover */
+.svc-card::after{content:'';position:absolute;top:-40%;left:-20%;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb, var(--g3) 22%, transparent),transparent 70%);opacity:0;transition:opacity .5s var(--lux-ease);pointer-events:none}
+.svc-card:hover::after{opacity:1}
+/* Service icon — gilded tile */
+.svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6);
+  transition:transform .45s var(--lux-ease),box-shadow .45s var(--lux-ease)}
+.svc-card:hover .svc-icon{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 22px -4px color-mix(in srgb, var(--g3) 50%, transparent)}
+
+/* Hero market card — deeper glass, gold rim glow */
+.pcard{background:linear-gradient(160deg,rgba(8,24,42,.82),color-mix(in srgb, var(--nv) 72%, transparent))!important;
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent)!important;
+  box-shadow:0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px color-mix(in srgb, var(--au) 6%, transparent),inset 0 1px 0 rgba(255,255,255,.06)!important}
+
+/* Stat band — glass plinth with gradient seams */
+.stats-band{background:linear-gradient(180deg,color-mix(in srgb, var(--nv2) 70%, transparent),color-mix(in srgb, var(--nv) 45%, transparent));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sc2{border-right-color:color-mix(in srgb, var(--au) 14%, transparent)}
+.slbl{letter-spacing:.04em}
+
+/* Feature band — glow lift */
+.fc{transition:background .4s var(--lux-ease),box-shadow .4s var(--lux-ease)}
+.fc:hover{box-shadow:inset 0 0 40px -10px color-mix(in srgb, var(--g3) 18%, transparent)}
+.fc .fi{transition:transform .45s var(--lux-ease)}
+.fc:hover .fi{transform:translateY(-3px) scale(1.05)}
+
+/* ── BUTTONS — gilded sheen sweep ── */
+.bbig-g,.btn-primary{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--g) 0%,var(--g2) 50%,var(--g3) 100%);background-size:170% 170%;background-position:0% 0%;
+  transition:transform .35s var(--lux-ease),box-shadow .35s var(--lux-ease),background-position .6s var(--lux-ease)}
+.bbig-g:hover,.btn-primary:hover{background-position:100% 100%}
+.bbig-g::after,.btn-primary::after{content:'';position:absolute;top:0;left:-130%;width:58%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);pointer-events:none}
+.bbig-g:hover::after,.btn-primary:hover::after{animation:btnSheen .95s var(--lux-ease)}
+@keyframes btnSheen{to{left:140%}}
+.bbig-o{position:relative;transition:color .35s,border-color .35s,box-shadow .35s}
+.bbig-o:hover{box-shadow:0 0 22px -6px color-mix(in srgb, var(--au) 50%, transparent),inset 0 0 22px -12px color-mix(in srgb, var(--au) 40%, transparent)}
+
+/* ── NAV — center-grow gold underline + logo glow ── */
+.nav-links a{border-bottom:1px solid transparent!important;position:relative}
+.nav-links a::after{content:'';position:absolute;left:50%;right:50%;bottom:-1px;height:1.5px;
+  background:linear-gradient(90deg,var(--g3),var(--au));transition:left .3s var(--lux-ease),right .3s var(--lux-ease);border-radius:2px}
+.nav-links a:hover::after,.nav-links a.active::after{left:2px;right:2px}
+.lm-img{box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 30%, transparent),0 8px 20px -8px color-mix(in srgb, var(--au) 40%, transparent);transition:box-shadow .4s var(--lux-ease)}
+.logo:hover .lm-img{box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 60%, transparent),0 0 26px -4px color-mix(in srgb, var(--au) 55%, transparent)}
+
+/* Brand chips — gentle lift */
+.brand-chip{transition:transform .4s var(--lux-ease),box-shadow .4s var(--lux-ease)}
+.brand-chip:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px rgba(var(--shadow-rgb),.5),0 0 18px -6px color-mix(in srgb, var(--au) 40%, transparent)}
+
+/* PSX performer chips — gold ring blooms around the logo */
+.perf-chip img{transition:box-shadow .4s var(--lux-ease),transform .4s var(--lux-ease)}
+.perf-chip:hover img{box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 35%, transparent),0 0 20px -2px color-mix(in srgb, var(--au) 50%, transparent);transform:scale(1.07)}
+.perf-chip .pfs{transition:color .3s}
+.perf-chip:hover .pfs{color:var(--au2)}
+
+/* ── ORNAMENTAL GOLD DIVIDER ── */
+.lux-divider{display:flex;align-items:center;justify-content:center;gap:18px;padding:6px 52px;margin:4px 0}
+.lux-divider::before,.lux-divider::after{content:'';height:1px;width:min(200px,24vw);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb, var(--au) 55%, transparent))}
+.lux-divider::after{background:linear-gradient(90deg,color-mix(in srgb, var(--au) 55%, transparent),transparent)}
+.lux-divider i{position:relative;width:7px;height:7px;rotate:45deg;flex-shrink:0;
+  background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 14px color-mix(in srgb, var(--au) 70%, transparent)}
+.lux-divider i::before,.lux-divider i::after{content:'';position:absolute;top:50%;width:5px;height:5px;rotate:0deg;
+  border-radius:50%;background:color-mix(in srgb, var(--au) 60%, transparent);transform:translateY(-50%)}
+.lux-divider i::before{left:-13px}.lux-divider i::after{right:-13px}
+
+/* CTA block — animated gilded sheen + emerald inner glow */
+.cta-block{box-shadow:0 40px 90px -40px rgba(var(--shadow-rgb),.7),inset 0 1px 0 rgba(255,255,255,.05)}
+.cta-block::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 80% at 50% 0%,color-mix(in srgb, var(--au) 10%, transparent),transparent 60%),radial-gradient(ellipse 70% 90% at 50% 120%,color-mix(in srgb, var(--g3) 12%, transparent),transparent 60%)}
+
+/* Donut + image cards — richer rim */
+.gov-donut,.imgwrap{box-shadow:0 26px 56px -24px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.05)}
+
+/* Gilded scrollbar */
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--au2),var(--au));border-radius:2px}
+
+/* WhatsApp bubble — soft halo */
+.wa-btn{box-shadow:0 8px 28px color-mix(in srgb, var(--up) 45%, transparent),0 0 0 6px color-mix(in srgb, var(--up) 8%, transparent)}
+
+/* Hero — drifting emerald/gold glow orbs for living depth */
+.hero{position:relative}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;z-index:0;pointer-events:none;filter:blur(46px)}
+.hero::before{width:360px;height:360px;top:-60px;right:6%;background:radial-gradient(circle,color-mix(in srgb, var(--g3) 20%, transparent),transparent 70%);animation:orbA 16s var(--lux-ease) infinite alternate}
+.hero::after{width:300px;height:300px;bottom:-40px;left:4%;background:radial-gradient(circle,color-mix(in srgb, var(--au) 16%, transparent),transparent 70%);animation:orbB 19s var(--lux-ease) infinite alternate}
+@keyframes orbA{to{transform:translate3d(-40px,46px,0) scale(1.12)}}
+@keyframes orbB{to{transform:translate3d(50px,-34px,0) scale(1.16)}}
+.hero-l,.hero-r{position:relative;z-index:2}

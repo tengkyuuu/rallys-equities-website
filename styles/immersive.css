@@ -1,0 +1,112 @@
+/* ════════════════════════════════════════════════════════════════
+   IMMERSIVE LAYER — preloader, scroll FX, particles, depth motion
+   ════════════════════════════════════════════════════════════════ */
+/* Branded preloader — gilded, layered, cinematic */
+#preloader{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;overflow:hidden;
+  background:radial-gradient(ellipse 58% 52% at 50% 40%,#0c2138 0%,#071321 52%,#040b14 100%);
+  transition:opacity .9s ease,visibility .9s ease,transform .9s var(--lux-ease)}
+#preloader.done{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.05)}
+body.light #preloader{background:radial-gradient(ellipse 58% 52% at 50% 40%,var(--nv3) 0%,var(--nv2) 52%,var(--nv) 100%)}
+/* slow conic sheen sweeping the backdrop */
+#preloader::before{content:'';position:absolute;width:160vmax;height:160vmax;pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0deg,color-mix(in srgb, var(--au) 5%, transparent) 50deg,transparent 130deg,transparent 230deg,color-mix(in srgb, var(--g3) 4%, transparent) 290deg,transparent 360deg);
+  animation:plSheen 11s linear infinite}
+@keyframes plSheen{to{transform:rotate(360deg)}}
+
+.pl-stage{position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center;
+  animation:plEnter .8s var(--lux-ease) both}
+/* twin counter-rotating gold rings */
+.pl-ring{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0%,color-mix(in srgb, var(--au) 12%, transparent) 22%,var(--au2) 48%,color-mix(in srgb, var(--au) 12%, transparent) 74%,transparent 100%);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
+  animation:plSpin 2.6s linear infinite}
+.pl-ring2{inset:11px;opacity:.5;
+  background:conic-gradient(from 180deg,transparent 0%,color-mix(in srgb, var(--g3) 50%, transparent) 50%,transparent 100%);
+  animation:plSpin 3.4s linear infinite reverse}
+@keyframes plSpin{to{transform:rotate(360deg)}}
+/* plate matches the logo's real 140:99 proportions — a square left dead air either side */
+.pl-logo{position:relative;width:100px;height:71px;border-radius:17px;background:#F6F2EA;display:flex;align-items:center;justify-content:center;padding:8px 11px;
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 72px -10px color-mix(in srgb, var(--au) 70%, transparent);animation:plPulse 2.2s var(--lux-ease) infinite}
+.pl-logo img{width:100%;height:100%;object-fit:contain}
+@keyframes plPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 45%, transparent),0 0 60px -10px color-mix(in srgb, var(--au) 55%, transparent)}
+  50%{transform:scale(1.045);box-shadow:0 0 0 1px color-mix(in srgb, var(--au) 70%, transparent),0 0 92px -4px color-mix(in srgb, var(--au) 85%, transparent)}}
+
+.pl-name{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:34px;letter-spacing:.13em;font-weight:700;line-height:1;
+  background:var(--au-grad);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:goldShine 3.6s linear infinite,plEnter .8s var(--lux-ease) .12s both}
+.pl-sub{display:flex;align-items:center;gap:13px;margin-top:-10px;font-size:9.5px;letter-spacing:.46em;text-transform:uppercase;
+  color:color-mix(in srgb, var(--au) 62%, transparent);font-weight:600;padding-left:.46em;animation:plEnter .8s var(--lux-ease) .2s both}
+.pl-sub i{width:5px;height:5px;rotate:45deg;background:linear-gradient(135deg,var(--au2),var(--au));box-shadow:0 0 8px color-mix(in srgb, var(--au) 60%, transparent)}
+.pl-sub i:first-child,.pl-sub i:last-child{flex-shrink:0}
+.pl-bar{position:relative;width:210px;height:2px;background:color-mix(in srgb, var(--au) 14%, transparent);border-radius:2px;overflow:hidden;margin-top:6px;
+  animation:plEnter .8s var(--lux-ease) .28s both}
+.pl-bar i{display:block;height:100%;width:42%;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--au2) 35%,#fff6df 50%,var(--au2) 65%,transparent);animation:plBar 1.25s var(--lux-ease) infinite}
+@keyframes plBar{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}
+@keyframes plEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── Admin takeover ──
+   On /admin the preloader does NOT dismiss at 650ms. It stays up and narrates the
+   real boot (editor bundle → auth check → dashboard), because otherwise the visitor
+   watches the public homepage for a second or two — or much longer on a bad network —
+   before the admin appears. Same gilding, one extra status line and a real bar. */
+#preloader.pl-admin{gap:22px}
+.pl-status{min-height:14px;margin-top:-14px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  color:color-mix(in srgb, var(--au2) 82%, transparent);opacity:0;transform:translateY(6px);
+  transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease)}
+.pl-status.in{opacity:1;transform:none}
+/* On ivory (the site's default theme, so what most admins actually see) the stock
+   gilding washes out. The admin curtain gets a deeper vignette and full-strength
+   gold so the wordmark and the status line stay legible. */
+body.light #preloader.pl-admin{background:radial-gradient(ellipse 62% 56% at 50% 38%,#FCF9F2 0%,#F1EADA 55%,#E4DAC3 100%)}
+/* background-image, NOT the `background` shorthand — the shorthand resets
+   background-clip:text and the gilded wordmark collapses into a solid gold bar */
+body.light #preloader.pl-admin .pl-name{background-image:linear-gradient(100deg,#8A6A14 0%,#B08C2C 26%,#D8B75C 50%,#B08C2C 74%,#8A6A14 100%);background-size:220% auto}
+body.light #preloader.pl-admin .pl-sub{color:#9A7B1F}
+body.light #preloader.pl-admin .pl-status{color:#87681A}
+/* determinate: width is set from the actual boot stage, never a fake timer */
+.pl-bar.det{width:248px}
+.pl-bar.det i{width:0;animation:none;transition:width .8s var(--lux-ease);
+  background:linear-gradient(90deg,var(--au) 0%,var(--au2) 62%,#fff6df 100%);
+  box-shadow:0 0 14px -2px color-mix(in srgb, var(--au) 75%, transparent)}
+.pl-bar.det::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb, #fff6df 55%, transparent),transparent);
+  transform:translateX(-100%);animation:plWait 1.9s var(--lux-ease) infinite}
+@keyframes plWait{to{transform:translateX(100%)}}
+
+/* Scroll progress bar */
+#scrollProg{position:fixed;top:0;left:0;height:3px;width:0;z-index:300;background:linear-gradient(90deg,var(--g3),var(--au2));box-shadow:0 0 12px color-mix(in srgb, var(--au) 55%, transparent)}
+
+/* Hero particle canvas */
+#heroFx{position:absolute;inset:0;z-index:1;pointer-events:none}
+
+/* SPA page entrance */
+.page.active{animation:pageIn .55s var(--lux-ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Depth — cards prepped for 3D tilt */
+.svc-card,.perf-chip{transform-style:preserve-3d}
+
+/* Back to top */
+#toTop{position:fixed;right:26px;bottom:92px;width:46px;height:46px;border-radius:50%;z-index:399;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 72%, transparent),color-mix(in srgb, var(--nv2) 52%, transparent));border:1px solid color-mix(in srgb, var(--au) 40%, transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 10px 26px -10px rgba(var(--shadow-rgb),.6);opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s var(--lux-ease),transform .4s var(--lux-ease),border-color .3s,box-shadow .3s}
+#toTop.show{opacity:1;visibility:visible;transform:none}
+#toTop:hover{border-color:var(--au);box-shadow:0 0 22px -4px color-mix(in srgb, var(--au) 50%, transparent);transform:translateY(-3px)}
+
+@media(prefers-reduced-motion:reduce){
+  body{background-attachment:scroll}
+  .sh span,.phero h1 span,.cta-inner h2 span,.snum,.lt-main,.pl-name{animation:none}
+  .bbig-g:hover::after,.btn-primary:hover::after{animation:none}
+  .hero::before,.hero::after{animation:none}
+  .page.active{animation:none}
+  #preloader *,#preloader::before{animation:none!important}
+}
+
+/* ════ THEME TOGGLE BUTTON ════ */
+.theme-toggle{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:1px solid var(--gb);color:var(--mt);transition:color .25s,border-color .25s}
+.theme-toggle:hover{color:var(--au);border-color:var(--au)}
+.theme-toggle .ic-moon{display:none}
+body.light .theme-toggle .ic-sun{display:none}
+body.light .theme-toggle .ic-moon{display:block}

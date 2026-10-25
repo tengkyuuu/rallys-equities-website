@@ -1,0 +1,107 @@
+/* ════════════════════════════════════════════════════════════════
+   LIGHT MODE — full ivory theme, toggled via body.light.
+   Content / cards / nav go light; hero, page-heroes, CTA, footer and the
+   market/donut cards stay dark "media banners" (with light text re-asserted).
+   ════════════════════════════════════════════════════════════════ */
+body{transition:background-color .45s ease,color .35s ease}
+body.light{
+  --nv:#F4F1E8;--nv2:#FBF9F2;--nv3:#FFFFFF;
+  --tx:#12243A;--mt:color-mix(in srgb, var(--tx) 72%, transparent);--mt2:color-mix(in srgb, var(--tx) 46%, transparent);
+  --gl:#FFFFFF;--gb:color-mix(in srgb, var(--tx) 12%, transparent);
+  --au:#9A7B1F;--au2:#B8922A;--au3:color-mix(in srgb, var(--au) 12%, transparent);--g3:#0A6B4B;
+  --chart-grid:rgba(18,36,58,.1);--chart-axis:rgba(18,36,58,.55);
+  --shadow-rgb:18,36,58;
+}
+/* dark media banners stay dark, with light text re-asserted */
+/* only the live-data widgets stay dark "screens"; everything else goes light */
+body.light .pcard,body.light .gov-donut,body.light .map-box{
+  --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
+  --au:#C8A84B;--au2:#E2C070;--g3:#12B87C;--gb:color-mix(in srgb, var(--au) 20%, transparent);--gl:rgba(255,255,255,.04);
+  --chart-grid:rgba(255,255,255,.07);--chart-axis:rgba(246,242,234,.42);color:var(--tx);--shadow-rgb:0,0,0}
+/* keep the KSE-30 / KMI-30 / ALLSHR footer cells dark (the market panel is a dark "screen"),
+   else --nv goes ivory in light mode and the light text on them becomes invisible */
+body.light .pcard .ixc{background:color-mix(in srgb, #05101E 78%, transparent)}
+body.light .gov-donut{background:linear-gradient(160deg,color-mix(in srgb, var(--nv3) 97%, transparent),color-mix(in srgb, var(--nv2) 97%, transparent))}
+/* light hero + page-hero banners (fade the dark photos, light gradient) */
+body.light .hero-bg{background:radial-gradient(ellipse 55% 65% at 76% 50%,color-mix(in srgb, var(--g) 8%, transparent),transparent 65%),radial-gradient(ellipse 35% 45% at 18% 28%,color-mix(in srgb, var(--au) 10%, transparent),transparent 55%),linear-gradient(165deg,var(--nv2) 0%,var(--nv) 60%,var(--nv) 100%)}
+body.light .hero-photo{opacity:.05}
+body.light .phero{background:radial-gradient(ellipse 60% 90% at 50% 0%,color-mix(in srgb, var(--g) 8%, transparent),transparent 65%),linear-gradient(180deg,var(--nv2),var(--nv))}
+body.light .phero::before{opacity:.06}
+body.light .bbig-o{border-color:color-mix(in srgb, var(--tx) 25%, transparent)!important;color:var(--tx)}
+body.light .sh em,body.light .phero h1 em,body.light .cta-inner h2 em{text-shadow:none}
+/* light nav + mobile menu */
+body.light .nav{background:color-mix(in srgb, var(--nv2) 92%, transparent);border-bottom-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+body.light .mnav{background:color-mix(in srgb, var(--nv2) 99%, transparent)}
+body.light .ticker{background:color-mix(in srgb, var(--nv2) 96%, transparent);border-bottom-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+body.light .ti{border-right-color:color-mix(in srgb, var(--tx) 8%, transparent)}
+/* nav dropdown flyouts */
+body.light .dd-inner{background:color-mix(in srgb, var(--nv2) 99%, transparent);border-color:color-mix(in srgb, var(--tx) 12%, transparent);box-shadow:0 20px 50px color-mix(in srgb, var(--tx) 18%, transparent)}
+/* Karachi skyline band → light scene */
+body.light .skyline svg>rect{fill:#EFE9DC}
+body.light .skyline svg g{fill:color-mix(in srgb, var(--tx) 6%, transparent)!important;stroke:color-mix(in srgb, var(--tx) 12%, transparent)!important}
+body.light .skyline svg circle[r="14"]{fill:#EFE9DC}
+body.light .lt-main{background:linear-gradient(100deg,#8C6E18,#B8922A,#8C6E18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.light .btn-ghost{border-color:color-mix(in srgb, var(--tx) 22%, transparent)!important;color:var(--tx)}
+/* white cards */
+body.light .svc-card,body.light .testi,body.light .calc-card,body.light .reg-card,body.light .ctc-card,body.light .loc-card,body.light .faq-item,body.light .ct-panel,body.light .ct-formcard,body.light .fbc-card{
+  background:var(--nv3)!important;border:1px solid color-mix(in srgb, var(--tx) 10%, transparent)!important;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 16px 36px -20px color-mix(in srgb, var(--tx) 22%, transparent),0 2px 6px -2px color-mix(in srgb, var(--tx) 6%, transparent)!important}
+body.light .svc-card:hover,body.light .testi:hover,body.light .reg-card:hover,body.light .ctc-card:hover,body.light .loc-card:hover,body.light .fbc-card:hover{
+  background:var(--nv3)!important;border-color:color-mix(in srgb, var(--au) 50%, transparent)!important;transform:translateY(-6px);
+  box-shadow:0 26px 50px -22px color-mix(in srgb, var(--tx) 30%, transparent),0 0 22px -10px color-mix(in srgb, var(--g) 25%, transparent)!important}
+body.light .svc-card::after{background:radial-gradient(circle,color-mix(in srgb, var(--g) 10%, transparent),transparent 70%)}
+body.light .svc-icon{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 12%, transparent),color-mix(in srgb, var(--au) 16%, transparent));border:1px solid color-mix(in srgb, var(--g) 22%, transparent);box-shadow:none}
+/* inputs */
+body.light .finput{background:var(--nv3);border:1px solid color-mix(in srgb, var(--tx) 18%, transparent);color:var(--tx)}
+body.light .finput::placeholder{color:color-mix(in srgb, var(--tx) 40%, transparent)}
+body.light .finput:focus{border-color:var(--au);box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 14%, transparent)}
+body.light .fselect{background-color:var(--nv3);border-color:color-mix(in srgb, var(--tx) 18%, transparent);color:var(--tx);background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235A6B7E' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")}
+body.light .fselect:focus{border-color:var(--au);box-shadow:0 0 0 3px color-mix(in srgb, var(--au) 14%, transparent)}
+/* section tag, gold accent words, formula, tables on light */
+body.light .stag{background:color-mix(in srgb, var(--g) 9%, transparent);border-color:color-mix(in srgb, var(--g) 32%, transparent);color:#0A6B4B;box-shadow:none}
+body.light .sh span,body.light .phero h1 span,body.light .cta-inner h2 span,body.light .hero h1 span,body.light .snum{background:linear-gradient(100deg,#6B5310,#8A6A14,#A07D1A,#8A6A14,#6B5310);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+/* stats band: the luxury layer hard-codes a dark gradient — lighten it in light mode */
+body.light .stats-band{background:linear-gradient(180deg,var(--nv2),var(--nv));-webkit-backdrop-filter:none;backdrop-filter:none}
+body.light .sc2{border-right-color:color-mix(in srgb, var(--tx) 10%, transparent)}
+/* deepen gold accents (links, calc titles) for contrast on white */
+body.light{--au:#8A6A14;--au2:#A07D1A;--au-grad:linear-gradient(100deg,#6B5310 0%,#8A6A14 28%,#A07D1A 50%,#8A6A14 72%,#6B5310 100%)}
+body.light .pcard,body.light .gov-donut{--au:#C8A84B;--au2:#E2C070}
+body.light .snum{filter:none}
+body.light .dd-table thead th{background:var(--nv3)}
+body.light .calc-info p,body.light .calc-info li{color:var(--mt)}
+body.light .imgwrap{box-shadow:0 20px 46px -22px color-mix(in srgb, var(--tx) 30%, transparent)}
+body.light .lux-divider i{background:linear-gradient(135deg,#B8922A,#8C6E18)}
+
+html,body{overflow-x:hidden}   /* never allow the page to scroll sideways on small screens */
+@media(max-width:900px){
+  .rv-l,.rv-r{transform:translateY(30px)}   /* reveal vertically on mobile — horizontal slide caused sideways overflow */
+  .lux-divider::before,.lux-divider::after{width:22vw}
+  .why-row,.svc-hero-row,.gov-donut{grid-template-columns:1fr}
+  .calc-grid,.pol-grid{grid-template-columns:1fr}
+  .wa-label{display:none}
+  .phero{padding:40px 18px 40px}.phero h1{font-size:34px}
+  .nav-inner{padding:11px 16px;gap:8px}.nav-links{display:none}
+  .logo{gap:9px;min-width:0}.lm-img{width:40px;height:40px}.lt-main{font-size:16px}.lt-sub{font-size:8px}
+  .ham{display:flex}
+  .nav-right{gap:8px}.nav-right .btn-ghost{display:none}
+  .live-badge{display:none}
+  .hero{grid-template-columns:1fr;padding:44px 18px 52px}.hero h1{font-size:38px}.hero-r{display:block;margin-top:10px}.pcard{max-width:100%;box-sizing:border-box}
+  .pstatus{padding:8px 12px}.pstatus #dataSub{display:none}
+  .phead{padding-left:14px;padding-right:14px}.pidxv{font-size:26px}
+  .cw{padding:8px 12px 4px}.clbl{padding-left:12px;padding-right:12px}
+  .ptabs{padding:1px}.ptab{padding:3px 7px;font-size:9px}
+  .shdr,.srow{grid-template-columns:1fr 56px 50px 48px;padding-left:12px;padding-right:12px;column-gap:4px}
+  .sname{font-size:12px}.ssub{font-size:9px}.sprice{font-size:12px}.schg{font-size:10.5px}.pill{font-size:9px;padding:2px 5px}
+  .mkt-table-wrap{overflow-x:auto}.mkt-table table{min-width:560px}
+  .stats-band,.feat-band{grid-template-columns:repeat(2,1fr)}
+  .sec,.sec-sm{padding:52px 18px}
+  .svc-grid,.testi-grid,.reg-grid,.disc-grid,.fbc-grid{grid-template-columns:1fr}
+  .how-steps{grid-template-columns:1fr}.how-arrow{display:none}
+  .sdg,.loc-grid,.ctc-grid,.price-grid,.price-grid[data-n],.ao-wrap{grid-template-columns:1fr}
+  .ao-side{display:none}.ao-main{padding:24px 18px}
+  .fgrid{grid-template-columns:1fr}
+  .nxt-steps{grid-template-columns:1fr}
+  .cta-block{margin:0 18px 56px}.cta-inner{padding:44px 20px}.cta-inner h2{font-size:32px}
+  footer{padding:0 18px 96px}   /* footer own breakpoints handle its internal grids; extra bottom clears the FABs */
+  .mkt-idx{grid-template-columns:1fr 1fr}
+}

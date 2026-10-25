@@ -35,6 +35,15 @@
         "value": "plus jakarta sans",
         "createdAt": "2026-10-06T10:07:34.775Z",
         "reason": "Claude (agent) decided: Plus Jakarta Sans is the Rallys Equities site's own brand body font (index.html default, editor.js FONTS 'Plus Jakarta Sans (default)'); the admin UI deliberately matches it"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "styles/toast.css"
+        ],
+        "createdAt": "2026-10-25T03:53:47.286Z",
+        "reason": "migration parity: toast styling copied verbatim from the original site's reToast(); client brief requires the exact same design"
       }
     ]
   }

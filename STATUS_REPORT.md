@@ -1,3 +1,6 @@
+> **Historical document.** Written for the original single-file HTML site, before the October 2026
+> migration to Next.js. File names and architecture below no longer apply; see [README.md](README.md).
+
 # Rallys Equities Website — Status Report
 
 **Date:** June 13, 2026

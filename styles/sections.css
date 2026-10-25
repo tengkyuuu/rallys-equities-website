@@ -1,0 +1,300 @@
+/* PSX CARD */
+.hero-r{position:relative;z-index:1}
+.pcard{background:color-mix(in srgb, var(--nv) 85%, transparent);border:1px solid var(--gb);border-radius:18px;backdrop-filter:blur(28px);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.pstatus{display:flex;align-items:center;justify-content:space-between;padding:9px 17px;background:color-mix(in srgb, var(--g) 8%, transparent);border-bottom:1px solid rgba(255,255,255,.06);font-size:10px}
+.psdot{width:6px;height:6px;border-radius:50%;background:var(--up);animation:blink 1.5s infinite}
+.pslbl{font-weight:700;letter-spacing:.06em;margin-left:5px;color:var(--up)}
+.pstime{color:var(--mt2);font-variant-numeric:tabular-nums}
+.phead{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 17px 8px}
+.pidxl{font-size:9px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.pidxv{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.pidxc{font-size:11px;font-weight:600;margin-top:3px}
+.ptabs{display:flex;gap:2px;background:rgba(255,255,255,.05);border-radius:7px;padding:2px}
+.ptab{padding:4px 10px;border-radius:5px;border:none;background:transparent;color:var(--mt);font-size:10px;font-weight:500;transition:all .15s;font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}
+.ptab.on{background:var(--g);color:#fff}
+.cw{padding:10px 15px 4px}.cw canvas{display:block;width:100%!important;height:90px!important}
+.clbl{display:flex;justify-content:space-between;padding:2px 15px 6px;font-size:9px;color:var(--mt2)}
+/* header + rows share one flex layout so any column can be toggled off cleanly
+   (hidden cell collapses, siblings keep their widths, no leftover gap/misalign) */
+.shdr{display:flex;align-items:center;gap:10px;padding:4px 15px;font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
+.srow{display:flex;align-items:center;gap:10px;padding:8px 15px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s}
+.srow:hover{background:color-mix(in srgb, var(--g) 8%, transparent)}.srow:last-child{border-bottom:none}
+.sco,.sh-co{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.sname{font-weight:600;font-size:13px}.ssub{font-size:10px;color:var(--mt2);margin-top:1px}
+.sprice,.sh-price{width:76px;flex:none;text-align:right}
+.schg,.sh-chg{width:62px;flex:none;text-align:right}
+.spct,.sh-pct{width:60px;flex:none;text-align:right}
+.sprice{font-variant-numeric:tabular-nums;font-weight:500}
+.schg{font-size:11.5px;font-weight:600}
+.pill{display:inline-block;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700}
+.pill-u{background:color-mix(in srgb, var(--up) 12%, transparent);color:var(--up);border:1px solid color-mix(in srgb, var(--up) 20%, transparent)}
+.pill-d{background:color-mix(in srgb, var(--dn) 11%, transparent);color:var(--dn);border:1px solid color-mix(in srgb, var(--dn) 18%, transparent)}
+.idxrow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06)}
+.ixc{padding:10px 13px;background:color-mix(in srgb, var(--nv) 88%, transparent)}
+.ixn{font-size:9px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.ixv{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.ixch{font-size:9px;margin-top:1px;font-weight:600}
+
+/* STATS */
+.stats-band{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid color-mix(in srgb, var(--au) 12%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 12%, transparent);background:var(--nv2)}
+.sc2{padding:42px 36px;border-right:1px solid color-mix(in srgb, var(--au) 10%, transparent);text-align:center}.sc2:last-child{border-right:none}
+.snum{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:48px;font-weight:700;color:var(--au);line-height:1}
+.slbl{font-size:10px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.surdu2{font-family:'Noto Nastaliq Urdu',serif;font-size:11px;color:var(--mt2);direction:rtl;margin-top:3px;line-height:2}
+
+/* FEAT BAND */
+.feat-band{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:color-mix(in srgb, var(--au) 10%, transparent);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent)}
+.fc{background:var(--nv);padding:34px 26px;text-align:center;transition:background .3s}.fc:hover{background:color-mix(in srgb, var(--g) 7%, transparent)}
+.fi{margin:0 auto 14px;width:58px;height:58px}
+.ft{font-size:13px;font-weight:700;margin-bottom:5px}.fd{font-size:11px;color:var(--mt);line-height:1.65}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+/* two-up grid for the investor-portal statutory disclosures */
+.disc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+/* Jama Punji band — its own row at the very bottom, kept apart from the regulator strip.
+   The mark is dark ink, so it sits on a light plate to stay legible on the navy footer. */
+.jp-band{text-align:center;padding:34px 20px 30px;border-top:1px solid var(--gb)}
+.jp-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mt2);font-weight:600;margin-bottom:16px}
+.jp-logo{display:inline-block;background:#fff;border:1px solid color-mix(in srgb, var(--au) 26%, transparent);border-radius:14px;padding:14px 22px;box-shadow:0 10px 30px -18px rgba(0,0,0,.5);transition:transform .3s var(--lux-ease),box-shadow .3s var(--lux-ease)}
+.jp-logo:hover{transform:translateY(-2px);box-shadow:0 18px 44px -18px rgba(0,0,0,.6)}
+.jp-logo img{display:block;height:76px;width:auto;max-width:100%}
+.jp-note{font-size:11.5px;color:var(--mt2);line-height:1.7;max-width:540px;margin:16px auto 0}
+@media(max-width:640px){.jp-logo img{height:54px}.jp-logo{padding:11px 16px}}
+/* bottom-of-site feedback + complaint pair */
+.fbc-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;max-width:1160px;margin-left:auto;margin-right:auto}
+.fbc-head{display:flex;align-items:center;gap:13px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--au);margin-bottom:20px}
+.fbc-head.cx{color:var(--dn)}
+.fbc-ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.fbc-ic-fb{background:linear-gradient(145deg,color-mix(in srgb, var(--g) 30%, transparent),color-mix(in srgb, var(--au) 12%, transparent));
+  border:1px solid color-mix(in srgb, var(--au) 28%, transparent);color:var(--g3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6)}
+.fbc-ic-cx{background:linear-gradient(145deg,color-mix(in srgb, var(--dn) 26%, transparent),color-mix(in srgb, var(--dn) 6%, transparent));
+  border:1px solid color-mix(in srgb, var(--dn) 32%, transparent);color:var(--dn);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(var(--shadow-rgb),.6)}
+.fbc-card{border:1px solid var(--gb);border-radius:20px;padding:38px;background:var(--gl)}
+.fbc-done{display:none;border:1px solid color-mix(in srgb, var(--up) 35%, transparent);border-radius:20px;padding:34px;background:color-mix(in srgb, var(--up) 7%, transparent);text-align:center}
+.svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl);position:relative;overflow:hidden;transition:all .3s}
+.svc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent);opacity:0;transition:opacity .3s}
+.svc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}.svc-card:hover::before{opacity:1}
+.svc-icon{width:50px;height:50px;border-radius:12px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--g) 18%, transparent);border:1px solid color-mix(in srgb, var(--g) 30%, transparent)}
+.svc-title{font-size:16px;font-weight:700;margin-bottom:9px}
+.svc-desc{font-size:12px;color:var(--mt);line-height:1.72}
+.svc-link{display:inline-flex;align-items:center;gap:5px;color:var(--g3);font-size:11px;font-weight:600;margin-top:15px;transition:gap .2s}.svc-link:hover{gap:9px}
+
+/* SERVICES PAGE */
+.sdg{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-bottom:72px;padding-bottom:72px;border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent)}
+.sdg:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.sdg.rev{direction:rtl}.sdg.rev>*{direction:ltr}
+.sdi{border-radius:18px;border:1px solid var(--gb);overflow:hidden;background:color-mix(in srgb, var(--g) 7%, transparent)}
+.sfl{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.sf{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;border:1px solid transparent;transition:all .3s}
+.sf:hover{background:color-mix(in srgb, var(--g) 7%, transparent);border-color:color-mix(in srgb, var(--g3) 20%, transparent)}
+.sfi{width:32px;height:32px;border-radius:8px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sft h4{font-size:13px;font-weight:700;margin-bottom:3px}.sft p{font-size:11px;color:var(--mt);line-height:1.65}
+
+/* PRICING */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.prc{border:1px solid var(--gb);border-radius:18px;padding:28px 22px;background:var(--gl);transition:all .3s;position:relative;overflow:hidden}
+.prc.feat{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
+.prc.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g3),transparent)}
+.prc-badge{position:absolute;top:16px;right:16px;background:var(--g);color:#fff;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px}
+.prc-name{font-size:13px;font-weight:700;color:var(--au);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.prc-price{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:36px;font-weight:700;line-height:1;margin:10px 0 4px}
+.prc-period{font-size:11px;color:var(--mt)}
+.prc-features{display:flex;flex-direction:column;gap:9px;margin:18px 0;list-style:none}
+.prc-features li{font-size:12px;color:var(--mt);display:flex;align-items:center;gap:8px}
+.prc-features li::before{content:'✓';color:var(--g3);font-weight:700;font-size:11px}
+.prc-price.prc-mid{font-size:26px}.prc-price.prc-long{font-size:21px;line-height:1.15}
+.price-grid[data-n="2"]{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto}
+.price-grid[data-n="1"]{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}
+.prc-off{display:none!important}
+
+/* LOCATION */
+.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:48px}
+.loc-card{border:1px solid var(--gb);border-radius:18px;overflow:hidden;background:var(--gl);transition:all .3s}
+.loc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-4px)}
+.loc-map{height:200px;background:var(--nv3);position:relative;overflow:hidden}
+.loc-info{padding:24px}
+.loc-city{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:24px;font-weight:700;color:var(--au);margin-bottom:4px}
+.loc-type{font-size:10px;font-weight:700;color:var(--g3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.loc-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;font-size:12px;color:var(--mt);line-height:1.6}
+.loc-icon{width:28px;height:28px;border-radius:7px;background:color-mix(in srgb, var(--g) 18%, transparent);border:1px solid color-mix(in srgb, var(--g3) 20%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.hrs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)}
+.hrs-item{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+.hrs-day{font-size:10px;color:var(--mt2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.hrs-time{font-size:12px;font-weight:600}
+.map-box{border-radius:18px;overflow:hidden;border:1px solid var(--gb);height:420px;background:var(--nv3);position:relative;margin-top:48px}
+.ctc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.ctc-card{border:1px solid var(--gb);border-radius:16px;padding:26px;background:var(--gl);text-align:center;transition:all .3s}
+.ctc-card:hover{border-color:color-mix(in srgb, var(--g3) 40%, transparent);transform:translateY(-3px)}
+.ctc-icon{width:52px;height:52px;border-radius:13px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.ctc-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.ctc-val{font-size:12px;color:var(--g3);margin-bottom:4px;font-weight:500}
+.ctc-sub{font-size:11px;color:var(--mt)}
+
+/* ACCOUNT OPENING */
+.ao-wrap{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 99px)}
+.ao-side{background:var(--nv2);border-right:1px solid var(--gb);padding:36px 28px;position:sticky;top:99px;height:calc(100vh - 99px);overflow-y:auto}
+.ao-steps-list{display:flex;flex-direction:column;gap:4px;margin-top:24px}
+.ao-step{display:flex;align-items:flex-start;gap:12px;padding:13px;border-radius:12px;transition:all .3s}
+.ao-step.active{background:color-mix(in srgb, var(--g) 15%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent)}
+.ao-step.done{opacity:.75}
+.ao-step-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s;border:1px solid rgba(255,255,255,.15);color:var(--mt)}
+.ao-step.active .ao-step-n{background:var(--g);color:#fff;border-color:var(--g)}
+.ao-step.done .ao-step-n{background:color-mix(in srgb, var(--up) 15%, transparent);color:var(--up);border-color:color-mix(in srgb, var(--up) 30%, transparent)}
+.ao-step-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.ao-step-sub{font-size:10px;color:var(--mt)}
+.ao-connector{width:1px;height:18px;background:rgba(255,255,255,.1);margin-left:22px}
+.ao-trust{display:flex;flex-direction:column;gap:8px;margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.07)}
+.ao-tb{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--mt)}
+.ao-tbi{width:26px;height:26px;border-radius:6px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 20%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ao-main{padding:36px 44px;background:var(--nv)}
+.ao-fh{margin-bottom:28px}
+.ao-fh h2{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:34px;font-weight:700;margin-bottom:6px}
+.ao-fh h2 em{font-style:italic;color:var(--g3)}
+.ao-fh p{font-size:13px;color:var(--mt);line-height:1.7}
+.fsec{display:none}.fsec.active{display:block}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.flbl{font-size:11px;font-weight:600;color:var(--tx);letter-spacing:.04em}
+.flbl .req{color:var(--dn);font-size:10px}
+.finput{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%}
+.finput:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent);box-shadow:0 0 0 3px color-mix(in srgb, var(--g3) 8%, transparent)}
+.finput::placeholder{color:var(--mt2)}
+.fselect{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239DB0C6' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.fselect:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background-color:color-mix(in srgb, var(--g) 8%, transparent)}
+.fselect option{background:var(--nv3);color:var(--tx)}
+.ftarea{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px;transition:all .2s;outline:none;width:100%;resize:vertical;min-height:80px;line-height:1.6}
+.ftarea:focus{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
+.fhint{font-size:10px;color:var(--mt2);line-height:1.5}
+.ferr{font-size:10px;color:var(--dn);display:none}
+.finput.err,.fselect.err{border-color:color-mix(in srgb, var(--dn) 40%, transparent)}
+.finput.err+.ferr,.fselect.err+.ferr{display:block}
+.upload-box{border:1px dashed color-mix(in srgb, var(--au) 35%, transparent);border-radius:12px;padding:26px;text-align:center;cursor:pointer;transition:all .3s;background:color-mix(in srgb, var(--au) 3%, transparent)}
+.upload-box:hover{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 6%, transparent)}
+.upload-icon{margin:0 auto 10px;width:40px;height:40px;border-radius:10px;background:color-mix(in srgb, var(--g) 20%, transparent);border:1px solid color-mix(in srgb, var(--g3) 25%, transparent);display:flex;align-items:center;justify-content:center}
+.upload-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.upload-sub{font-size:10px;color:var(--mt)}
+.upload-input{display:none}
+.fcheck{display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:10px}
+.fcheck input[type=checkbox]{width:16px;height:16px;accent-color:var(--g);flex-shrink:0;margin-top:3px;cursor:pointer}
+.fcheck-lbl{font-size:12px;color:var(--mt);line-height:1.6;cursor:pointer}
+.fcheck-lbl a{color:var(--g3);text-decoration:underline}
+.fnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.07)}
+.fprev{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--mt);padding:11px 22px;border-radius:9px;font-size:13px;font-weight:600;transition:all .2s;font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}
+.fprev:hover{border-color:var(--au);color:var(--au)}
+.fnext{background:linear-gradient(135deg,var(--g),var(--g3));border:none;color:#fff;padding:11px 28px;border-radius:9px;font-size:13px;font-weight:700;box-shadow:0 4px 18px color-mix(in srgb, var(--g) 35%, transparent);transition:all .2s;font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}
+.fnext:hover{transform:translateY(-1px);box-shadow:0 8px 24px color-mix(in srgb, var(--g) 50%, transparent)}
+
+/* Complaints & Feedback forms — sized up on request: bigger fields, taller message
+   boxes, roomier cards. Scoped to these forms only so the account-opening and
+   contact forms (which share the same base .finput/.ftarea classes) stay unchanged. */
+#page-complaints .fgrid,#page-feedback .fgrid,#home-feedback .fgrid{gap:22px;margin-bottom:22px}
+#page-complaints .fg,#page-feedback .fg,#home-feedback .fg{gap:8px}
+#page-complaints .flbl,#page-feedback .flbl,#home-feedback .flbl{font-size:13px}
+#page-complaints .finput,#page-feedback .finput,#home-feedback .finput,
+#page-complaints .fselect,#page-feedback .fselect,#home-feedback .fselect{padding:15px 18px;font-size:15px;border-radius:11px}
+#page-complaints .ftarea,#page-feedback .ftarea,#home-feedback .ftarea{padding:15px 18px;font-size:15px;border-radius:11px;min-height:160px}
+#page-complaints .fnext,#page-feedback .fnext,#home-feedback .fnext{padding:15px 30px;font-size:15px}
+.prog-bar{height:3px;background:rgba(255,255,255,.08);border-radius:100px;margin-bottom:26px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--g3));border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.rv-sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.rv-title{font-size:11px;font-weight:700;color:var(--au);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.rv-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.rv-row:last-child{border-bottom:none}
+.rv-k{color:var(--mt)}.rv-v{font-weight:600;color:var(--tx)}
+.success-scr{text-align:center;padding:44px 28px;display:none}
+.success-scr.show{display:block}
+.success-icon{width:80px;height:80px;border-radius:50%;background:color-mix(in srgb, var(--up) 15%, transparent);border:2px solid color-mix(in srgb, var(--up) 40%, transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+.success-title{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:36px;font-weight:700;margin-bottom:10px}
+.success-title em{font-style:italic;color:var(--g3)}
+.success-sub{font-size:14px;color:var(--mt);max-width:480px;margin:0 auto 24px;line-height:1.75}
+.success-ref{background:color-mix(in srgb, var(--au) 8%, transparent);border:1px solid color-mix(in srgb, var(--au) 20%, transparent);border-radius:10px;padding:14px 20px;display:inline-block;margin-bottom:24px}
+.success-ref-lbl{font-size:10px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.success-ref-val{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:22px;font-weight:700;color:var(--au);letter-spacing:.06em}
+.nxt-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;text-align:left}
+.nxt-step{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px}
+.nxt-n{width:24px;height:24px;border-radius:6px;background:var(--g);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.nxt-title{font-size:12px;font-weight:700;margin-bottom:4px}
+.nxt-desc{font-size:11px;color:var(--mt);line-height:1.6}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.testi{border:1px solid var(--gb);border-radius:18px;padding:26px;background:var(--gl);transition:border-color .3s}
+.testi:hover{border-color:color-mix(in srgb, var(--au) 42%, transparent)}
+.testi-stars{color:var(--au);font-size:13px;letter-spacing:2px;margin-bottom:12px}
+.testi-q{font-size:13px;color:var(--mt);line-height:1.75;font-style:italic;margin-bottom:10px}
+.testi-qu{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:var(--mt2);direction:rtl;line-height:2.2;margin-bottom:12px}
+.testi-auth{display:flex;align-items:center;gap:10px}
+.testi-av{width:38px;height:38px;border-radius:50%;background:color-mix(in srgb, var(--g) 28%, transparent);border:1px solid color-mix(in srgb, var(--g3) 30%, transparent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display,'Cormorant Garamond',serif);font-size:13px;font-weight:700;color:var(--g3)}
+.testi-name{font-size:12px;font-weight:700}.testi-role{font-size:10px;color:var(--mt2)}
+/* the .testi card is reused for leadership bios — these are biographies, not quotes, so drop the italic */
+#page-management .testi-q{font-style:normal}
+/* leadership portrait — placeholder until real photos land; swappable from /admin via data-edit-img */
+.lead-photo{width:96px;height:96px;border-radius:18px;overflow:hidden;margin-bottom:16px;background:color-mix(in srgb, var(--g) 12%, transparent);border:1px solid color-mix(in srgb, var(--au) 30%, transparent);box-shadow:0 10px 26px -14px rgba(var(--shadow-rgb),.55)}
+.lead-photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* HOW IT WORKS */
+.how-steps{display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr;align-items:center;max-width:860px;margin:44px auto 0}
+.how-step{text-align:center;padding:24px 18px}
+.how-icon{margin:0 auto 14px;width:74px;height:74px}
+.how-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.how-desc{font-size:11px;color:var(--mt);line-height:1.65}
+.how-arrow{text-align:center}
+
+/* REGULATORY */
+.reg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.reg-card{border:1px solid color-mix(in srgb, var(--au) 16%, transparent);border-radius:14px;padding:24px 16px;text-align:center;background:color-mix(in srgb, var(--au) 3%, transparent);transition:all .3s}
+.reg-card:hover{border-color:color-mix(in srgb, var(--au) 40%, transparent);background:var(--au3)}
+.reg-name{font-size:12px;font-weight:700;color:var(--au);margin-bottom:5px;letter-spacing:.04em;margin-top:12px}
+.reg-desc{font-size:11px;color:var(--mt2);line-height:1.6}
+.reg-strip{background:color-mix(in srgb, var(--au) 5%, transparent);border-top:1px solid color-mix(in srgb, var(--au) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--au) 10%, transparent);padding:20px 52px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+.reg-strip-item{display:flex;align-items:center;gap:10px;opacity:.78;transition:opacity .2s}.reg-strip-item:hover{opacity:1}
+.rst{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--au)}
+
+/* CTA */
+.cta-block{margin:0 52px 80px;border-radius:20px;position:relative;overflow:hidden;border:1px solid color-mix(in srgb, var(--g) 30%, transparent);background:linear-gradient(135deg,color-mix(in srgb, var(--g) 12%, transparent) 0%,color-mix(in srgb, var(--au) 4%, transparent) 100%)}
+.cta-block::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,var(--g3),var(--au),transparent)}
+.cta-inner{padding:72px;text-align:center;position:relative;z-index:1}
+.cta-inner h2{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:48px;font-weight:700;margin-bottom:10px;line-height:1.1}
+.cta-inner h2 em{font-style:italic;color:var(--g3)}.cta-inner h2 span{color:var(--au)}
+.cta-urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:17px;color:var(--mt2);direction:rtl;margin-bottom:16px;display:block;line-height:2}
+.cta-inner p{font-size:14px;color:var(--mt);max-width:490px;margin:0 auto 28px;font-weight:300}
+.cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.cta-note{margin-top:20px;font-size:11px;color:var(--mt2);display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+
+/* MARKETS */
+.mkt-idx{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.mkt-idxc{background:var(--gl);border:1px solid var(--gb);border-radius:14px;padding:20px}
+.mkt-idxn{font-size:10px;color:var(--mt2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.mkt-idxv{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.mkt-idxc2{font-size:12px;font-weight:600;margin-top:3px}
+.mkt-table-wrap{margin-top:22px;background:var(--gl);border:1px solid var(--gb);border-radius:16px;overflow:hidden}
+.mkt-table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);background:color-mix(in srgb, var(--g) 7%, transparent)}
+.mkt-table-title{font-size:13px;font-weight:700}
+.mkt-table{max-height:62vh;overflow:auto}
+.mkt-table table{width:100%;border-collapse:collapse;table-layout:fixed}
+.mkt-table thead th{padding:10px 16px;text-align:right;font-size:10px;font-weight:700;color:var(--mt2);letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);background:var(--nv2);position:sticky;top:0;z-index:2}
+.mkt-table thead th:first-child{text-align:left}
+.mkt-table tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+.mkt-table tbody tr:last-child{border-bottom:none}
+.mkt-table tbody tr:hover{background:color-mix(in srgb, var(--g) 9%, transparent)}
+.mkt-table td{padding:11px 16px;text-align:right;font-variant-numeric:tabular-nums;font-size:13.5px}
+.mkt-table td:first-child{text-align:left}
+/* market data unavailable / loading — the widgets say so instead of showing numbers */
+.pcard.is-down .ptabs,.pcard.is-down .cw,.pcard.is-down .clbl,.pcard.is-down .shdr,.pcard.is-down #heroStocks{display:none}
+.pdown{display:none;padding:26px 18px 24px;text-align:center;font-size:12.5px;line-height:1.7;color:var(--mt)}
+.pcard.is-down .pdown{display:block}
+.pdown a,.mkt-down a,.ti-note a{color:var(--g3);font-weight:700;text-decoration:none;white-space:nowrap}
+.pdown a:hover,.mkt-down a:hover,.ti-note a:hover{text-decoration:underline}
+.psdot.off{background:var(--mt2);animation:none}
+.pslbl.off{color:var(--mt)}
+.pnote{padding:14px 17px;font-size:11.5px;color:var(--mt2);text-align:center}
+.mkt-table td.mkt-down{text-align:center;padding:30px 16px;color:var(--mt);font-size:13px;line-height:1.7}
+.ticker-wrap.is-static{animation:none;width:auto;justify-content:center}
+.ti-note{color:var(--mt);border-right:none;gap:4px}
+.ti-note .tn-s{display:none}
+@media(max-width:600px){.ti-note{padding:0 12px}.ti-note .tn-l{display:none}.ti-note .tn-s{display:inline}}
+.ptab:disabled{opacity:.35;cursor:default}

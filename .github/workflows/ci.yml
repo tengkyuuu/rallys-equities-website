@@ -15,14 +15,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
-      - name: Run smoke tests (routing, SEO metadata, CSP, admin boot)
+      # builds the site against tests/mock-supabase.mjs, then runs the e2e suite
+      - name: End-to-end tests
         run: npm test
 
       - name: Upload Playwright report

@@ -1,0 +1,10 @@
+.next
+.next-test
+node_modules
+public
+styles
+supabase/functions
+playwright-report
+test-results
+*.md
+artifact_reference.html

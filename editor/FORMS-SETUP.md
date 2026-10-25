@@ -19,7 +19,7 @@ hosting and no extra cost.
    (It creates the `form_submissions` table, the security rules, and the bucket policies.)
 
 That's it — forms are now live. Submit a test contact form on the site, then open
-`…/?edit=1`, log in, and click **📥 Submissions** to see it. Uploaded documents open via the
+`…/admin`, log in, and click **📥 Submissions** to see it. Uploaded documents open via the
 **⬇** buttons (private, signed links that only you can open).
 
 > **How the security works:** the public can only *add* a submission — never read, edit, or
@@ -61,7 +61,7 @@ secret or an unverified `NOTIFY_FROM`.)
 ---
 
 ## Where submissions live
-- **Editor inbox:** `…/?edit=1` → log in → **📥 Submissions** (newest first; download documents;
+- **Editor inbox:** `…/admin` → log in → **📥 Submissions** (newest first; download documents;
   tick **Mark handled**).
 - **Raw data:** Supabase dashboard → **Table Editor → `form_submissions`**, and documents under
   **Storage → `form-uploads`**.

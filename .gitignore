@@ -22,3 +22,24 @@ blob-report/
 Rallys Policies and Procedures/
 Revised Website Content.pdf
 Website Notes.docx
+
+# Next.js
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+
+# Migration scratch (HTML→TSX converter output, temp files)
+.migration/
+.tmp-hold/
+
+.next-test/
+.e2e.log
+
+# Local screenshots (Playwright captures for review)
+screenshots/
+
+# Impeccable design-tool files for GitHub Copilot (local tooling, like .claude/)
+.github/agents/
+.github/hooks/
+.github/skills/

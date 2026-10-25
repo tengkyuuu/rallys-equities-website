@@ -1,0 +1,4 @@
+/* In-site links were <a onclick> without an href, so the browser never applied its
+   link styling to them. They are real links now; this zero-specificity reset keeps them
+   looking exactly as before while every author rule in the stylesheet still wins. */
+:where(a[data-page], a[data-action]) { color: inherit; text-decoration: none; }

@@ -1,0 +1,5 @@
+/* inline styles needed for dynamic elements */
+.ac-opt{border:1px solid var(--gb);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s}
+.ac-opt.active-opt{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 10%, transparent)}
+.risk-opt{border:1px solid var(--gb);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all .2s}
+.risk-opt.active-risk{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}

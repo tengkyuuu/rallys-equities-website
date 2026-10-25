@@ -1,0 +1,14 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#0A6B4B;--g2:#0D8F63;--g3:#12B87C;
+  --au:#C8A84B;--au2:#E2C070;--au3:color-mix(in srgb, var(--au) 13%, transparent);
+  --nv:#05101E;--nv2:#081828;--nv3:#0C2040;
+  --gl:rgba(255,255,255,.04);--gb:color-mix(in srgb, var(--au) 20%, transparent);
+  --tx:#F6F2EA;--mt:color-mix(in srgb, var(--tx) 56%, transparent);--mt2:color-mix(in srgb, var(--tx) 30%, transparent);
+  --up:#2ECC8A;--dn:#E84545;
+  --shadow-rgb:0,0,0;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body,'Plus Jakarta Sans',sans-serif);background:var(--nv);color:var(--tx);overflow-x:hidden;line-height:1.65}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--nv)}::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--au) 40%, transparent);border-radius:2px}
+a,button{cursor:pointer}input,select,textarea{font-family:var(--font-body,'Plus Jakarta Sans',sans-serif)}

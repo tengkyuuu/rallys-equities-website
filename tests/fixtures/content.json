@@ -1,0 +1,44 @@
+{
+  "text": { "home.div4-div2-div3-div2": "Fund Accounts" },
+  "img": {},
+  "imgMeta": {},
+  "theme": { "dark": { "--au2": "#e2c071" }, "light": {} },
+  "fonts": {},
+  "hidden": {
+    "home.section2-div2-div2": "Home — service card",
+    "home.section2-div2-div4": "Home — service card",
+    "page:rating": "Page — Management Rating"
+  },
+  "order": {},
+  "pricing": {},
+  "calcInfo": {},
+  "version": 1,
+  "posts": [
+    {
+      "id": "p1",
+      "title": "KSE-100 Outlook for Q3",
+      "slug": "kse-100-outlook-q3",
+      "excerpt": "A short market note.",
+      "date": "2026-08-01",
+      "published": true,
+      "body": "<h2>Where we stand</h2><p>Banks lead the rally.<script>window.__pwned=1</script></p><p><a href=\"javascript:window.__pwned=1\">bad link</a> <a href=\"https://example.com\">good link</a></p><img src=\"x\" onerror=\"window.__pwned=1\">"
+    },
+    {
+      "id": "p2",
+      "title": "An Older Post Without A Slug",
+      "excerpt": "x",
+      "date": "2026-01-01",
+      "published": true,
+      "body": "<p>Older note.</p>"
+    },
+    {
+      "id": "p3",
+      "title": "Unpublished draft",
+      "slug": "unpublished-draft",
+      "date": "2026-09-01",
+      "published": false,
+      "body": "<p>Draft.</p>"
+    },
+    { "id": "p4", "title": "", "date": "2025-01-01", "published": true, "body": "<p>No title.</p>" }
+  ]
+}

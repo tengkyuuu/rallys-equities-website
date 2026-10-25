@@ -26,7 +26,7 @@ Other details:
 This behaviour is covered by [`tests/market-data.spec.js`](tests/market-data.spec.js), which
 mocks `/api/market` as down, loading and live.
 
-The `PSX` array in `index.html` lists names and sectors only (featured rows, ticker order, the
+The `PSX` array in [`lib/market.ts`](lib/market.ts) lists names and sectors only (featured rows, ticker order, the
 logo wall). It holds no prices.
 
 ---
@@ -34,7 +34,7 @@ logo wall). It holds no prices.
 ## How it works
 
 The browser can't call PSX directly (no CORS), so a **Vercel serverless function**
-([`api/market.js`](api/market.js)) fetches the data server-side. The site polls `/api/market`
+([`app/api/market/route.ts`](app/api/market/route.ts)) fetches the data server-side. The site polls `/api/market`
 once a minute and expects this response:
 
 ```json
@@ -44,7 +44,7 @@ once a minute and expects this response:
   "delayed": true }
 ```
 
-Today `api/market.js` builds that response from PSX's data portal (`dps.psx.com.pk`):
+Today the route builds that response from PSX's data portal (`dps.psx.com.pk`):
 `timeseries/eod/*` for the indices, `timeseries/int/KSE100` for the intraday chart, `market-watch`
 for company prices and `symbols` for sector names. **All four now return 403.**
 
@@ -65,7 +65,7 @@ Free sources were checked in October 2026 and none are usable on a commercial we
 - **Free "PSX APIs":** they re-serve the same blocked portal.
 - **Twelve Data and EODHD:** PSX needs a paid plan, and the free plans are personal or testing use only.
 
-Once a source is chosen, only `api/market.js` changes: map the provider's response to the shape
+Once a source is chosen, only `app/api/market/route.ts` changes: map the provider's response to the shape
 above. The front end needs no changes, and prices return automatically.
 
 ---
