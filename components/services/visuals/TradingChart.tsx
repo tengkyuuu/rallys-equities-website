@@ -15,7 +15,7 @@ export default function TradingChart({ accent }: { accent: string }) {
     <ResponsiveContainer width="100%" height={160}>
       <AreaChart data={SHAPE} margin={{ top: 10, right: 6, bottom: 0, left: 6 }}>
         <defs>
-          <linearGradient id="vis-trade-fill" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="illo-trade-fill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={accent} stopOpacity={0.3} />
             <stop offset="100%" stopColor={accent} stopOpacity={0} />
           </linearGradient>
@@ -29,7 +29,7 @@ export default function TradingChart({ accent }: { accent: string }) {
           dataKey="y"
           stroke={accent}
           strokeWidth={2.2}
-          fill="url(#vis-trade-fill)"
+          fill="url(#illo-trade-fill)"
           activeDot={{ r: 5, fill: accent, stroke: 'var(--nv2)', strokeWidth: 2.5 }}
           isAnimationActive={!prefersReducedMotion()}
           animationDuration={1500}

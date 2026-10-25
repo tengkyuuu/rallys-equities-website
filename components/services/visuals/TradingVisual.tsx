@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useInView } from './useInView';
 
-const Chart = dynamic(() => import('./TradingChart'), { ssr: false, loading: () => <div className="vis-chart-ph" /> });
+const Chart = dynamic(() => import('./TradingChart'), { ssr: false, loading: () => <div className="illo-chart-ph" /> });
 
 const UpArrow = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
@@ -21,27 +21,27 @@ export default function TradingVisual() {
   return (
     <div
       ref={ref}
-      className={`vis vis-${side}`}
+      className={`illo illo-${side}`}
       role="group"
       aria-label="Illustration of a trading screen: price chart, quotes and an order ticket"
     >
-      <div className="vis-head">
-        <span className="vis-live" />
+      <div className="illo-head">
+        <span className="illo-live" />
         Live order book
       </div>
-      {seen ? <Chart accent={accent} /> : <div className="vis-chart-ph" />}
-      <div className="vis-cols">
+      {seen ? <Chart accent={accent} /> : <div className="illo-chart-ph" />}
+      <div className="illo-cols">
         {['Company A', 'Company B'].map((c) => (
           <div key={c}>
-            <span className="vis-label">{c}</span>
+            <span className="illo-label">{c}</span>
             <strong>Live price</strong>
-            <span className="vis-up">
+            <span className="illo-up">
               <UpArrow /> Up
             </span>
           </div>
         ))}
-        <div className="vis-ticket">
-          <div className="vis-seg" role="radiogroup" aria-label="Order side">
+        <div className="illo-ticket">
+          <div className="illo-seg" role="radiogroup" aria-label="Order side">
             {(['buy', 'sell'] as const).map((s) => (
               <button
                 key={s}
@@ -56,7 +56,7 @@ export default function TradingVisual() {
             ))}
           </div>
           <strong>Market order</strong>
-          <span className="vis-note">Instant execution</span>
+          <span className="illo-note">Instant execution</span>
         </div>
       </div>
     </div>

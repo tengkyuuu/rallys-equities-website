@@ -39,27 +39,27 @@ export default function PortfolioVisual() {
   return (
     <div
       ref={ref}
-      className={seen ? 'vis is-in' : 'vis'}
+      className={seen ? 'illo is-in' : 'illo'}
       role="group"
       aria-label="Illustration of a portfolio dashboard with allocation and rebalancing"
     >
-      <div className="vis-head">Portfolio dashboard</div>
-      <div className="vis-stats">
+      <div className="illo-head">Portfolio dashboard</div>
+      <div className="illo-stats">
         <div>
-          <span className="vis-label">Total value</span>
+          <span className="illo-label">Total value</span>
           <strong>Updated live</strong>
-          <span className="vis-note">Track performance anytime</span>
+          <span className="illo-note">Track performance anytime</span>
         </div>
         <div>
-          <span className="vis-label">YTD return</span>
-          <strong className="vis-gold">Your actual return</strong>
-          <span className="vis-note">Reviewed each quarter</span>
+          <span className="illo-label">YTD return</span>
+          <strong className="illo-gold">Your actual return</strong>
+          <span className="illo-note">Reviewed each quarter</span>
         </div>
       </div>
-      <div className="vis-alloc">
-        <div className="vis-alloc-top">
-          <span className="vis-label">Allocation</span>
-          <div className="vis-seg" role="radiogroup" aria-label="Allocation state">
+      <div className="illo-alloc">
+        <div className="illo-alloc-top">
+          <span className="illo-label">Allocation</span>
+          <div className="illo-seg" role="radiogroup" aria-label="Allocation state">
             {(['drifted', 'rebalanced'] as const).map((s) => (
               <button
                 key={s}
@@ -77,20 +77,20 @@ export default function PortfolioVisual() {
             ))}
           </div>
         </div>
-        <div className="vis-bar" onMouseLeave={() => setActive(null)}>
+        <div className="illo-bar" onMouseLeave={() => setActive(null)}>
           {SECTORS.map((name, i) => (
             <span
               key={name}
-              className={`vis-c${i + 1}${active !== null && active !== i ? ' is-dim' : ''}`}
+              className={`illo-c${i + 1}${active !== null && active !== i ? ' is-dim' : ''}`}
               style={{ flexGrow: seen ? MIX[state][i] : 0 }}
               onMouseEnter={() => setActive(i)}
             />
           ))}
         </div>
-        <p className="vis-caption" aria-live="polite">
+        <p className="illo-caption" aria-live="polite">
           {CAPTION[state]}
         </p>
-        <ul className="vis-legend vis-legend-inline">
+        <ul className="illo-legend illo-legend-inline">
           {SECTORS.map((name, i) => (
             <li key={name}>
               <button
@@ -102,20 +102,20 @@ export default function PortfolioVisual() {
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
               >
-                <i className={`vis-c${i + 1}`} />
+                <i className={`illo-c${i + 1}`} />
                 {name}
               </button>
             </li>
           ))}
         </ul>
       </div>
-      <div className="vis-foot">
-        <span className="vis-check">
+      <div className="illo-foot">
+        <span className="illo-check">
           <Person />
         </span>
         <div>
           <strong>Advisor notes</strong>
-          <span className="vis-note">Personalised guidance from your relationship manager</span>
+          <span className="illo-note">Personalised guidance from your relationship manager</span>
         </div>
       </div>
     </div>

@@ -48,18 +48,18 @@ export default function ShariahVisual() {
   return (
     <div
       ref={ref}
-      className={seen ? 'vis is-in' : 'vis'}
+      className={seen ? 'illo is-in' : 'illo'}
       role="group"
       aria-label="Illustration of sectors within the KMI-30 Shariah-compliant universe"
     >
-      <div className="vis-head">Sector mix</div>
-      <div className="vis-donut-row" onMouseLeave={() => setActive(null)}>
-        <div className="vis-donut">
+      <div className="illo-head">Sector mix</div>
+      <div className="illo-donut-row" onMouseLeave={() => setActive(null)}>
+        <div className="illo-donut">
           <svg viewBox="0 0 200 200" aria-hidden="true">
             {SEGMENTS.map((s, i) => (
               <g
                 key={s.name}
-                className={`vis-seg-g vis-c${i + 1}${active === i ? ' is-active' : ''}${active !== null && active !== i ? ' is-dim' : ''}`}
+                className={`illo-seg-g illo-c${i + 1}${active === i ? ' is-active' : ''}${active !== null && active !== i ? ' is-dim' : ''}`}
                 style={{ transform: active === i ? `translate(${s.dx}px, ${s.dy}px)` : undefined }}
                 onMouseEnter={() => setActive(i)}
                 onClick={() => setActive(i)}
@@ -68,12 +68,12 @@ export default function ShariahVisual() {
               </g>
             ))}
           </svg>
-          <div className={on ? 'vis-donut-center is-sector' : 'vis-donut-center'} aria-live="polite">
+          <div className={on ? 'illo-donut-center is-sector' : 'illo-donut-center'} aria-live="polite">
             <strong>{on ? on.name : 'KMI-30'}</strong>
-            {on ? <i className={`vis-c${active! + 1}`} aria-hidden="true" /> : <span>Halal universe</span>}
+            {on ? <i className={`illo-c${active! + 1}`} aria-hidden="true" /> : <span>Halal universe</span>}
           </div>
         </div>
-        <ul className="vis-legend">
+        <ul className="illo-legend">
           {SEGMENTS.map((s, i) => (
             <li key={s.name}>
               <button
@@ -85,20 +85,20 @@ export default function ShariahVisual() {
                 onBlur={() => setActive(null)}
                 onClick={() => setActive(i)}
               >
-                <i className={`vis-c${i + 1}`} />
+                <i className={`illo-c${i + 1}`} />
                 {s.name}
               </button>
             </li>
           ))}
         </ul>
       </div>
-      <div className="vis-foot">
-        <span className="vis-check">
+      <div className="illo-foot">
+        <span className="illo-check">
           <Check />
         </span>
         <div>
           <strong>Shariah certified — screened by advisory board</strong>
-          <span className="vis-note">Reviewed periodically for continued compliance</span>
+          <span className="illo-note">Reviewed periodically for continued compliance</span>
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ test('trading: the chart draws in, and Buy/Sell recolours the ticket', async ({ 
   await t.scrollIntoViewIfNeeded();
   await expect(t.locator('.recharts-area-curve')).toHaveCount(1);
   await t.getByRole('radio', { name: 'Sell' }).click();
-  await expect(t.locator('.vis')).toHaveClass(/vis-sell/);
+  await expect(t.locator('.illo')).toHaveClass(/illo-sell/);
   await expect(t.getByRole('radio', { name: 'Sell' })).toHaveAttribute('aria-checked', 'true');
 });
 
@@ -32,10 +32,10 @@ test('shariah: pointing at a sector names it in the centre of the donut', async 
   await page.goto('/services');
   const s = visual(page, 'svc-shariah');
   await s.scrollIntoViewIfNeeded();
-  await expect(s.locator('.vis-donut-center strong')).toHaveText('KMI-30');
+  await expect(s.locator('.illo-donut-center strong')).toHaveText('KMI-30');
   await s.getByRole('button', { name: 'Cement' }).hover();
-  await expect(s.locator('.vis-donut-center strong')).toHaveText('Cement');
-  await expect(s.locator('.vis-seg-g.is-active')).toHaveCount(1);
+  await expect(s.locator('.illo-donut-center strong')).toHaveText('Cement');
+  await expect(s.locator('.illo-seg-g.is-active')).toHaveCount(1);
 });
 
 test('portfolio: the drifted mix rebalances on its own once seen, and the toggle switches back', async ({ page }) => {
@@ -43,9 +43,9 @@ test('portfolio: the drifted mix rebalances on its own once seen, and the toggle
   const p = visual(page, 'svc-portfolio');
   await p.scrollIntoViewIfNeeded();
   await expect(p.getByRole('radio', { name: 'Rebalanced' })).toHaveAttribute('aria-checked', 'true', { timeout: 5000 });
-  await expect(p.locator('.vis-caption')).toContainText('Back to your agreed allocation');
+  await expect(p.locator('.illo-caption')).toContainText('Back to your agreed allocation');
   await p.getByRole('radio', { name: 'Drifted' }).click();
-  await expect(p.locator('.vis-caption')).toContainText('pulled your mix away');
+  await expect(p.locator('.illo-caption')).toContainText('pulled your mix away');
 });
 
 test.describe('on a touch screen', () => {
@@ -56,8 +56,17 @@ test.describe('on a touch screen', () => {
     const s = visual(page, 'svc-shariah');
     await s.scrollIntoViewIfNeeded();
     await s.getByRole('button', { name: 'Energy' }).tap();
-    await expect(s.locator('.vis-donut-center strong')).toHaveText('Energy');
-    await s.locator('.vis-seg-g').nth(2).tap();
-    await expect(s.locator('.vis-donut-center strong')).toHaveText('Cement');
+    await expect(s.locator('.illo-donut-center strong')).toHaveText('Energy');
+    await s.locator('.illo-seg-g').nth(2).tap();
+    await expect(s.locator('.illo-donut-center strong')).toHaveText('Cement');
   });
+});
+
+test('illustration styles never leak onto the rest of the site (buttons in revealed sections keep their look)', async ({ page }) => {
+  await page.goto('/');
+  const btn = page.locator('.why-row .bbig-g');
+  await btn.scrollIntoViewIfNeeded();
+  await expect(page.locator('.why-row .rv-r.vis')).toHaveCount(1); // the reveal ran
+  await expect(btn).toHaveCSS('padding-top', '12px');
+  await expect(btn).not.toHaveCSS('background-image', 'none');
 });
