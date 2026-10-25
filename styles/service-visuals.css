@@ -21,7 +21,7 @@
 /* palette: brand emerald and gold, a deep teal and a neutral */
 .vis-c1{--c:var(--g3)}
 .vis-c2{--c:var(--au)}
-.vis-c3{--c:color-mix(in srgb, var(--g3) 45%, var(--nv3))}
+.vis-c3{--c:color-mix(in srgb, var(--g3) 55%, #3E7C8C)}
 .vis-c4{--c:color-mix(in srgb, var(--tx) 32%, transparent)}
 
 /* toggle */
@@ -47,17 +47,23 @@
 .vis-donut{position:relative}
 .vis-donut svg{display:block;width:100%;height:auto;overflow:visible}
 .vis-seg-g{cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .3s}
-.vis-seg-g path{fill:var(--c);transform-origin:100px 100px;transform:scale(.86) rotate(-14deg);opacity:0;
-  transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .6s ease-out}
-.vis.is-in .vis-seg-g path{transform:none;opacity:1}
-.vis-seg-g.is-dim{opacity:.38}
+.vis-seg-g path{fill:var(--c);transform-origin:100px 100px;opacity:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s}
+/* entrance: a one-off sweep (fill-mode backwards, so it never overrides the hover state afterwards) */
+.vis.is-in .vis-seg-g path{opacity:1;animation:vis-sweep .9s cubic-bezier(.16,1,.3,1) var(--d,0ms) backwards}
+@keyframes vis-sweep{from{transform:scale(.86) rotate(-14deg);opacity:0}}
+.vis-seg-g.is-dim{opacity:.5}
+.vis-seg-g.is-active path{transform:scale(1.045);filter:drop-shadow(0 4px 8px color-mix(in srgb, var(--nv) 35%, transparent))}
 .vis-donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
 .vis-donut-center strong{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:26px;font-weight:700;font-variant-numeric:lining-nums;color:var(--g3)}
+.vis-donut-center.is-sector strong{font-size:23px;color:var(--tx);max-width:5.4em;overflow-wrap:anywhere}
+.vis-donut-center i{display:block;width:22px;height:4px;margin:7px auto 0;border-radius:2px;background:var(--c)}
 .vis-donut-center span{max-width:9ch;margin:2px auto 0;font-size:10.5px;font-weight:700;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--au);text-wrap:balance}
 .vis-legend li+li{border-top:1px solid var(--gb)}
-.vis-legend button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 0;font-size:14px;font-weight:500;color:var(--tx);text-align:left;transition:color .2s,padding .25s}
-.vis-legend button.is-active{padding-left:6px;font-weight:700}
-.vis-legend i{width:12px;height:12px;border-radius:3px;background:var(--c);flex-shrink:0}
+.vis-legend button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 0;font-size:14px;font-weight:500;color:var(--tx);text-align:left;transition:color .2s}
+.vis-legend i{width:12px;height:12px;border-radius:3px;background:var(--c);flex-shrink:0;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.vis-legend button.is-active{font-weight:600}
+.vis-legend button.is-active i{transform:scale(1.3)}
+.vis-legend:has(.is-active) button:not(.is-active){color:var(--mt)}
 
 .vis-foot{display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding-top:16px;border-top:1px solid var(--gb)}
 .vis-foot strong{font-size:14px}
@@ -78,7 +84,6 @@
 .vis-legend-inline{display:flex;flex-wrap:wrap;gap:4px 18px}
 .vis-legend-inline li+li{border-top:none}
 .vis-legend-inline button{width:auto;padding:2px 0;font-size:13px}
-.vis-legend-inline button.is-active{padding-left:0}
 
 @media(max-width:480px){
   .vis-cols{grid-template-columns:1fr 1fr}
@@ -87,9 +92,11 @@
   .vis-donut-row{grid-template-columns:150px 1fr;gap:20px}
   .vis-stats strong{font-size:20px}
   .vis-donut-center strong{font-size:21px}
+  .vis-donut-center.is-sector strong{font-size:19px}
 }
 
 @media(prefers-reduced-motion:reduce){
   .vis-live::after{animation:none}
   .vis-seg-g,.vis-seg-g path,.vis-bar span{transition:none}
+  .vis.is-in .vis-seg-g path{animation:none}
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useInView } from './useInView';
 
 /* Segment sizes give the donut its shape; they are not shown or claimed as figures. */
@@ -29,7 +29,7 @@ const SEGMENTS = SECTORS.map((s, i) => {
   const a0 = -Math.PI / 2 + (before / TOTAL) * 2 * Math.PI + PAD / 2;
   const a1 = -Math.PI / 2 + ((before + s.size) / TOTAL) * 2 * Math.PI - PAD / 2;
   const mid = (a0 + a1) / 2;
-  return { ...s, d: arc(a0, a1), dx: Math.cos(mid) * 7, dy: Math.sin(mid) * 7 };
+  return { ...s, d: arc(a0, a1), dx: Math.cos(mid) * 6, dy: Math.sin(mid) * 6 };
 });
 
 const Check = () => (
@@ -64,13 +64,13 @@ export default function ShariahVisual() {
                 onMouseEnter={() => setActive(i)}
                 onClick={() => setActive(active === i ? null : i)}
               >
-                <path d={s.d} style={{ transitionDelay: `${i * 120}ms` }} />
+                <path d={s.d} style={{ '--d': `${i * 120}ms` } as CSSProperties} />
               </g>
             ))}
           </svg>
-          <div className="vis-donut-center" aria-live="polite">
+          <div className={on ? 'vis-donut-center is-sector' : 'vis-donut-center'} aria-live="polite">
             <strong>{on ? on.name : 'KMI-30'}</strong>
-            <span>{on ? 'Screened sector' : 'Halal universe'}</span>
+            {on ? <i className={`vis-c${active! + 1}`} aria-hidden="true" /> : <span>Halal universe</span>}
           </div>
         </div>
         <ul className="vis-legend">
