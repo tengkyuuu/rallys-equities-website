@@ -62,7 +62,7 @@ export default function ShariahVisual() {
                 className={`vis-seg-g vis-c${i + 1}${active === i ? ' is-active' : ''}${active !== null && active !== i ? ' is-dim' : ''}`}
                 style={{ transform: active === i ? `translate(${s.dx}px, ${s.dy}px)` : undefined }}
                 onMouseEnter={() => setActive(i)}
-                onClick={() => setActive(active === i ? null : i)}
+                onClick={() => setActive(i)}
               >
                 <path d={s.d} style={{ '--d': `${i * 120}ms` } as CSSProperties} />
               </g>
@@ -83,7 +83,7 @@ export default function ShariahVisual() {
                 onMouseEnter={() => setActive(i)}
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
-                onClick={() => setActive(active === i ? null : i)}
+                onClick={() => setActive(i)}
               >
                 <i className={`vis-c${i + 1}`} />
                 {s.name}

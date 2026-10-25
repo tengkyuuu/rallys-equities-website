@@ -47,3 +47,17 @@ test('portfolio: the drifted mix rebalances on its own once seen, and the toggle
   await p.getByRole('radio', { name: 'Drifted' }).click();
   await expect(p.locator('.vis-caption')).toContainText('pulled your mix away');
 });
+
+test.describe('on a touch screen', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+
+  test('tapping a donut sector or its legend entry selects it', async ({ page }) => {
+    await page.goto('/services');
+    const s = visual(page, 'svc-shariah');
+    await s.scrollIntoViewIfNeeded();
+    await s.getByRole('button', { name: 'Energy' }).tap();
+    await expect(s.locator('.vis-donut-center strong')).toHaveText('Energy');
+    await s.locator('.vis-seg-g').nth(2).tap();
+    await expect(s.locator('.vis-donut-center strong')).toHaveText('Cement');
+  });
+});
