@@ -1,7 +1,9 @@
 import GoTo from '@/components/nav/GoTo';
 import OpenAccount from '@/components/actions/OpenAccount';
 import type { Showcase } from './ServiceShowcase';
-import { OrderBookIllustration, PortfolioIllustration, ShariahMixIllustration } from './illustrations';
+import AllocationTool from './tools/AllocationTool';
+import OrderTicket from './tools/OrderTicket';
+import PurificationTool from './tools/PurificationTool';
 
 /** The three headline services on /services, in order. `id`s are link targets (nav, footer). */
 export const SHOWCASES: Showcase[] = [
@@ -52,8 +54,7 @@ export const SHOWCASES: Showcase[] = [
         Start Trading Today
       </GoTo>
     ),
-    illustration: <OrderBookIllustration />,
-    illustrationPadding: '28px',
+    illustration: <OrderTicket />,
   },
   {
     id: 'svc-shariah',
@@ -105,8 +106,7 @@ export const SHOWCASES: Showcase[] = [
         Open Halal Account
       </OpenAccount>
     ),
-    illustration: <ShariahMixIllustration />,
-    illustrationPadding: '28px',
+    illustration: <PurificationTool />,
   },
   {
     id: 'svc-portfolio',
@@ -157,7 +157,6 @@ export const SHOWCASES: Showcase[] = [
         Book Free Consultation
       </GoTo>
     ),
-    illustration: <PortfolioIllustration />,
-    illustrationPadding: '24px',
+    illustration: <AllocationTool />,
   },
 ];

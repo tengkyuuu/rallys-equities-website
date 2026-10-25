@@ -17,6 +17,7 @@ import '@/styles/responsive.css';
 import '@/styles/blog.css';
 import '@/styles/forms-dynamic.css';
 import '@/styles/toast.css';
+import '@/styles/service-tools.css';
 
 import ContentHead from '@/components/content/ContentHead';
 import ContentOverrides from '@/components/content/ContentOverrides';

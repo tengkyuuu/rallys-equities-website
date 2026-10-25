@@ -4,22 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { drawDrawdown, drawGrowth, drawSeries } from '@/lib/calculators/charts';
 import { COMPUTE, type Block, type CalcResult, type Tone } from '@/lib/calculators/compute';
 import type { CalculatorDef, CalculatorId } from '@/lib/calculators/data';
-
-/** Live thousands separators for money inputs, keeping the caret in place. */
-function formatMoney(e: FormEvent<HTMLInputElement>) {
-  const el = e.currentTarget,
-    caret = el.selectionStart ?? el.value.length,
-    len = el.value.length;
-  const parts = el.value.replace(/[^\d.]/g, '').split('.');
-  if (parts[0] !== '') parts[0] = Number(parts[0]).toLocaleString('en-US');
-  el.value = parts.length > 1 ? parts[0] + '.' + parts.slice(1).join('').slice(0, 2) : parts[0];
-  const pos = Math.max(0, caret + el.value.length - len);
-  try {
-    el.setSelectionRange(pos, pos);
-  } catch {
-    /* number inputs */
-  }
-}
+import { formatMoney } from '@/lib/money';
 
 /** A chart canvas, redrawn when the theme changes. */
 function Canvas({ id, draw }: { id: string; draw: (cv: HTMLCanvasElement) => void }) {
