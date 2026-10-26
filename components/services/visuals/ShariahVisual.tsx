@@ -41,6 +41,7 @@ const Check = () => (
 
 /** Shariah-compliant investing: the KMI-30 universe as a donut; point at a sector to lift it out. */
 export default function ShariahVisual() {
+  // Hover reacts to a real mouse only; taps select via onClick and stay selected (see services-visuals.spec).
   const [ref, seen] = useInView<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
   const on = active !== null ? SEGMENTS[active] : null;
@@ -53,7 +54,7 @@ export default function ShariahVisual() {
       aria-label="Illustration of sectors within the KMI-30 Shariah-compliant universe"
     >
       <div className="illo-head">Sector mix</div>
-      <div className="illo-donut-row" onMouseLeave={() => setActive(null)}>
+      <div className="illo-donut-row" onPointerLeave={(e) => e.pointerType === 'mouse' && setActive(null)}>
         <div className="illo-donut">
           <svg viewBox="0 0 200 200" aria-hidden="true">
             {SEGMENTS.map((s, i) => (
@@ -61,7 +62,7 @@ export default function ShariahVisual() {
                 key={s.name}
                 className={`illo-seg-g illo-c${i + 1}${active === i ? ' is-active' : ''}${active !== null && active !== i ? ' is-dim' : ''}`}
                 style={{ transform: active === i ? `translate(${s.dx}px, ${s.dy}px)` : undefined }}
-                onMouseEnter={() => setActive(i)}
+                onPointerEnter={(e) => e.pointerType === 'mouse' && setActive(i)}
                 onClick={() => setActive(i)}
               >
                 <path d={s.d} style={{ '--d': `${i * 120}ms` } as CSSProperties} />
@@ -80,7 +81,7 @@ export default function ShariahVisual() {
                 type="button"
                 className={active === i ? 'is-active' : undefined}
                 aria-pressed={active === i}
-                onMouseEnter={() => setActive(i)}
+                onPointerEnter={(e) => e.pointerType === 'mouse' && setActive(i)}
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
                 onClick={() => setActive(i)}

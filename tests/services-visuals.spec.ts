@@ -60,6 +60,10 @@ test.describe('on a touch screen', () => {
     await expect(s.locator('.illo')).toHaveClass(/is-in/);
     await s.getByRole('button', { name: 'Energy' }).tap();
     await expect(s.locator('.illo-donut-center strong')).toHaveText('Energy');
+    // content moving under where the finger was (late font, scroll) must not undo the tap
+    await page.mouse.wheel(0, 60);
+    await page.waitForTimeout(400);
+    await expect(s.locator('.illo-donut-center strong')).toHaveText('Energy');
     await s.locator('.illo-seg-g').nth(2).tap();
     await expect(s.locator('.illo-donut-center strong')).toHaveText('Cement');
   });

@@ -22,6 +22,7 @@ const Person = () => (
 
 /** Portfolio management: a client dashboard; toggle to watch a drifted mix rebalance. */
 export default function PortfolioVisual() {
+  // Hover reacts to a real mouse only; taps select via onClick and stay selected (see services-visuals.spec).
   const [ref, seen] = useInView<HTMLDivElement>();
   const [state, setState] = useState<State>('drifted');
   const [active, setActive] = useState<number | null>(null);
@@ -77,13 +78,14 @@ export default function PortfolioVisual() {
             ))}
           </div>
         </div>
-        <div className="illo-bar" onMouseLeave={() => setActive(null)}>
+        <div className="illo-bar" onPointerLeave={(e) => e.pointerType === 'mouse' && setActive(null)}>
           {SECTORS.map((name, i) => (
             <span
               key={name}
               className={`illo-c${i + 1}${active !== null && active !== i ? ' is-dim' : ''}`}
               style={{ flexGrow: seen ? MIX[state][i] : 0 }}
-              onMouseEnter={() => setActive(i)}
+              onPointerEnter={(e) => e.pointerType === 'mouse' && setActive(i)}
+              onClick={() => setActive(i)}
             />
           ))}
         </div>
@@ -97,8 +99,8 @@ export default function PortfolioVisual() {
                 type="button"
                 className={active === i ? 'is-active' : undefined}
                 aria-pressed={active === i}
-                onMouseEnter={() => setActive(i)}
-                onMouseLeave={() => setActive(null)}
+                onPointerEnter={(e) => e.pointerType === 'mouse' && setActive(i)}
+                onPointerLeave={(e) => e.pointerType === 'mouse' && setActive(null)}
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
               >
