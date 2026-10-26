@@ -43,7 +43,7 @@ export default function WhyChooseUs() {
       <div className="why-row">
         <div className="imgwrap float-bob rv rv-l">
           <img
-            src="/assets/img/why-choose-us.jpg"
+            src="/assets/img/why-choose-us.webp"
             alt="Investment analysis at Rallys Equities"
             loading="lazy"
             width="330"
@@ -84,7 +84,7 @@ export default function WhyChooseUs() {
           >
             <div className="testi-stars">{`✦ ${v.badge}`}</div>
             <div className="testi-q">{`"${v.quote}"`}</div>
-            <div className="testi-qu">{`"${v.urdu}"`}</div>
+            <div className="testi-qu" lang="ur">{`"${v.urdu}"`}</div>
             <div className="testi-auth">
               <div className="testi-av">{String(i + 1).padStart(2, '0')}</div>
               <div>

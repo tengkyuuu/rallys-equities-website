@@ -35,16 +35,16 @@ import Toaster from '@/components/overlays/Toaster';
 import { SiteNavRoot } from '@/components/nav/SiteNav';
 import JsonLd from '@/components/seo/JsonLd';
 import { getSiteContent } from '@/lib/content';
-import { ORGANIZATION_LD } from '@/lib/metadata';
+import { ORGANIZATION_LD, WEBSITE_LD } from '@/lib/metadata';
 import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   robots: { index: true, follow: true },
-  icons: { icon: { url: '/assets/img/favicon.png', type: 'image/png' } },
+  icons: { icon: { url: '/assets/img/favicon.png', type: 'image/png' }, apple: '/assets/img/favicon.png' },
 };
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#05101E' };
 
 const FONTS =
   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap';
@@ -63,8 +63,10 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <head>
         <link rel="preload" as="image" href="/assets/img/page-title.jpg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href={FONTS} rel="stylesheet" />
         <JsonLd data={ORGANIZATION_LD} />
+        <JsonLd data={WEBSITE_LD} />
         <ContentHead content={content} />
       </head>
       <body suppressHydrationWarning>

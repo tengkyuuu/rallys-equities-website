@@ -65,7 +65,7 @@ export default function HowItWorks() {
         <SectionTitle tag="How It Works" style={{ marginBottom: '6px' }}>
           Start Investing in <em>3 Steps</em>
         </SectionTitle>
-        <span className="urdu" style={{ textAlign: 'center', display: 'block' }}>
+        <span className="urdu" lang="ur" style={{ textAlign: 'center', display: 'block' }}>
           صرف ۳ آسان قدموں میں سرمایہ کاری شروع کریں
         </span>
       </div>

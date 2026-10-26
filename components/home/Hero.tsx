@@ -34,7 +34,7 @@ export default function Hero() {
           <div className="dot" />
           Pakistan's Premier TREC Broker
         </div>{' '}
-        <span className="hero-urdu">پاکستان اسٹاک ایکسچینج کا سب سے قابل اعتماد بروکر</span>{' '}
+        <span className="hero-urdu" lang="ur">پاکستان اسٹاک ایکسچینج کا سب سے قابل اعتماد بروکر</span>{' '}
         <h1 data-edit="home.hero.headline">
           Invest in
           <br />

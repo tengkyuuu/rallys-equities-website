@@ -17,7 +17,7 @@ const ld = (page: Page, type: string) =>
 test('each page has its own title, description, canonical and Open Graph tags in the HTML', async ({ request }) => {
   const html = await (await request.get('/mission')).text();
   expect(html).toContain('<title>Our Mission &amp; Vision — Rallys Equities</title>');
-  expect(html).toMatch(/<meta name="description" content="Building success through trust, transparency/);
+  expect(html).toMatch(/<meta name="description" content="Our mission: make PSX investing transparent/);
   expect(html).toContain('<link rel="canonical" href="https://www.rallysequities.com/mission"/>');
   expect(html).toContain('<meta property="og:title" content="Our Mission &amp; Vision — Rallys Equities"/>');
   expect(html).toContain('<meta name="robots" content="index, follow"/>');
@@ -68,4 +68,51 @@ test('robots.txt keeps crawlers out of the admin and points at the sitemap', asy
 test('/admin and /set-password are noindex', async ({ request }) => {
   for (const p of ['/admin', '/set-password'])
     expect(await (await request.get(p)).text()).toContain('<meta name="robots" content="noindex, nofollow"/>');
+});
+
+test('every page has exactly one h1', async ({ request }) => {
+  for (const p of ['/', '/services', '/contact', '/about', '/open-account', '/investors/education', '/tools/cagr-calculator', '/blog']) {
+    const html = await (await request.get(p)).text();
+    expect((html.match(/<h1[\s>]/g) || []).length, p).toBe(1);
+  }
+});
+
+test('each page has its own 1200×630 share image, and the card is a real PNG', async ({ request }) => {
+  const html = await (await request.get('/services')).text();
+  expect(html).toContain('<meta property="og:image" content="https://www.rallysequities.com/og/services"/>');
+  expect(html).toContain('<meta name="twitter:card" content="summary_large_image"/>');
+  expect(html).toContain('<meta property="og:locale" content="en_PK"/>');
+  const img = await request.get('/og/services');
+  expect(img.status()).toBe(200);
+  expect(img.headers()['content-type']).toBe('image/png');
+  const png = await img.body();
+  expect(png.readUInt32BE(16)).toBe(1200); // IHDR width
+  expect(png.readUInt32BE(20)).toBe(630); // IHDR height
+});
+
+test('structured data: business details, website, services and free calculators', async ({ page }) => {
+  await page.goto('/services/shariah-investing');
+  const org = await ld(page, 'FinancialService');
+  expect(org.address.streetAddress).toContain('Lahore Stock Exchange Building');
+  expect(org.identifier.value).toBe('553');
+  expect(org.openingHoursSpecification.opens).toBe('09:00');
+  expect((await ld(page, 'WebSite')).url).toBe('https://www.rallysequities.com/');
+  const service = await ld(page, 'Service');
+  expect(service.provider['@id']).toBe(org['@id']);
+  await page.goto('/tools/sip-calculator');
+  const app = await ld(page, 'WebApplication');
+  expect(app.offers.price).toBe('0');
+  expect(app.applicationCategory).toBe('FinanceApplication');
+});
+
+test('Urdu text is marked as Urdu', async ({ request }) => {
+  const html = await (await request.get('/')).text();
+  expect((html.match(/lang="ur"/g) || []).length).toBeGreaterThanOrEqual(5);
+});
+
+test('blog list pages: out-of-range or junk page numbers are 404s, page 1 canonical is /blog', async ({ request }) => {
+  expect((await request.get('/blog?page=99')).status()).toBe(404);
+  expect((await request.get('/blog?page=abc')).status()).toBe(404);
+  const html = await (await request.get('/blog?page=1')).text();
+  expect(html).toContain('<link rel="canonical" href="https://www.rallysequities.com/blog"/>');
 });

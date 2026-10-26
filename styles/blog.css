@@ -74,3 +74,14 @@
 .post-sh:hover{color:var(--tx);border-color:color-mix(in srgb,var(--au) 55%,transparent);transform:translateY(-2px)}
 .post-more{margin-top:52px;padding-top:32px;border-top:1px solid color-mix(in srgb,var(--au) 15%,transparent)}
 .post-more-h{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:24px;color:var(--au);margin-bottom:20px}
+
+/* pagination under the list (/blog?page=N) */
+.blog-pager{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 16px;margin-top:44px}
+.blog-pager ol{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.blog-pager li{min-width:40px;text-align:center;color:var(--mt)}
+.blog-pager a{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:40px;padding:0 12px;border:1px solid var(--gb);border-radius:10px;
+  font-size:13px;font-weight:600;color:var(--tx);text-decoration:none;transition:border-color .2s,background-color .2s,color .2s}
+.blog-pager a:hover{border-color:color-mix(in srgb, var(--au) 55%, transparent);color:var(--au)}
+.blog-pager a[aria-current="page"]{background:var(--g3);border-color:var(--g3);color:var(--nv)}
+.blog-pager a:focus-visible{outline:2px solid var(--au);outline-offset:2px}
+.blog-pager li[aria-hidden]{line-height:40px}

@@ -19,7 +19,7 @@ export default function StatsBand() {
             {s.suffix}
           </div>
           <div className="slbl">{s.label}</div>
-          <div className="surdu2">{s.urdu}</div>
+          <div className="surdu2" lang="ur">{s.urdu}</div>
         </div>
       ))}
     </div>

@@ -22,7 +22,7 @@ export default function CtaBlock({ title, urdu, text, actions, notes, style }: P
         {urdu && (
           <>
             {' '}
-            <span className="cta-urdu">{urdu}</span>{' '}
+            <span className="cta-urdu" lang="ur">{urdu}</span>{' '}
           </>
         )}
         <p>{text}</p>

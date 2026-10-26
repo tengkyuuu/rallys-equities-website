@@ -92,7 +92,7 @@ export default function EducationPage() {
           </SectionTitle>
           <div className="imgwrap light rv" style={{ maxWidth: '860px', margin: '8px 0 30px' }}>
             <img
-              src="/assets/img/5-step-path.png"
+              src="/assets/img/5-step-path.webp"
               alt="Your 5-Step Path to PSX Success infographic"
               loading="lazy"
               width="1920"

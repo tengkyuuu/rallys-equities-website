@@ -382,6 +382,8 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
       </div>
       {/* Main Form */}
       <div className="ao-main">
+        {/* the page heading for search engines and screen readers; the form steps carry the visible titles */}
+        <h1 className="sr-only">Open your Rallys Equities account</h1>
         <div className="prog-bar">
           <div className="prog-fill" id="progFill" style={{ width: (reference ? 100 : (step / 5) * 100) + '%' }} />
         </div>

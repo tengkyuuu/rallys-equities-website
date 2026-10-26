@@ -86,6 +86,20 @@ element's key round-trips, and that the keys live on production today still land
 - **Recommended:** set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, then remove the anonymous insert policies on
   `form_submissions` and the `form-uploads` bucket. The API then becomes the only way to submit.
 
+### SEO
+
+- **Titles and descriptions** per page in `lib/site.ts`; canonical URLs, Open Graph and Twitter tags from
+  `pageMetadata` in `lib/metadata.ts`. Blog list pages (`/blog?page=N`) and posts get their own.
+- **Share images:** `/og/<page id>` renders a 1200×630 brand card per page at build time
+  (`app/og/[id]/route.tsx`); posts with a cover image use it instead.
+- **Structured data:** the business (FinancialService: address, hours, phones, TREC No. 553, profiles)
+  and the WebSite on every page; breadcrumbs, and Service / free WebApplication on services and
+  calculators; FAQPage on /faq; BlogPosting on posts.
+- **Sitemap** (`/sitemap.xml`) lists every page and post, with each post's date; `robots.txt` keeps
+  crawlers out of /admin, /set-password and /api.
+- Off-site, still to do by the business: verify the domain in Google Search Console and Bing Webmaster
+  Tools and submit the sitemap, and claim the Google Business Profile for the Lahore office.
+
 ### Market data
 
 Real PSX figures or "unavailable", never invented numbers. See [MARKET-DATA.md](MARKET-DATA.md).

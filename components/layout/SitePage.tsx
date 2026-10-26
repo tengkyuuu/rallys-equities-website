@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import JsonLd from '@/components/seo/JsonLd';
 import { getSiteContent } from '@/lib/content';
-import { breadcrumbLd } from '@/lib/metadata';
+import { breadcrumbLd, pageLd } from '@/lib/metadata';
 import type { PageId } from '@/lib/site';
 
 type Props = {
@@ -20,6 +20,9 @@ export default async function SitePage({ id, children, crumb }: Props) {
   return (
     <>
       {id !== 'home' && <JsonLd data={breadcrumbLd(id, crumb)} />}
+      {pageLd(id).map((d, i) => (
+        <JsonLd key={i} data={d} />
+      ))}
       <div className="page active" id={`page-${id}`}>
         {children}
       </div>

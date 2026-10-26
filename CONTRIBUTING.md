@@ -31,7 +31,8 @@ be re-applied in `/admin` afterwards.
 | Change copy on a page | `components/pages/<Name>Page.tsx`, or the section file it imports (`components/home/*`, `components/services/*`) |
 | Change a service, step, value or logo list | the data array at the top of that section file (`SERVICES`, `STEPS`, `LOGOS`, `SHOWCASES`, …) |
 | Change a phone number, social link or the office map | `lib/company.ts` |
-| Add or rename a page, its URL, title or description | `lib/site.ts` (`PAGE_META`), then `app/(site)/<route>/page.tsx`, then `app/(site)/admin/page.tsx` (`RENDER`) |
+| Add or rename a page, its URL, title or description | `lib/site.ts` (`PAGE_META`: `name` is the short label for breadcrumbs, `title` and `desc` are what Google shows), then `app/(site)/<route>/page.tsx`, then `app/(site)/admin/page.tsx` (`RENDER`) |
+| Change business details search engines see (address, hours, phones) | `lib/metadata.ts` (`ORGANIZATION_LD`) and `lib/company.ts` |
 | Change a menu | `lib/menus.ts` |
 | Add a policy PDF | `public/assets/policies/` and `lib/policies.ts` (both lists read from it) |
 | Change a calculator | `lib/calculators/` (data, maths, charts) and `components/calculators/` |
@@ -67,6 +68,10 @@ Titles take JSX: wrap the highlighted words in `<em>` (gold) and `<span>` (emera
 - **Markets data is real or nothing**: never add sample prices or returns. See [MARKET-DATA.md](MARKET-DATA.md).
 - **No inline scripts or `on…=` attributes.** The Content-Security-Policy blocks them (see `proxy.ts`).
 - Formatting is Prettier's (`npm run format`); lint must pass (`npm run lint`).
+- **SEO:** one `<h1>` per page (the `PageHero` title, or `SectionTitle as="h1"` on pages without one);
+  titles about 50–60 characters and descriptions 140–160, written from facts on the page. Mark Urdu text
+  `lang="ur"`. New images: WebP, sized about twice their display width, `loading="lazy"` unless they are
+  the first thing on screen. `tests/seo.spec.ts` checks the essentials.
 
 ## Checking your work
 

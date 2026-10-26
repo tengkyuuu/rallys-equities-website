@@ -13,12 +13,12 @@ export default function AboutPage() {
   return (
     <>
       <section className="sec">
-        <SectionTitle tag="Our Story — Mission & Vision" tagProps={{ id: 'mission' }}>
+        <SectionTitle tag="Our Story — Mission & Vision" tagProps={{ id: 'mission' }} as="h1">
           Trust, Transparency &amp;
           <br />
           <em>Disciplined Execution</em>
         </SectionTitle>{' '}
-        <span className="urdu">اعتماد، شفافیت اور منظم عملدرآمد — ہمارے بنیادی اصول</span>{' '}
+        <span className="urdu" lang="ur">اعتماد، شفافیت اور منظم عملدرآمد — ہمارے بنیادی اصول</span>{' '}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '56px', marginTop: '48px', alignItems: 'center' }}>
           <div>
             <p className="sub" style={{ marginBottom: '18px' }}>

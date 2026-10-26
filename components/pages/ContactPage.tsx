@@ -8,10 +8,10 @@ export default function ContactPage() {
     <>
       <section className="sec">
         <div style={{ textAlign: 'center' }}>
-          <SectionTitle tag="Contact Us">
+          <SectionTitle tag="Contact Us" as="h1">
             Connect with Your <em>Trusted Brokerage</em> in PSX
           </SectionTitle>{' '}
-          <span className="urdu">پی ایس ایکس میں آپ کے قابلِ اعتماد بروکر سے رابطہ</span>{' '}
+          <span className="urdu" lang="ur">پی ایس ایکس میں آپ کے قابلِ اعتماد بروکر سے رابطہ</span>{' '}
           <p className="sub" style={{ margin: '12px auto 0' }}>
             Opening an account, need trading support, or exploring a corporate partnership? Our Lahore team is here to help — in Urdu and
             English. Walk in to our head office, or open your account online in minutes.

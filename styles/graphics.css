@@ -2,7 +2,7 @@
 /* Photo page heroes — page-title.jpg under the existing gradient */
 .phero::before{content:'';position:absolute;inset:0;background:url('/assets/img/page-title.jpg') center/cover no-repeat;opacity:.5;animation:heroZoom 22s ease-in-out infinite alternate;will-change:transform}
 @keyframes heroZoom{from{transform:scale(1)}to{transform:scale(1.09)}}
-.phero-bull::before{background-image:url('/assets/img/shape-13.png');opacity:.55}
+.phero-bull::before{background-image:url('/assets/img/shape-13.webp');opacity:.55}
 /* Image cards with theme-style shine sweep + lift */
 .imgwrap{position:relative;overflow:hidden;border-radius:18px;border:1px solid var(--gb);box-shadow:0 18px 48px rgba(0,0,0,.45);line-height:0}
 .imgwrap img{width:100%;height:auto;display:block;transition:transform .65s cubic-bezier(.22,.61,.36,1)}

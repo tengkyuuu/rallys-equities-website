@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 test('home page loads clean: no console, CSP or hydration errors', async ({ page }) => {
   const issues = collectConsoleIssues(page);
   await page.goto('/');
-  await expect(page).toHaveTitle('Rallys Equities (Pvt) Ltd — Trusted Brokerage in Pakistan');
+  await expect(page).toHaveTitle('Rallys Equities — SECP-Licensed PSX Stock Broker in Lahore');
   await expect(page.locator('#page-home')).toHaveClass(/active/);
   await expect(page.locator('#preloader')).toHaveClass(/done/);
   expect(issues.cspViolations).toEqual([]);
@@ -18,13 +18,13 @@ test('home page loads clean: no console, CSP or hydration errors', async ({ page
 
 test('every page route renders its own page with the right title', async ({ page }) => {
   const routes: [string, string, string][] = [
-    ['/services', 'services', 'Our Services — Rallys Equities'],
-    ['/services/trading', 'trading', 'Investment & Trading — Rallys Equities'],
-    ['/investors/policies', 'policies', 'Policies and Procedures — Rallys Equities'],
-    ['/tools/dcf-calculator', 'dcf', 'DCF Calculator — Rallys Equities'],
-    ['/contact', 'locations', 'Contact Us — Rallys Equities'],
-    ['/open-account', 'account', 'Open a Brokerage Account — Rallys Equities'],
-    ['/blog', 'insights', 'Our Blogs — Rallys Equities'],
+    ['/services', 'services', 'PSX Brokerage Services in Lahore — Rallys Equities'],
+    ['/services/trading', 'trading', 'PSX Stock, IPO & ETF Trading — Rallys Equities'],
+    ['/investors/policies', 'policies', 'Compliance Policies & Procedures — Rallys Equities'],
+    ['/tools/dcf-calculator', 'dcf', 'DCF Calculator: Intrinsic Value of a Stock — Rallys Equities'],
+    ['/contact', 'locations', 'Contact a PSX Stock Broker in Lahore — Rallys Equities'],
+    ['/open-account', 'account', 'Open a PSX Trading Account Online — Rallys Equities'],
+    ['/blog', 'insights', 'PSX Market Insights & Investing Blog — Rallys Equities'],
   ];
   for (const [path, id, title] of routes) {
     await page.goto(path);

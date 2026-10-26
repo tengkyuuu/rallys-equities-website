@@ -5,7 +5,8 @@ type Props = HTMLAttributes<HTMLHeadingElement> & {
   tag: ReactNode;
   /** Extra attributes for the label (id, data-edit…). */
   tagProps?: HTMLAttributes<HTMLDivElement> & { [data: `data-${string}`]: string };
-  as?: 'h2' | 'h3';
+  /** h1 only for the one main heading of a page without a PageHero. */
+  as?: 'h1' | 'h2' | 'h3';
   /** Heading font size in px, for the smaller in-page headings (h3 at 28–34px). */
   size?: number;
   style?: CSSProperties;

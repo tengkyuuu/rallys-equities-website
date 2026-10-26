@@ -87,3 +87,14 @@ test('sitemap lists every page and every published post, never drafts', async ({
   expect(xml).not.toContain('unpublished-draft');
   expect(xml.match(/<loc>https:\/\/www\.rallysequities\.com\/blog<\/loc>/g)).toHaveLength(1);
 });
+
+test('the list is paginated with real links once there are more posts than fit on a page', async () => {
+  const { blogPage, pageWindow, PER_PAGE } = await import('../lib/blog-pages');
+  const posts = Array.from({ length: 1 + PER_PAGE * 3 + 5 }, (_, i) => i); // 1 featured + 3 full pages + 5
+  expect(blogPage(posts, 1)).toMatchObject({ featured: 0, pages: 4 });
+  expect(blogPage(posts, 1)!.list).toHaveLength(PER_PAGE);
+  expect(blogPage(posts, 4)!.list).toEqual([1 + PER_PAGE * 3, 2 + PER_PAGE * 3, 3 + PER_PAGE * 3, 4 + PER_PAGE * 3, 5 + PER_PAGE * 3]);
+  expect(blogPage(posts, 4)!.featured).toBeUndefined();
+  expect(blogPage(posts, 5)).toBeNull();
+  expect(pageWindow(6, 36)).toEqual([1, '…', 4, 5, 6, 7, 8, '…', 36]);
+});

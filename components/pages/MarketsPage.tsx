@@ -16,7 +16,7 @@ export default function MarketsPage() {
         lede="Index values and stock prices from the Pakistan Stock Exchange, delayed about 15 minutes."
       />
       <section className="sec" style={{ paddingTop: '52px' }}>
-        <span className="urdu">پاکستان اسٹاک ایکسچینج — لائیو ریٹس</span> <MarketsBoard />
+        <span className="urdu" lang="ur">پاکستان اسٹاک ایکسچینج — لائیو ریٹس</span> <MarketsBoard />
         <p style={{ fontSize: '11px', color: 'var(--mt2)', marginTop: '12px', lineHeight: '1.6' }}>
           Live prices for every PSX-listed company, sourced from the Pakistan Stock Exchange (delayed ~15 min) and sorted by most active.
           Use the search above to find any stock. For live, tradable quotes and execution,{' '}

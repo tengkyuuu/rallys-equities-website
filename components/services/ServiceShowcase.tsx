@@ -30,7 +30,7 @@ export default function ServiceShowcase({ s }: { s: Showcase }) {
         {s.urdu && (
           <>
             {' '}
-            <span className="urdu">{s.urdu}</span>{' '}
+            <span className="urdu" lang="ur">{s.urdu}</span>{' '}
           </>
         )}
         <FeatureList items={s.features} /> {s.action}
