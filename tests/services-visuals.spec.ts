@@ -32,6 +32,7 @@ test('shariah: pointing at a sector names it in the centre of the donut', async 
   await page.goto('/services');
   const s = visual(page, 'svc-shariah');
   await s.scrollIntoViewIfNeeded();
+  await expect(s.locator('.illo')).toHaveClass(/is-in/); // client code is running
   await expect(s.locator('.illo-donut-center strong')).toHaveText('KMI-30');
   await s.getByRole('button', { name: 'Cement' }).hover();
   await expect(s.locator('.illo-donut-center strong')).toHaveText('Cement');
@@ -55,6 +56,8 @@ test.describe('on a touch screen', () => {
     await page.goto('/services');
     const s = visual(page, 'svc-shariah');
     await s.scrollIntoViewIfNeeded();
+    // the donut adds is-in once its client code runs; tapping before then would hit inert server HTML
+    await expect(s.locator('.illo')).toHaveClass(/is-in/);
     await s.getByRole('button', { name: 'Energy' }).tap();
     await expect(s.locator('.illo-donut-center strong')).toHaveText('Energy');
     await s.locator('.illo-seg-g').nth(2).tap();
