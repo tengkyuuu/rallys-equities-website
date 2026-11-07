@@ -44,6 +44,12 @@
         ],
         "createdAt": "2026-10-25T03:53:47.286Z",
         "reason": "migration parity: toast styling copied verbatim from the original site's reToast(); client brief requires the exact same design"
+      },
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "createdAt": "2026-11-07T16:47:38.409Z",
+        "reason": "agent: Arial is the email-safe fallback in the Outlook VML button of the invite email; web fonts don't load in mail clients"
       }
     ]
   }

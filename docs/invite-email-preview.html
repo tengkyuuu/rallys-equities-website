@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invite Email Preview</title>
+<style>
+  /* ── preview chrome only (not part of the email) ── */
+  .pv-bar{position:sticky;top:0;z-index:5;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px;background:#0d1826;font:13px -apple-system,Segoe UI,Arial,sans-serif;color:#cfd6df}
+  .pv-bar button{font:inherit;padding:6px 12px;border-radius:8px;border:1px solid #33435a;background:#1a2738;color:#fff;cursor:pointer}
+  .pv-bar button[aria-pressed="true"]{background:#0A6B4B;border-color:#0A6B4B}
+  .pv-bar span{align-self:center;opacity:.75}
+  body.static *{animation:none!important}
+
+  /* ── EMAIL <style> block ── */
+  body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
+  table,td{border-collapse:collapse}
+  img{border:0;outline:none;text-decoration:none}
+
+  /* Motion is progressive: inline styles = finished state. Apple Mail, iOS,
+     Outlook for Mac, Samsung & Thunderbird animate; Gmail / Outlook Windows
+     strip @keyframes and show the still version. */
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes pop{0%{opacity:0;transform:scale(.82)}60%{opacity:1;transform:scale(1.04)}100%{transform:scale(1)}}
+  @keyframes halo{0%{box-shadow:0 0 0 0 rgba(200,168,75,.55),0 14px 30px -12px rgba(0,0,0,.5)}100%{box-shadow:0 0 0 22px rgba(200,168,75,0),0 14px 30px -12px rgba(0,0,0,.5)}}
+  @keyframes rings{from{opacity:0;background-size:60% 60%}to{opacity:1;background-size:100% 100%}}
+  @keyframes draw{from{width:0}to{width:56px}}
+  @keyframes shine{0%{background-position:-200px 0}55%,100%{background-position:320px 0}}
+  .hero{animation:rings 1.6s cubic-bezier(.2,.7,.2,1) both}
+  .medal{animation:pop .9s cubic-bezier(.2,.8,.2,1) .15s both, halo 1.8s ease-out 1s 2}
+  .r1{animation:rise .8s cubic-bezier(.2,.7,.2,1) .45s both}
+  .r2{animation:rise .8s cubic-bezier(.2,.7,.2,1) .6s both}
+  .r3{animation:rise .8s cubic-bezier(.2,.7,.2,1) .8s both}
+  .r4{animation:rise .8s cubic-bezier(.2,.7,.2,1) .95s both}
+  .s1{animation:rise .7s cubic-bezier(.2,.7,.2,1) 1.15s both}
+  .s2{animation:rise .7s cubic-bezier(.2,.7,.2,1) 1.3s both}
+  .s3{animation:rise .7s cubic-bezier(.2,.7,.2,1) 1.45s both}
+  .rule{animation:draw 1.1s cubic-bezier(.6,0,.2,1) .55s both}
+  .btn{background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);background-repeat:no-repeat;background-size:180px 100%;animation:shine 2.8s ease-in-out 1.6s 2 both}
+  @media (prefers-reduced-motion:reduce){.hero,.medal,.r1,.r2,.r3,.r4,.s1,.s2,.s3,.rule,.btn{animation:none!important}}
+  @media only screen and (max-width:560px){
+    .px{padding-left:26px!important;padding-right:26px!important}
+    .h1{font-size:26px!important}
+    .step{display:block!important;width:100%!important;padding:0 0 16px!important}
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#EDE8DC;">
+
+<div class="pv-bar">
+  <span>Preview only —</span>
+  <button id="replay">↻ Replay animation</button>
+  <button id="static" aria-pressed="false">Gmail view (no motion)</button>
+  <button id="narrow" aria-pressed="false">Phone width</button>
+</div>
+
+<div id="mail">
+<!-- ═════════ EMAIL BODY ═════════ -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">You've been given editor access to the Rallys Equities website — set your password to begin.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EDE8DC;">
+  <tr><td align="center" style="padding:44px 14px 52px;">
+
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 40px 70px -40px rgba(18,36,58,.45);">
+
+      <!-- ── HERO: navy with concentric gold rings echoing the logo's arcs ── -->
+      <tr><td align="center" bgcolor="#12243A" class="hero px"
+        style="padding:46px 48px 44px;background-color:#12243A;background-image:radial-gradient(circle at 50% 78px,transparent 70px,rgba(200,168,75,.30) 71px,transparent 72px,transparent 112px,rgba(200,168,75,.18) 113px,transparent 114px,transparent 160px,rgba(200,168,75,.10) 161px,transparent 162px,transparent 216px,rgba(200,168,75,.06) 217px,transparent 218px),linear-gradient(180deg,#152B45 0%,#0F1F33 100%);background-repeat:no-repeat;background-position:center top;background-size:100% 100%;">
+
+        <!-- logo medallion (logo is dark ink, so it sits on an ivory disc) -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;">
+          <tr><td class="medal" align="center" valign="middle" width="96" height="96" style="width:96px;height:96px;border-radius:50%;background:#FBF9F3;border:2px solid #C8A84B;box-shadow:0 14px 30px -12px rgba(0,0,0,.5);">
+            <img src="https://www.rallysequities.com/assets/img/logo.png" width="66" height="47" alt="Rallys Equities" style="display:block;width:66px;height:47px;margin:0 auto;">
+          </td></tr>
+        </table>
+
+        <div class="r1" style="padding-top:26px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#D9BD6A;">Editor Invitation</div>
+        <h1 class="h1 r2" style="margin:12px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:31px;font-weight:normal;line-height:1.22;color:#ffffff;letter-spacing:-.2px;">Welcome to the team<br>behind <i style="color:#E7D49A;">Rallys&nbsp;Equities</i></h1>
+        <div class="rule" style="width:56px;height:2px;line-height:2px;font-size:0;background:#C8A84B;margin:22px auto 0;border-radius:2px;">&nbsp;</div>
+      </td></tr>
+
+      <!-- ── MESSAGE + CTA ── -->
+      <tr><td align="center" class="px" style="padding:38px 52px 0;">
+        <p class="r3" style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:16px;line-height:1.7;color:#4A5768;">You've been given <b style="color:#12243A;font-weight:600;">editor access</b> to the Rallys Equities website. Choose a password and you can start updating pages right away&nbsp;— no software, no setup.</p>
+      </td></tr>
+
+      <tr><td align="center" class="px r4" style="padding:30px 52px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+          <tr><td class="btn" align="center" style="border-radius:999px;background-color:#0A6B4B;box-shadow:0 10px 20px -12px rgba(18,36,58,.45);">
+            <a href="#" style="display:inline-block;padding:17px 44px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:15.5px;font-weight:600;line-height:1;color:#ffffff;text-decoration:none;border-radius:999px;letter-spacing:.3px;">Set your password &nbsp;&rarr;</a>
+          </td></tr>
+        </table>
+        <div style="padding-top:15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12.5px;line-height:1.6;color:#6B7480;">
+          Secure one-time link &nbsp;·&nbsp; expires in 24 hours &nbsp;·&nbsp; <a href="#" style="color:#0A6B4B;text-decoration:underline;">copy link</a>
+        </div>
+      </td></tr>
+
+      <tr><td class="px" style="padding:40px 52px 0;"><div style="height:1px;line-height:1px;font-size:0;background:#EEE8DA;">&nbsp;</div></td></tr>
+
+      <!-- ── FOOTER ── -->
+      <tr><td align="center" class="px" style="padding:24px 52px 34px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.7;color:#6E7682;">
+        This invitation was sent to <span style="color:#12243A;">stressmonjrmsu4@gmail.com</span>.<br>Not expecting it? Simply ignore this email — nothing happens until a password is set.
+      </td></tr>
+      <tr><td height="4" style="height:4px;line-height:4px;font-size:0;background-color:#0A6B4B;background-image:linear-gradient(90deg,#0A6B4B 0%,#0A6B4B 70%,#C8A84B 70%,#C8A84B 100%);">&nbsp;</td></tr>
+    </table>
+
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;">
+      <tr><td align="center" style="padding:22px 12px 0;font-family:Georgia,serif;font-size:13px;color:#66551F;letter-spacing:.3px;">Rallys Equities (Pvt) Ltd</td></tr>
+      <tr><td align="center" style="padding:4px 12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12px;color:#5E5848;">Lahore, Pakistan &nbsp;·&nbsp; <a href="https://www.rallysequities.com" style="color:#5E5848;text-decoration:underline;">rallysequities.com</a></td></tr>
+    </table>
+
+  </td></tr>
+</table>
+<!-- ═════════ /EMAIL BODY ═════════ -->
+</div>
+
+<script>
+  document.getElementById('replay').onclick = () => {
+    document.body.classList.remove('static');
+    document.getElementById('static').setAttribute('aria-pressed','false');
+    const m = document.getElementById('mail'); m.replaceWith(m.cloneNode(true));
+  };
+  document.getElementById('static').onclick = (e) => {
+    e.target.setAttribute('aria-pressed', document.body.classList.toggle('static'));
+  };
+  document.getElementById('narrow').onclick = (e) => {
+    const m = document.getElementById('mail');
+    const on = m.style.maxWidth !== '390px';
+    m.style.maxWidth = on ? '390px' : ''; m.style.margin = on ? '0 auto' : '';
+    e.target.setAttribute('aria-pressed', on);
+  };
+</script>
+</body>
+</html>
