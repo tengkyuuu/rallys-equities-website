@@ -17,10 +17,18 @@ export function collectConsoleIssues(page: Page) {
 }
 
 /** The market feed answers 502, as PSX's portal does today. */
-export const marketDown = (page: Page) =>
-  page.route('**/api/market', (r) =>
-    r.fulfill({ status: 502, contentType: 'application/json', body: '{"error":"KSE100 unavailable upstream"}' }),
-  );
+export const marketDown = async (page: Page) => {
+  await Promise.all([
+    page.route('**/api/market', (r) =>
+      r.fulfill({ status: 502, contentType: 'application/json', body: '{"error":"KSE100 unavailable upstream"}' }),
+    ),
+    // The embedded map is third-party content; keep unrelated Google script outages
+    // from failing editor tests. Its iframe URL and directions link remain intact.
+    page.route(/^https:\/\/(maps\.google\.com|www\.google\.com)\/maps/, (r) =>
+      r.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body>Office map test fixture</body></html>' }),
+    ),
+  ]);
+};
 
 export async function mockState(request: APIRequestContext) {
   return (await request.get(`${MOCK}/__test/state`)).json();

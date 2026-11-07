@@ -50,6 +50,15 @@
         "value": "arial",
         "createdAt": "2026-11-07T16:47:38.409Z",
         "reason": "agent: Arial is the email-safe fallback in the Outlook VML button of the invite email; web fonts don't load in mail clients"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/invite-email-preview.html"
+        ],
+        "createdAt": "2026-11-07T17:02:27.813Z",
+        "reason": "user approved the invite design (incl. the disclosed gold halo ripple on the logo) with 'Yes, implement it'"
       }
     ]
   }

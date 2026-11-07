@@ -7,7 +7,8 @@ and rate-limit countdowns. Uploads report completed file counts; after eight sec
 the form explains the delay. Request timeouts preserve entered values on the page.
 Success panels are shown only after the server confirms receipt.
 
-Page navigation has loading and error boundaries. The editor inbox has first-use
+Page navigation retains its existing preloader and now has a recoverable error boundary.
+The editor inbox has first-use
 guidance, a clear-search-and-filters action, and a persistent refresh error instead
 of reporting a failed fetch as an empty inbox. Editor session expiry stores the
 working draft, including an open blog composition, in tab-scoped sessionStorage
