@@ -75,6 +75,7 @@ export const UPLOAD_FIELDS: Partial<Record<SubmissionKind, Record<string, string
   career: { cv: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'] },
 };
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+export const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 export const uploadRequestSchema = z.object({
   kind: z.enum(SUBMISSION_KINDS as [SubmissionKind, ...SubmissionKind[]]),
@@ -92,6 +93,7 @@ export const uploadRequestSchema = z.object({
 });
 
 export const uploadedFileSchema = z.object({
+  receipt: z.string().max(100).optional(),
   field: z.string().max(40),
   path: z.string().max(300),
   name: z.string().max(200),
@@ -107,4 +109,4 @@ export const submissionRequestSchema = z.object({
 });
 
 /** Storage path for an upload: `<kind>/<time>-<rand>-<field>-<safe name>`. */
-export const UPLOAD_PATH = /^(contact|complaint|feedback|career|application)\/\d{13}-[a-z0-9]{6}-[A-Za-z]+-[A-Za-z0-9._-]{1,60}$/;
+export const UPLOAD_PATH = /^(career|application)\/\d{13}-[a-f0-9]{32}-[A-Za-z]+-[A-Za-z0-9._-]{1,60}$/;

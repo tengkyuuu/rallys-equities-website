@@ -1,10 +1,12 @@
 'use client';
 
-import { useRef, useState, type CSSProperties } from 'react';
+import { Children, isValidElement, useRef, useState, type CSSProperties } from 'react';
 import GoTo from '@/components/nav/GoTo';
-import { submitErrorMessage, submitForm } from '@/lib/forms/submit';
+import { useSubmission } from './useSubmission';
+import FormStatus from './FormStatus';
 import type { FormOption } from '@/lib/pricing';
 import { toast } from '@/lib/toast';
+import { uploadError } from '@/lib/forms/submit';
 import { filled, looksLikeEmail, useFields } from './useFields';
 
 /* Online account application: five steps, then a reference number. Step 1 is validated
@@ -121,9 +123,11 @@ const UPLOAD_ICON = (
 );
 
 function Field({ label, req, children, err }: { label: string; req?: boolean; children: React.ReactNode; err?: string }) {
+  const input = Children.toArray(children).find((child) => isValidElement<{ id?: string }>(child) && child.props.id);
+  const inputId = isValidElement<{ id?: string }>(input) ? input.props.id : undefined;
   return (
     <div className="fg">
-      <label className="flbl">
+      <label className="flbl" htmlFor={inputId}>
         {label}
         {req && (
           <>
@@ -149,17 +153,29 @@ function Options({ placeholder, options }: { placeholder: string; options: strin
   );
 }
 
-function Nav({ back, next, onBack, onNext }: { back?: boolean; next: string; onBack?: () => void; onNext: () => void }) {
+function Nav({
+  back,
+  next,
+  onBack,
+  onNext,
+  disabled,
+}: {
+  back?: boolean;
+  next: string;
+  onBack?: () => void;
+  onNext: () => void;
+  disabled?: boolean;
+}) {
   return (
     <div className="fnav">
       {back ? (
-        <button className="fprev" onClick={onBack}>
+        <button className="fprev" onClick={onBack} disabled={disabled}>
           ← Back
         </button>
       ) : (
         <div />
       )}
-      <button className="fnext" onClick={onNext}>
+      <button className="fnext" onClick={onNext} disabled={disabled}>
         {next}
       </button>
     </div>
@@ -187,9 +203,10 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
   const [extras, setExtras] = useState([true, false, false, false]);
   const [consent, setConsent] = useState([false, false, false]);
   const [files, setFiles] = useState<Record<string, File | undefined>>({});
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const [reference, setReference] = useState<string | null>(null);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
-  const sending = useRef(false);
+  const sub = useSubmission('application', 'submit your application', f.serverErrors);
 
   const go = (n: number) => {
     setStep(n);
@@ -198,6 +215,10 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
   };
 
   const next = (n: number) => {
+    if (n === 4 && Object.values(fileErrors).some(Boolean)) {
+      toast('Please fix the highlighted document uploads before continuing.', 'err');
+      return;
+    }
     if (n === 1) {
       const bad = f.validate([
         ['f-fn', filled],
@@ -219,8 +240,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
       toast('Please tick all three consent boxes before submitting.', 'err');
       return;
     }
-    if (sending.current) return;
-    sending.current = true;
+    if (sub.disabled) return;
     const g = f.get;
     const ref = `RE-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
     const payload = {
@@ -250,14 +270,9 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
       services: EXTRA_SERVICES.filter((_, i) => extras[i]).join('; '),
     };
     const attached = UPLOADS.flatMap((u) => (files[u.field] ? [[u.field, files[u.field]!] as [string, File]] : []));
-    try {
-      await submitForm('application', payload, attached);
+    if (await sub.send(payload, attached)) {
       setReference(ref);
       top();
-    } catch (e) {
-      toast(submitErrorMessage(e, 'submit your application'), 'err');
-    } finally {
-      sending.current = false;
     }
   };
 
@@ -444,35 +459,43 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
             <div className="fgrid">
               <Field label="First Name" req err="Please enter your first name">
                 <input type="text" {...f.bind('f-fn', 'finput')} placeholder="e.g. Ahmed" />
+                {f.error('f-fn')}
               </Field>
               <Field label="Last Name" req err="Please enter your last name">
                 <input type="text" {...f.bind('f-ln', 'finput')} placeholder="e.g. Khan" />
+                {f.error('f-ln')}
               </Field>
             </div>
             <div className="fgrid">
               <Field label="Father's / Husband's Name" req>
                 <input type="text" {...f.bind('f-fn2', 'finput')} placeholder="As on CNIC" />
+                {f.error('f-fn2')}
               </Field>
               <Field label="CNIC Number" req err="Enter valid 13-digit CNIC">
                 <input type="text" {...f.bind('f-cnic', 'finput')} placeholder="XXXXX-XXXXXXX-X" maxLength={15} />
+                {f.error('f-cnic')}
               </Field>
             </div>
             <div className="fgrid">
               <Field label="Date of Birth" req>
                 <input type="date" {...f.bind('f-dob', 'finput')} />
+                {f.error('f-dob')}
               </Field>
               <Field label="Gender" req>
                 <select {...sel('f-gender')}>
                   <Options placeholder="Select gender" options={['Male', 'Female', 'Prefer not to say']} />
                 </select>
+                {f.error('f-gender')}
               </Field>
             </div>
             <div className="fgrid">
               <Field label="Mobile Number" req err="Enter valid Pakistani mobile number">
                 <input type="tel" {...f.bind('f-mob', 'finput')} placeholder="+92-3XX-XXXXXXX" />
+                {f.error('f-mob')}
               </Field>
               <Field label="Email Address" req err="Enter a valid email address">
                 <input type="email" {...f.bind('f-email', 'finput')} placeholder="your@email.com" />
+                {f.error('f-email')}
               </Field>
             </div>
             <div className="fg full" style={{ marginBottom: '16px' }}>
@@ -480,6 +503,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                 Residential Address <span className="req">*</span>
               </label>
               <textarea {...f.bind('f-addr', 'ftarea')} placeholder="House/Flat No., Street, Area, City" />
+              {f.error('f-addr')}
             </div>
             <div className="fgrid">
               <Field label="City" req>
@@ -500,6 +524,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     ]}
                   />
                 </select>
+                {f.error('f-city')}
               </Field>
               <Field label="Province" req>
                 <select {...sel('f-prov')}>
@@ -508,6 +533,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     options={['Sindh', 'Punjab', 'KPK', 'Balochistan', 'Islamabad (ICT)', 'Gilgit-Baltistan', 'AJK']}
                   />
                 </select>
+                {f.error('f-prov')}
               </Field>
             </div>
             <Nav next="Next: Financial Details →" onNext={() => next(1)} />
@@ -537,9 +563,11 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     ]}
                   />
                 </select>
+                {f.error('f-emp')}
               </Field>
               <Field label="Employer / Business Name">
                 <input type="text" {...f.bind('f-employer', 'finput')} placeholder="Company or business name" />
+                {f.error('f-employer')}
               </Field>
             </div>
             <div className="fgrid">
@@ -557,6 +585,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     ]}
                   />
                 </select>
+                {f.error('f-income')}
               </Field>
               <Field label="Source of Funds" req>
                 <select {...sel('f-src')}>
@@ -573,6 +602,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     ]}
                   />
                 </select>
+                {f.error('f-src')}
               </Field>
             </div>
             <div className="fgrid">
@@ -597,9 +627,11 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                     ]}
                   />
                 </select>
+                {f.error('f-bank')}
               </Field>
               <Field label="IBAN / Account Number" req>
                 <input type="text" {...f.bind('f-iban', 'finput')} placeholder="PK00XXXX0000000000000000" />
+                {f.error('f-iban')}
               </Field>
             </div>
             <div className="fg" style={{ marginBottom: '16px' }}>
@@ -616,6 +648,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                   ]}
                 />
               </select>
+              {f.error('f-exp')}
             </div>
             <div className="fg" style={{ marginBottom: '16px' }}>
               <label className="flbl">
@@ -634,6 +667,7 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                   ]}
                 />
               </select>
+              {f.error('f-obj')}
             </div>
             <Nav back next="Next: Account Preferences →" onBack={() => go(1)} onNext={() => next(2)} />
           </div>
@@ -767,7 +801,19 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                       {u.label} <span className="req">*</span>
                     </label>{' '}
                     {'hint' in u && <div style={{ fontSize: '10px', color: 'var(--mt2)', marginBottom: '8px' }}>{u.hint}</div>}
-                    <div className="upload-box" onClick={() => fileInputs.current[u.id]?.click()}>
+                    <div
+                      className="upload-box"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={u.title}
+                      onClick={() => fileInputs.current[u.id]?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          fileInputs.current[u.id]?.click();
+                        }
+                      }}
+                    >
                       {UPLOAD_ICON}
                       <div className="upload-title" id={`${u.id}-lbl`}>
                         {files[u.field] ? '✓ ' + files[u.field]!.name : u.title}
@@ -778,15 +824,26 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                         className="upload-input"
                         id={u.id}
                         accept={u.accept}
+                        aria-label={u.label}
+                        aria-invalid={!!fileErrors[u.field]}
+                        aria-describedby={fileErrors[u.field] ? `${u.id}-error` : undefined}
                         ref={(el) => {
                           fileInputs.current[u.id] = el;
                         }}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) setFiles((s) => ({ ...s, [u.field]: file }));
+                          const error = file ? uploadError('application', u.field, file) : '';
+                          setFileErrors((s) => ({ ...s, [u.field]: error }));
+                          setFiles((s) => ({ ...s, [u.field]: error ? undefined : file }));
+                          if (error) e.target.value = '';
                         }}
                       />
                     </div>
+                    {fileErrors[u.field] && (
+                      <p className="field-error" id={`${u.id}-error`} role="alert">
+                        {fileErrors[u.field]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -882,12 +939,19 @@ export default function AccountOpening({ options }: { options: Record<string, Fo
                 </label>
               ))}
             </div>
+            <FormStatus state={sub} />
             <div className="fnav">
-              <button className="fprev" onClick={() => go(4)}>
+              <button className="fprev" onClick={() => go(4)} disabled={sub.pending}>
                 ← Back
               </button>
-              <button className="fnext" style={{ padding: '12px 36px', fontSize: '14px' }} onClick={submit}>
-                ✓ Submit Application
+              <button
+                className="fnext"
+                style={{ padding: '12px 36px', fontSize: '14px' }}
+                onClick={submit}
+                disabled={sub.disabled}
+                aria-busy={sub.pending}
+              >
+                {sub.pending ? 'Submitting…' : sub.remaining > 0 ? `Try again in ${sub.remaining}s` : '✓ Submit Application'}
               </button>
             </div>
           </div>

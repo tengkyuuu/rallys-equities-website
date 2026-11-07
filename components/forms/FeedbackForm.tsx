@@ -1,12 +1,15 @@
 'use client';
 
+import Link from 'next/link';
+
 import { toast } from '@/lib/toast';
 import { chosen, filled, longEnough, looksLikeEmail, useFields } from './useFields';
 import { useSubmission } from './useSubmission';
+import FormStatus from './FormStatus';
 
 export default function FeedbackForm() {
   const f = useFields(['fb-name', 'fb-email', 'fb-phone', 'fb-cat', 'fb-msg'] as const);
-  const sub = useSubmission('feedback');
+  const sub = useSubmission('feedback', undefined, f.serverErrors);
 
   const submit = () => {
     if (
@@ -37,25 +40,30 @@ export default function FeedbackForm() {
       >
         <div className="fgrid">
           <div className="fg">
-            <label className="flbl">
+            <label className="flbl" htmlFor="fb-name">
               Full Name <span className="req">*</span>
             </label>
             <input type="text" {...f.bind('fb-name', 'finput')} placeholder="Enter your full name" />
+            {f.error('fb-name')}
           </div>
           <div className="fg">
-            <label className="flbl">
+            <label className="flbl" htmlFor="fb-email">
               Email Address <span className="req">*</span>
             </label>
             <input type="email" {...f.bind('fb-email', 'finput')} placeholder="Email address" />
+            {f.error('fb-email')}
           </div>
         </div>
         <div className="fgrid">
           <div className="fg">
-            <label className="flbl">Phone (optional)</label>
+            <label className="flbl" htmlFor="fb-phone">
+              Phone (optional)
+            </label>
             <input type="tel" {...f.bind('fb-phone', 'finput')} placeholder="+92-3XX-XXXXXXX" />
+            {f.error('fb-phone')}
           </div>
           <div className="fg">
-            <label className="flbl">
+            <label className="flbl" htmlFor="fb-cat">
               Feedback Category <span className="req">*</span>
             </label>
             <select {...f.bind('fb-cat', 'fselect')}>
@@ -70,16 +78,19 @@ export default function FeedbackForm() {
               <option>Suggestions for Improvement</option>
               <option>Other</option>
             </select>
+            {f.error('fb-cat')}
           </div>
         </div>
         <div className="fg" style={{ marginBottom: '16px' }}>
-          <label className="flbl">
+          <label className="flbl" htmlFor="fb-msg">
             Feedback Details <span className="req">*</span>
           </label>
           <textarea {...f.bind('fb-msg', 'ftarea')} placeholder="Share your feedback in detail" />
+          {f.error('fb-msg')}
         </div>{' '}
-        <button className="fnext" style={{ width: '100%' }} onClick={submit}>
-          Submit Feedback
+        <FormStatus state={sub} />
+        <button className="fnext" style={{ width: '100%' }} onClick={submit} disabled={sub.disabled} aria-busy={sub.pending}>
+          {sub.pending ? 'Sending…' : sub.remaining > 0 ? `Try again in ${sub.remaining}s` : 'Submit Feedback'}
         </button>
       </div>
       <div
@@ -93,10 +104,17 @@ export default function FeedbackForm() {
           textAlign: 'center',
         }}
         id="fbDone"
+        role="status"
+        tabIndex={-1}
       >
         <div style={{ fontSize: '28px', marginBottom: '8px' }}>✓</div>
         <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '6px' }}>Feedback received</div>
         <div style={{ fontSize: '12px', color: 'var(--mt)' }}>Thank you for helping us improve. We read every submission.</div>
+        {sub.done && (
+          <Link className="form-next-link" href="/">
+            Return to home
+          </Link>
+        )}
       </div>
     </>
   );

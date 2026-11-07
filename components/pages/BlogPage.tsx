@@ -52,7 +52,10 @@ export default function BlogPage({ featured: feat, posts, page = 1, pages = 1 }:
             <path d="M16 17H8" />
           </svg>{' '}
           <b>New blogs are on the way</b>{' '}
-          <span>Our desk publishes market commentary, research notes and investor education here. Check back soon.</span>
+          <span>
+            Our desk publishes market commentary, research notes and investor education here. Check back soon, or{' '}
+            <Link href="/investors/education">explore our investor education resources</Link>.
+          </span>
         </div>
         {pages > 1 && (
           <nav className="blog-pager" aria-label="Blog pages">

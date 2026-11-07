@@ -245,6 +245,24 @@ try{ const c=localStorage.getItem('re-content'); if(c)LIVE=normalize(JSON.parse(
 const dirty=new Set();     // "kind:key" changed this session
 const undo=[];             // {kind,key,prev}
 let editing=false;
+let editorUserId=null, intentionalSignOut=false, capturePostDraft=null;
+function preserveEditorDraft(){
+  if(!editorUserId)return false;
+  if(document.activeElement&&document.activeElement.isContentEditable)document.activeElement.blur();
+  if(capturePostDraft)capturePostDraft();
+  try{ sessionStorage.setItem('re-recovery:'+editorUserId,JSON.stringify({at:Date.now(),work:WORK})); return true; }
+  catch(e){ return false; }
+}
+function recoverEditorDraft(){
+  const key='re-recovery:'+editorUserId;
+  let saved; try{saved=JSON.parse(sessionStorage.getItem(key)||'null');}catch(e){}
+  if(!saved)return;
+  if(Date.now()-saved.at>8*3600e3){sessionStorage.removeItem(key);return;}
+  reConfirm('A private draft was kept in this tab when your session ended. Restore it before continuing?',{title:'Restore your draft',okLabel:'Restore draft',cancelLabel:'Use saved version'}).then(ok=>{
+    if(ok){WORK=normalize(saved.work);markDirty('recovered:draft');API.setOverrides(WORK);softRefresh();toast('Draft restored — save it when you are ready.');}
+    sessionStorage.removeItem(key);
+  });
+}
 
 function markDirty(id){ dirty.add(id); updateSaveBar(); }
 /* Signature of the last saved draft. Undoing or restoring everything back to it
@@ -294,6 +312,19 @@ function localStore(){
 }
 function supabaseStore(){
   const sb=window.supabase.createClient(window.RE_SUPABASE.url,window.RE_SUPABASE.anonKey);
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(session){editorUserId=session.user.id;return;}
+    if(event!=='SIGNED_OUT'||intentionalSignOut||!editorUserId)return;
+    const kept=preserveEditorDraft();
+    setTimeout(()=>{
+      if(dashEl){dashEl.remove();dashEl=null;} subsData=[]; subsLoadedOnce=false;
+      WORK=blank(); capturePostDraft=null; dirty.clear();
+      API.setOverrides(LIVE);
+      if(!document.querySelector('.re-login'))showLogin();
+      const note=document.querySelector('.re-login .re-err');
+      if(note)note.textContent=kept?'Your session expired. Your draft is kept in this tab. Sign in with the same account to restore it.':'Your session expired. Sign in again. Keep this tab open to avoid losing your work.';
+    },0);
+  });
   const rowData=async scope=>{const{data}=await sb.from('site_content').select('data').eq('scope',scope).maybeSingle();return (data&&data.data)||blank();};
   return {
     mode:'supabase', _sb:sb,
@@ -416,7 +447,7 @@ function onAuthed(){
      request stalls, the visitor would otherwise be left staring at the live site. */
   if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard();
   /* Then load the saved draft in the background and refresh once it arrives. */
-  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); markSaved(); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); })
+  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); markSaved(); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); recoverEditorDraft(); })
     .catch(e=>{ console.warn('[editor] could not load draft',e); });
   /* …and the published snapshot, so every screen can say what is actually on the
      website right now vs. what is still only in the draft. */
@@ -435,10 +466,12 @@ function migrateHidden(hidden){ hidden=hidden||{};
 }
 function normalize(d){ d=d||{}; return {text:d.text||{},img:d.img||{},imgMeta:d.imgMeta||{},theme:{dark:(d.theme&&d.theme.dark)||{},light:(d.theme&&d.theme.light)||{}},calcInfo:d.calcInfo||{},fonts:d.fonts||{},hidden:migrateHidden(d.hidden||{}),order:d.order||{},pricing:(d.pricing&&typeof d.pricing==='object')?d.pricing:{},posts:Array.isArray(d.posts)?d.posts:[],version:d.version||0}; }
 function doLogout(){
+  if(!preserveEditorDraft()&&editorUserId){toast('Your draft could not be kept. Save it before signing out.','err');return;}
+  intentionalSignOut=true;
   const busy=reBusy('Signing out','Closing your session on this device…');
   Promise.resolve(Store.logout())
     .then(()=>{ leaving=true; location.search=location.search.replace(/[?&]edit=1/,'')||''; })
-    .catch(e=>{ busy.close(); toast(e.message||'Could not sign out','err'); });
+    .catch(e=>{ intentionalSignOut=false; busy.close(); toast(e.message||'Could not sign out','err'); });
 }
 
 /* ════════ DASHBOARD APP (fullscreen: sidebar + views) ════════ */
@@ -446,7 +479,7 @@ let dashEl,dashMain,dashView='overview',blogEditId=null,viewTeardown=null;
 /* ── Submissions state: messages/complaints/feedback/careers/applications from the
    public forms (reSubmit() in index.html writes to form_submissions; RLS lets the
    public only insert, so reads/deletes only happen here). ── */
-let subsData=[],subsQuery='',subsFilter='all',subsLoading=false,subsLoadedOnce=false;
+let subsData=[],subsQuery='',subsFilter='all',subsLoading=false,subsLoadedOnce=false,subsError='';
 const SUB_FILTERS=[['all','All'],['unhandled','New'],['contact','Contact'],['complaint','Complaint'],['feedback','Feedback'],['career','Career'],['application','Applications']];
 const SUB_KIND_META={
   contact:{label:'Contact',icon:'mail'},
@@ -555,7 +588,7 @@ function viewSig(){
     Object.keys(WORK.hidden||{}).length]);
 }
 let lastViewSig='';
-function renderMain(){ if(!dashMain||!dashVisible())return; teardownView(); dashMain.innerHTML=''; updateSideStatus(); lastViewSig=viewSig();
+function renderMain(){ if(!dashMain||!dashVisible())return; capturePostDraft=null; teardownView(); dashMain.innerHTML=''; updateSideStatus(); lastViewSig=viewSig();
   ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile,submissions:renderSubs}[dashView]||renderOverview)(); }
 /* Background refresh (a fetch landed, a save finished): never redraw over a half-written
    post — the post form is the one view with unsaved input in the DOM. */
@@ -686,8 +719,9 @@ function renderOverview(){
    RLS lets the public only INSERT, so reading/deleting only happens here). ── */
 async function reloadSubs(){
   if(Store.mode!=='supabase'){ subsData=[]; subsLoadedOnce=true; updateNavBadge(); if(dashView==='submissions')renderMain(); return; }
-  subsLoading=true; if(dashView==='submissions')renderMain();
-  try{ subsData=await Store.listSubmissions(); }catch(e){ console.warn('[submissions] load failed',e); }
+  if(subsLoading)return;
+  subsLoading=true; subsError=''; if(dashView==='submissions')renderMain();
+  try{ subsData=await Store.listSubmissions(); }catch(e){ subsError=navigator.onLine?'We couldn’t load submissions. Check your editor access and try Refresh.':'You’re offline. Reconnect, then choose Refresh. Previously loaded submissions are shown below.'; }
   subsLoading=false; subsLoadedOnce=true; updateNavBadge();
   if(dashView==='submissions')renderMain();
 }
@@ -781,6 +815,7 @@ function renderSubs(){
     dashMain.append(h('div',{class:'re-empty'},icon('inbox',30),h('p',{},'Submissions need the live Supabase connection — this local preview has none to show.')));
     return;
   }
+  if(subsError)dashMain.append(h('div',{class:'re-note',role:'alert'},subsError));
   dashMain.append(h('div',{class:'re-kpis'},
     kpi('Total',s.total,'inbox'),
     kpi('New',s.unhandled,'clock',s.unhandled>0),
@@ -799,7 +834,11 @@ function renderSubs(){
     listWrap.innerHTML='';
     if(subsLoading&&!subsLoadedOnce){ listWrap.append(skelRows(3,false)); return; }
     const rows=filteredSubs();
-    if(!rows.length){ listWrap.append(emptyState(subsData.length?'Nothing matches this filter.':'No submissions yet. When a visitor sends a form, it appears here.','inbox')); return; }
+    if(!rows.length){
+      const filtered=!!subsQuery.trim()||subsFilter!=='all';
+      const clear=h('button',{class:'re-btn re-btn-ghost',onclick:()=>{subsQuery='';subsFilter='all';renderMain();}},'Clear search and filters');
+      listWrap.append(emptyState(subsError?'Use Refresh to try loading your inbox again.':filtered?'No matching submissions. Try a shorter name, an email address, or clear your filters.':'No submissions yet. Messages, complaints and applications will appear here when visitors send a form.','inbox',filtered?clear:null)); return;
+    }
     rows.forEach(r=>listWrap.append(subCard(r)));
   }
   drawList();
@@ -1111,6 +1150,12 @@ function renderPostEditor(){
   const excerpt=h('textarea',{class:'re-input',rows:'2',placeholder:'One or two lines shown on the Blogs page…','aria-label':'Excerpt'},p.excerpt||'');
   const body=h('div',{class:'re-postbody',contenteditable:'true','aria-label':'Post body'});
   body.innerHTML=API.sanitizePost(p.body||'')||'<p><br></p>';
+  capturePostDraft=()=>{
+    if(!title.isConnected)return;
+    const rec={...p,title:title.value,slug:slugInp.value,date:date.value,cover:coverUrl,excerpt:excerpt.value,body:API.sanitizePost(body.innerHTML)};
+    const index=WORK.posts.findIndex(x=>x.id===p.id);
+    if(index<0)WORK.posts.push(rec);else WORK.posts[index]=rec;
+  };
   const cmd=(c,v)=>{ body.focus(); document.execCommand(c,false,v||null); };
   const fmtRow=h('div',{class:'re-fmtrow'},
     h('button',{class:'re-fmtbtn',type:'button',title:'Heading',onmousedown:e=>{e.preventDefault();cmd('formatBlock','h2');}},'H2'),

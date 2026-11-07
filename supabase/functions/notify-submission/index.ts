@@ -9,7 +9,8 @@
 //   NOTIFY_FROM      (optional) verified sender; defaults to Resend's onboarding address
 //   SITE_URL         (optional) your site, used for the "Review" button
 //
-// Deploy:  supabase functions deploy notify-submission --no-verify-jwt
+// The database webhook must send a service-role JWT in Authorization.
+// Deploy:  supabase functions deploy notify-submission (JWT verification stays ON)
 //   (or paste into the dashboard's function editor, then Deploy)
 // ════════════════════════════════════════════════════════════════
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
@@ -138,11 +139,30 @@ function buildText(kind: string, data: Record<string, unknown>, files: { field?:
 
 serve(async (req) => {
   try {
+    if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+    // Supabase's JWT-verifying gateway authenticates the signature before this code
+    // runs. Check its verified database role as well: the public anon JWT must not
+    // be enough to send emails. JWT verification must remain enabled on deployment.
+    let callerRole: unknown;
+    try {
+      const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+      const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      callerRole = JSON.parse(atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, "="))).role;
+    } catch { /* malformed credentials are rejected below */ }
+    if (callerRole !== "service_role") {
+      return new Response("Unauthorized", { status: 401 });
+    }
     if (!RESEND_API_KEY || !NOTIFY_TO) {
       return new Response("Missing RESEND_API_KEY or NOTIFY_TO secret", { status: 500 });
     }
-    const body = await req.json();
-    const row = body.record ?? body;
+    const body = await req.json().catch(() => null);
+    if (body?.type !== "INSERT" || body?.schema !== "public" ||
+        body?.table !== "form_submissions" || !body?.record ||
+        typeof body.record !== "object" || Array.isArray(body.record) ||
+        !Object.prototype.hasOwnProperty.call(KIND, body.record.kind)) {
+      return new Response("Invalid submission webhook", { status: 400 });
+    }
+    const row = body.record;
     const kind: string = row.kind ?? "submission";
     const data: Record<string, unknown> = row.data ?? {};
     const files = (row.files ?? []) as { field?: string; name?: string }[];

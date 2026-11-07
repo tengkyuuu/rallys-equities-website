@@ -25,6 +25,7 @@ export default defineConfig([
     'scrape/**',
     'data/**',
     '.next-test/**',
+    '.next-ui-states/**',
     '.impeccable/**',
     // vendored design-tool scripts (Impeccable skill), not site code
     '.claude/**',

@@ -3,3 +3,174 @@
 .ac-opt.active-opt{border-color:color-mix(in srgb, var(--g3) 50%, transparent);background:color-mix(in srgb, var(--g) 10%, transparent)}
 .risk-opt{border:1px solid var(--gb);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all .2s}
 .risk-opt.active-risk{border-color:color-mix(in srgb, var(--g3) 40%, transparent);background:color-mix(in srgb, var(--g) 8%, transparent)}
+
+/* Keep native select semantics and the editor's positional keys. Browsers with
+   customizable selects get the same branded surface for the field and its picker. */
+.fselect {
+  --select-surface: var(--nv2);
+  --select-muted: color-mix(in srgb, var(--tx) 68%, var(--select-surface));
+  --select-hover: color-mix(in srgb, var(--g) 18%, var(--select-surface));
+  --select-selected: color-mix(in srgb, var(--g) 32%, var(--select-surface));
+  --select-check: var(--g3);
+  --select-focus: var(--g3);
+  color-scheme: dark;
+  padding-inline-end: 42px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='m1 1 5 5 5-5' stroke='%239BAFA8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:is(#page-complaints, #page-feedback, #home-feedback) .fselect {
+  padding-inline-end: 44px;
+}
+
+.fselect:has(option[value='']:checked) {
+  color: var(--select-muted);
+}
+
+.fselect:hover:not(:disabled):not(.err) {
+  border-color: color-mix(in srgb, var(--g3) 44%, var(--nv2));
+}
+
+.fselect:focus-visible {
+  outline: 2px solid var(--select-focus);
+  outline-offset: 3px;
+}
+
+.fselect.err:focus-visible {
+  outline-color: var(--dn);
+}
+
+.fselect:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body.light .fselect {
+  --select-surface: var(--nv3);
+  --select-hover: color-mix(in srgb, var(--g) 7%, var(--select-surface));
+  --select-selected: color-mix(in srgb, var(--g) 12%, var(--select-surface));
+  --select-check: var(--g);
+  --select-focus: var(--g);
+  color-scheme: light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='m1 1 5 5 5-5' stroke='%235A6B7E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+@supports (appearance: base-select) {
+  .fselect,
+  .fselect::picker(select) {
+    appearance: base-select;
+  }
+
+  .fselect,
+  body.light .fselect {
+    background-image: none;
+  }
+
+  .fselect {
+    align-items: center;
+    gap: 12px;
+    padding-inline-end: 14px;
+  }
+
+  :is(#page-complaints, #page-feedback, #home-feedback) .fselect {
+    padding-inline-end: 18px;
+  }
+
+  .fselect::picker-icon {
+    content: '';
+    flex: 0 0 8px;
+    width: 8px;
+    height: 8px;
+    margin-inline-start: auto;
+    border: solid var(--select-muted);
+    border-width: 0 1.5px 1.5px 0;
+    transform: translateY(-2px) rotate(45deg);
+  }
+
+  .fselect:open::picker-icon {
+    transform: translateY(2px) rotate(225deg);
+  }
+
+  .fselect::picker(select) {
+    inline-size: anchor-size(width);
+    max-inline-size: calc(100dvw - 32px);
+    max-block-size: min(320px, 50dvh);
+    margin-block: 6px;
+    position-try-order: normal;
+    padding: 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid color-mix(in srgb, var(--tx) 18%, var(--select-surface));
+    border-radius: 12px;
+    background: var(--select-surface);
+    color: var(--tx);
+    font: inherit;
+    box-shadow: 0 14px 36px -12px rgba(var(--shadow-rgb), 0.45);
+    scrollbar-width: thin;
+    scrollbar-color: var(--select-muted) var(--select-surface);
+  }
+
+  .fselect option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-block-size: 44px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--tx);
+    font: inherit;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .fselect option[value=''] {
+    color: var(--select-muted);
+  }
+
+  .fselect option:checked {
+    background: var(--select-selected);
+    font-weight: 600;
+  }
+
+  .fselect option:is(:hover, :focus-visible) {
+    background: var(--select-hover);
+    outline: none;
+  }
+
+  .fselect option:checked:is(:hover, :focus-visible) {
+    background: var(--select-selected);
+  }
+
+  .fselect option::checkmark {
+    content: '';
+    order: 1;
+    flex: 0 0 6px;
+    width: 6px;
+    height: 10px;
+    margin-inline-start: auto;
+    margin-inline-end: 3px;
+    border: solid var(--select-check);
+    border-width: 0 2px 2px 0;
+    transform: translateY(-1px) rotate(45deg);
+    visibility: hidden;
+  }
+
+  .fselect option:checked::checkmark {
+    visibility: visible;
+  }
+
+  .fselect option:disabled {
+    color: var(--select-muted);
+    cursor: not-allowed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fselect {
+    transition: none;
+  }
+}

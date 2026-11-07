@@ -116,3 +116,47 @@ test('cache revalidation requires a signed-in editor', async ({ request }) => {
   expect((await request.post('/api/revalidate')).status()).toBe(401);
   expect((await request.post('/api/revalidate', { headers: { Authorization: 'Bearer forged' } })).status()).toBe(401);
 });
+
+test('form writes reject cross-site requests, non-JSON and oversized streams', async ({ playwright, baseURL }) => {
+  const request = await playwright.request.newContext({ baseURL, extraHTTPHeaders: { 'x-forwarded-for': freshIp() } });
+  expect((await request.post('/api/submissions', { headers: { Origin: 'https://attacker.example' }, data: {} })).status()).toBe(403);
+  expect((await request.post('/api/submissions', { headers: { 'Sec-Fetch-Site': 'cross-site' }, data: {} })).status()).toBe(403);
+  expect((await request.post('/api/submissions', { headers: { 'Content-Type': 'text/plain' }, data: '{}' })).status()).toBe(415);
+  expect((await request.post('/api/submissions', { data: { padding: 'x'.repeat(40_000) } })).status()).toBe(413);
+  await request.dispose();
+});
+
+test('throttling includes a retry time and uploads have a separate server limit', async ({ playwright, baseURL }) => {
+  const request = await playwright.request.newContext({ baseURL, extraHTTPHeaders: { 'x-forwarded-for': freshIp() } });
+  for (let i = 0; i < 20; i++) expect((await request.post('/api/submissions/uploads', { data: {} })).status()).toBe(400);
+  const response = await request.post('/api/submissions/uploads', { data: {} });
+  expect(response.status()).toBe(429);
+  expect(Number(response.headers()['retry-after'])).toBeGreaterThan(0);
+  expect(response.headers()['cache-control']).toBe('no-store');
+  await request.dispose();
+});
+
+test('signed upload receipts reject modified metadata and forged signatures', async ({ playwright, baseURL }) => {
+  const request = await playwright.request.newContext({ baseURL, extraHTTPHeaders: { 'x-forwarded-for': freshIp() } });
+  const file = { field: 'cv', name: 'cv.pdf', type: 'application/pdf', size: 12 };
+  const signed = await request.post('/api/submissions/uploads', { data: { kind: 'career', files: [file] } });
+  expect(signed.status()).toBe(200);
+  const {
+    uploads: [upload],
+  } = await signed.json();
+  const body = {
+    kind: 'career',
+    data: { name: 'Ayesha', email: 'ayesha@example.com', position: 'Other' },
+    files: [{ ...file, path: upload.path, receipt: upload.receipt }],
+  };
+  expect((await request.post('/api/submissions', { data: { ...body, files: [{ ...body.files[0], size: 14 }] } })).status()).toBe(400);
+  expect(
+    (
+      await request.post('/api/submissions', {
+        data: { ...body, files: [{ ...body.files[0], receipt: `${Date.now() + 60_000}.${'0'.repeat(64)}` }] },
+      })
+    ).status(),
+  ).toBe(400);
+  expect((await request.post('/api/submissions/uploads', { data: { kind: 'career', files: [file, file] } })).status()).toBe(400);
+  await request.dispose();
+});

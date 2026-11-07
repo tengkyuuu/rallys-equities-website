@@ -4,8 +4,9 @@ import { defineConfig } from '@playwright/test';
    so nothing touches the real Supabase project: content comes from
    tests/fixtures/content.json and form submissions are recorded in memory. */
 
-const MOCK = 'http://127.0.0.1:54321';
-const PORT = 4173;
+const MOCK_PORT = process.env.PLAYWRIGHT_MOCK_PORT || '54321';
+const MOCK = `http://127.0.0.1:${MOCK_PORT}`;
+const PORT = Number(process.env.PLAYWRIGHT_PORT || 4173);
 
 export default defineConfig({
   testDir: './tests',
@@ -17,14 +18,19 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure' },
   webServer: [
-    { command: 'node tests/mock-supabase.mjs', url: `${MOCK}/__test/state`, reuseExistingServer: !process.env.CI },
+    {
+      command: 'node tests/mock-supabase.mjs',
+      url: `${MOCK}/__test/state`,
+      reuseExistingServer: !process.env.CI,
+      env: { MOCK_SUPABASE_PORT: MOCK_PORT },
+    },
     {
       command: `npm run build && npm run start -- -p ${PORT}`,
       url: `http://localhost:${PORT}/robots.txt`,
       reuseExistingServer: !process.env.CI,
       timeout: 300_000,
       env: {
-        NEXT_DIST_DIR: '.next-test',
+        NEXT_DIST_DIR: process.env.PLAYWRIGHT_DIST_DIR || '.next-test',
         NEXT_PUBLIC_SUPABASE_URL: MOCK,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
         SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',

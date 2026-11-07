@@ -22,12 +22,14 @@ create index if not exists form_submissions_created_idx on form_submissions (cre
 create index if not exists form_submissions_kind_idx    on form_submissions (kind);
 
 -- 2) Security (Row-Level Security):
---    • the PUBLIC (anonymous website visitors) may ONLY INSERT (send a form).
---      They can never read, edit or delete submissions.
+--    • public visitors send forms through the validated, rate-limited Next.js API.
+--      Only its server-side service-role key may INSERT. Direct anonymous writes
+--      would bypass validation and throttling, so they are revoked.
 --    • the OWNER (you, logged in to the editor) may read / update / delete.
 alter table form_submissions enable row level security;
 
-grant insert on form_submissions to anon;
+revoke insert on form_submissions from anon, authenticated;
+grant insert on form_submissions to service_role;
 grant select, update, delete on form_submissions to authenticated;
 
 drop policy if exists fs_public_insert on form_submissions;
@@ -35,7 +37,6 @@ drop policy if exists fs_owner_select on form_submissions;
 drop policy if exists fs_owner_update on form_submissions;
 drop policy if exists fs_owner_delete on form_submissions;
 
-create policy fs_public_insert on form_submissions for insert to anon          with check (true);
 create policy fs_owner_select on form_submissions for select to authenticated using (true);
 create policy fs_owner_update on form_submissions for update to authenticated using (true) with check (true);
 create policy fs_owner_delete on form_submissions for delete to authenticated using (true);
@@ -43,14 +44,19 @@ create policy fs_owner_delete on form_submissions for delete to authenticated us
 -- 3) Storage bucket for uploaded documents (CNIC images, CVs, etc.)
 --    FIRST create the bucket in the dashboard:
 --      Storage → New bucket → name EXACTLY:  form-uploads   → leave "Public" OFF (private).
---    THEN run the policies below so visitors can upload and only you can read.
+--    THEN run the policies below. The Next.js API signs uploads; only editors read.
 drop policy if exists fu_public_insert on storage.objects;
 drop policy if exists fu_owner_select  on storage.objects;
-create policy fu_public_insert on storage.objects for insert to anon
-  with check (bucket_id = 'form-uploads');
 create policy fu_owner_select  on storage.objects for select to authenticated
   using (bucket_id = 'form-uploads');
 
--- Done. The website can now save submissions, and the editor's
+update storage.buckets set public = false, file_size_limit = 5242880,
+  allowed_mime_types = array['image/jpeg', 'image/png', 'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+where id = 'form-uploads';
+
+-- Set SUPABASE_SERVICE_ROLE_KEY on the Next.js server. Keep public Auth signups
+-- disabled: authenticated accounts are trusted editors under these policies.
+-- Done. The website API can now save submissions, and the editor's
 -- "Submissions" inbox (logged in) can read them. Email alerts are set
 -- up separately — see editor/FORMS-SETUP.md.

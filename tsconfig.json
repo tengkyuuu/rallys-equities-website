@@ -31,7 +31,9 @@
     ".next-test/types/**/*.ts",
     ".next-test/dev/types/**/*.ts",
     ".next-refactor/types/**/*.ts",
-    ".next-refactor/dev/types/**/*.ts"
+    ".next-refactor/dev/types/**/*.ts",
+    ".next-ui-states/types/**/*.ts",
+    ".next-ui-states/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules", "supabase/functions", "tests", "public"]
 }

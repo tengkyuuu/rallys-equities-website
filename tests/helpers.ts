@@ -1,6 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 
-export const MOCK = 'http://127.0.0.1:54321';
+export const MOCK = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_PORT || '54321'}`;
 export const EDITOR = { email: 'editor@example.com', password: 'correct-horse-battery' };
 
 /** Console noise worth failing on: CSP violations, uncaught errors, console.error. */
