@@ -26,30 +26,6 @@ const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)'
 
 export default function HeroPanel() {
   const variant = useSyncExternalStore(noSubscribe, readVariant, () => 'calc' as Variant);
-  useEffect(() => {
-    const hero = document.querySelector<HTMLElement>('.hero');
-    if (!hero) return;
-    // soft light that follows the pointer (mouse only; CSS reads --mx/--my/--glow)
-    let raf = 0;
-    const move = (e: globalThis.PointerEvent) => {
-      if (e.pointerType !== 'mouse' || raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const r = hero.getBoundingClientRect();
-        hero.style.setProperty('--mx', e.clientX - r.left + 'px');
-        hero.style.setProperty('--my', e.clientY - r.top + 'px');
-        hero.style.setProperty('--glow', '1');
-      });
-    };
-    const leave = () => hero.style.setProperty('--glow', '0');
-    hero.addEventListener('pointermove', move);
-    hero.addEventListener('pointerleave', leave);
-    return () => {
-      cancelAnimationFrame(raf);
-      hero.removeEventListener('pointermove', move);
-      hero.removeEventListener('pointerleave', leave);
-    };
-  }, []);
   if (variant === 'path') return <PathFinder />;
   if (variant === 'calc') return <GrowthEstimator />;
   return <HeroMarketCard />;

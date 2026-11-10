@@ -97,9 +97,7 @@
 .hero-v2::after{width:440px;height:440px;filter:blur(70px);animation:hxOrbB 27s ease-in-out infinite alternate}
 @keyframes hxOrbA{from{transform:translate(0,0)}to{transform:translate(-180px,140px)}}
 @keyframes hxOrbB{from{transform:translate(0,0)}to{transform:translate(220px,-110px)}}
-/* 3. a soft light follows the pointer (--mx/--my set by HeroPanel) */
-.hero-v2 .hero-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,70%) var(--my,40%),color-mix(in srgb, var(--g3) 13%, transparent),transparent 70%);opacity:var(--glow,0);transition:opacity .6s}
-/* 4. two faint market lines drift along the bottom (reuses the empty .hero-grid layer) */
+/* 3. two faint market lines drift along the bottom (reuses the empty .hero-grid layer) */
 .hero-v2 .hero-grid{display:block;position:absolute;left:0;right:0;bottom:0;height:260px;z-index:0;overflow:hidden;pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
 .hero-v2 .hero-grid::before,.hero-v2 .hero-grid::after{content:'';position:absolute;left:0;bottom:0;width:calc(100% + 1200px);height:100%;
@@ -115,11 +113,18 @@ body.light .hero-v2 .hero-photo{opacity:.07}
 @media(max-width:900px){.hero-v2 .hero-grid{height:180px}}
 @media(prefers-reduced-motion:reduce){
   .hero-v2 .hero-photo,.hero-v2::before,.hero-v2::after,.hero-v2 .hero-grid::before,.hero-v2 .hero-grid::after{animation:none}
-  .hero-v2 .hero-bg::after{display:none}
 }
 
-/* light theme: the card stays a dark "screen" like the market card. luxury.css mixes in
-   --nv, which is ivory in light mode, so the lower half went grey and its light text
-   (labels, disclaimer, button) became unreadable. */
-body.light .pcard.hx{background:linear-gradient(160deg,#0C2240 0%,#081828 55%,#05101E 100%)!important}
+/* light theme: same look as the market card had in light mode: the slate glass
+   gradient from luxury.css on top, and a dark slate band along the bottom (the colour of
+   its KSE-30 / KMI-30 / ALLSHR cells) holding the sliders and footnote. The band sits where
+   the gradient gets light, so the light text there stays readable. */
+body.light .hx{--mt:color-mix(in srgb, var(--tx) 70%, transparent)}
+body.light .hx-sliders{margin:16px -22px 0;padding:16px 22px 14px;background:color-mix(in srgb, #05101E 78%, transparent)}
+body.light .hx-calc-foot{margin:0 -22px -18px;padding:14px 22px 18px;background:color-mix(in srgb, #05101E 78%, transparent);border-top-color:rgba(255,255,255,.08)}
 body.light .hx .hx-btn-o{color:#F6F2EA}
+body.light .hx-grid{stroke:rgba(255,255,255,.12)}
+@media(max-width:900px){
+  body.light .hx-sliders{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}
+  body.light .hx-calc-foot{margin:0 -16px -16px;padding:14px 16px 16px}
+}
