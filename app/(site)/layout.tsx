@@ -14,11 +14,13 @@ import '@/styles/luxury.css';
 import '@/styles/immersive.css';
 import '@/styles/light-theme.css';
 import '@/styles/responsive.css';
+import '@/styles/nav-responsive.css';
 import '@/styles/blog.css';
 import '@/styles/forms-dynamic.css';
 import '@/styles/ui-states.css';
 import '@/styles/toast.css';
 import '@/styles/service-visuals.css';
+import '@/styles/hero-interactive.css';
 
 import ContentHead from '@/components/content/ContentHead';
 import ContentOverrides from '@/components/content/ContentOverrides';

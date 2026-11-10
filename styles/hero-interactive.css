@@ -1,0 +1,119 @@
+/* PROTOTYPE (branch hero-proposals): interactive hero card + hero copy fixes.
+   .hero-v2 is only set when a ?hero= variant is being previewed. */
+
+/* ── hero copy fixes ── */
+.hero-v2 .hero-urdu{text-align:left;font-size:15px;margin-bottom:4px}
+.hero-v2 .hero-p{font-size:15px;max-width:500px;color:color-mix(in srgb, var(--tx) 72%, transparent);font-weight:400}
+.hero-v2 .trust-row{gap:8px;margin-top:26px;max-width:520px}
+.hero-v2 .tsep{display:none}
+.hero-v2 .tc{font-size:11.5px;font-weight:500;color:color-mix(in srgb, var(--tx) 74%, transparent);padding:5px 11px;border-radius:100px;border:1px solid color-mix(in srgb, var(--tx) 13%, transparent);background:color-mix(in srgb, var(--tx) 4%, transparent)}
+
+/* ── shared card chrome ── */
+.hx{max-width:620px;margin-left:auto}
+.hx-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.07);background:color-mix(in srgb, var(--g) 9%, transparent)}
+.hx-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--au)}
+.hx-topnote{font-size:11.5px;color:var(--mt)}
+.hx-btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-body,'Plus Jakarta Sans',sans-serif);font-size:12.5px;font-weight:700;letter-spacing:.02em;border-radius:8px;padding:10px 16px;border:1px solid transparent;transition:transform .2s,box-shadow .2s,border-color .2s,color .2s;white-space:nowrap}
+.hx-btn-g{background:linear-gradient(135deg,var(--g),var(--g3));color:#fff;box-shadow:0 6px 20px -6px color-mix(in srgb, var(--g3) 60%, transparent)}
+.hx-btn-g:hover{transform:translateY(-1px)}
+.hx-btn-o{background:transparent;color:var(--tx);border-color:color-mix(in srgb, var(--tx) 22%, transparent)}
+.hx-btn-o:hover{border-color:var(--au);color:var(--au)}
+.hx button:focus-visible,.hx input:focus-visible{outline:2px solid var(--au2);outline-offset:2px}
+
+/* ── Option A: path finder ── */
+.hx-path{display:grid;grid-template-columns:212px 1fr;min-height:318px}
+.hx-tabs{display:flex;flex-direction:column;padding:10px;gap:4px;border-right:1px solid rgba(255,255,255,.06)}
+.hx-tab{position:relative;overflow:hidden;display:flex;align-items:center;gap:11px;text-align:left;padding:11px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--mt);font-family:var(--font-body,'Plus Jakarta Sans',sans-serif);transition:background .2s,color .2s,border-color .2s}
+.hx-tab:hover{background:rgba(255,255,255,.04);color:var(--tx)}
+.hx-tab.on{background:color-mix(in srgb, var(--g3) 12%, transparent);border-color:color-mix(in srgb, var(--g3) 34%, transparent);color:var(--tx)}
+.hx-tab-ic{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.05);color:var(--mt);transition:background .2s,color .2s}
+.hx-tab.on .hx-tab-ic{background:color-mix(in srgb, var(--g3) 22%, transparent);color:var(--g3)}
+.hx-tab-l{display:block;font-size:13px;font-weight:600;line-height:1.25}
+.hx-tab-s{display:block;font-size:11px;color:var(--mt);margin-top:2px}
+.hx-prog{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--g3);transform-origin:left;animation:hxProg linear forwards}
+@keyframes hxProg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hx-panel{padding:24px 26px 22px;display:flex;flex-direction:column;animation:hxIn .38s cubic-bezier(.22,.61,.36,1)}
+@keyframes hxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hx-h{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:27px;font-weight:700;line-height:1.12;letter-spacing:-.005em;text-wrap:balance}
+.hx-p{font-size:13.5px;line-height:1.6;color:color-mix(in srgb, var(--tx) 70%, transparent);margin-top:9px}
+.hx-pts{list-style:none;margin:16px 0 20px;display:grid;gap:10px}
+.hx-pts li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.45}
+.hx-pts svg{flex:none;margin-top:2px;color:var(--g3)}
+.hx-acts{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto}
+.hx-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;padding:11px 20px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:var(--mt)}
+
+/* ── Option B: growth estimator ── */
+.hx-calc{padding:20px 22px 18px}
+.hx-res{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hx-res-l{font-size:11.5px;color:var(--mt)}
+.hx-res-v{font-family:var(--font-display,'Cormorant Garamond',serif);font-size:40px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums lining-nums;color:var(--tx);margin-top:2px}
+.hx-legend{display:flex;gap:20px;font-size:11.5px}
+.hx-legend dt{display:flex;align-items:center;gap:6px;color:var(--mt)}
+.hx-legend dd{font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:1px}
+.hx-legend i{width:9px;height:9px;border-radius:2px}
+.k-inv{background:var(--au)}.k-gro{background:var(--g3)}
+.hx-chart{display:block;width:100%;height:150px;margin-top:14px;cursor:crosshair;touch-action:pan-y}
+.hx-grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+.hx-val-l{fill:none;stroke:var(--g3);stroke-width:2.2}
+.hx-inv-l{fill:none;stroke:var(--au);stroke-width:1.6;stroke-dasharray:4 4}
+.hx-inv-a{fill:color-mix(in srgb, var(--au) 13%, transparent)}
+.hx-scrub{stroke:color-mix(in srgb, var(--tx) 55%, transparent);stroke-width:1}
+.hx-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mt);padding:4px 2px 0}
+.hx-sliders{display:grid;gap:13px;margin-top:16px}
+.hx-sl{display:block}
+.hx-sl-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:color-mix(in srgb, var(--tx) 72%, transparent)}
+.hx-sl output{font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums}
+.hx-sl input{-webkit-appearance:none;appearance:none;display:block;width:100%;height:22px;margin-top:2px;background:transparent;cursor:pointer}
+.hx-sl input::-webkit-slider-runnable-track{height:5px;border-radius:5px;background:linear-gradient(90deg,var(--g3) var(--pct),rgba(255,255,255,.12) var(--pct))}
+.hx-sl input::-moz-range-track{height:5px;border-radius:5px;background:linear-gradient(90deg,var(--g3) var(--pct),rgba(255,255,255,.12) var(--pct))}
+.hx-sl input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-6.5px;border-radius:50%;background:#F6F2EA;border:3px solid var(--g3);box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform .15s}
+.hx-sl input::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#F6F2EA;border:3px solid var(--g3);box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.hx-sl input:hover::-webkit-slider-thumb{transform:scale(1.12)}
+.hx-calc-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)}
+.hx-calc-foot p{font-size:11px;line-height:1.5;color:var(--mt);max-width:340px}
+
+@media(max-width:900px){
+  .hx{max-width:100%}
+  .hx-path{grid-template-columns:1fr;min-height:0}
+  .hx-tabs{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);scrollbar-width:none}
+  .hx-tab{flex:none;padding:9px 12px}
+  .hx-tab-s,.hx-topnote{display:none}
+  .hx-tab-ic{width:28px;height:28px}
+  .hx-panel{padding:20px 18px}
+  .hx-h{font-size:24px}
+  .hx-res-v{font-size:33px}
+  .hx-calc{padding:18px 16px 16px}
+  .hx-calc-foot{flex-direction:column;align-items:flex-start}
+  .hx-foot{justify-content:flex-start}
+}
+@media(prefers-reduced-motion:reduce){.hx-panel{animation:none}.hx-prog{display:none}}
+
+/* ── background motion (all slow; off under prefers-reduced-motion) ── */
+/* 1. the photo breathes: `scale` composes with the scroll-parallax transform set in page-effects.ts */
+.hero-v2 .hero-photo{opacity:.4;animation:hxZoom 26s ease-in-out infinite alternate;will-change:scale}
+@keyframes hxZoom{from{scale:1}to{scale:1.1}}
+/* 2. the two glow orbs travel further and glow a little more */
+.hero-v2::before{width:520px;height:520px;filter:blur(70px);animation:hxOrbA 22s ease-in-out infinite alternate}
+.hero-v2::after{width:440px;height:440px;filter:blur(70px);animation:hxOrbB 27s ease-in-out infinite alternate}
+@keyframes hxOrbA{from{transform:translate(0,0)}to{transform:translate(-180px,140px)}}
+@keyframes hxOrbB{from{transform:translate(0,0)}to{transform:translate(220px,-110px)}}
+/* 3. a soft light follows the pointer (--mx/--my set by HeroPanel) */
+.hero-v2 .hero-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,70%) var(--my,40%),color-mix(in srgb, var(--g3) 13%, transparent),transparent 70%);opacity:var(--glow,0);transition:opacity .6s}
+/* 4. two faint market lines drift along the bottom (reuses the empty .hero-grid layer) */
+.hero-v2 .hero-grid{display:block;position:absolute;left:0;right:0;bottom:0;height:260px;z-index:0;overflow:hidden;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+.hero-v2 .hero-grid::before,.hero-v2 .hero-grid::after{content:'';position:absolute;left:0;bottom:0;width:calc(100% + 1200px);height:100%;
+  -webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;-webkit-mask-size:1200px 100%;mask-size:1200px 100%;animation:hxDrift linear infinite;will-change:transform}
+.hero-v2 .hero-grid::before{background:var(--g3);opacity:.5;animation-duration:70s;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 260' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-opacity='.22'/%3E%3Cstop offset='1' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,150 60,128 110,140 170,96 230,120 290,74 350,110 420,86 480,132 540,106 610,158 680,124 740,170 810,138 880,182 950,146 1020,164 1090,128 1150,156 1200,150V260H0Z' fill='url(%23a)'/%3E%3Cpath d='M0,150 60,128 110,140 170,96 230,120 290,74 350,110 420,86 480,132 540,106 610,158 680,124 740,170 810,138 880,182 950,146 1020,164 1090,128 1150,156 1200,150' fill='none' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 260' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-opacity='.22'/%3E%3Cstop offset='1' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,150 60,128 110,140 170,96 230,120 290,74 350,110 420,86 480,132 540,106 610,158 680,124 740,170 810,138 880,182 950,146 1020,164 1090,128 1150,156 1200,150V260H0Z' fill='url(%23a)'/%3E%3Cpath d='M0,150 60,128 110,140 170,96 230,120 290,74 350,110 420,86 480,132 540,106 610,158 680,124 740,170 810,138 880,182 950,146 1020,164 1090,128 1150,156 1200,150' fill='none' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.hero-v2 .hero-grid::after{background:var(--au);opacity:.3;animation-duration:110s;animation-direction:reverse;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 260' preserveAspectRatio='none'%3E%3Cpath d='M0,200 80,186 150,206 240,170 310,190 400,160 470,196 560,176 640,214 730,188 800,222 900,194 980,210 1070,180 1140,204 1200,200' fill='none' stroke='%23000' stroke-width='1.3' stroke-linejoin='round' stroke-dasharray='5 6'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 260' preserveAspectRatio='none'%3E%3Cpath d='M0,200 80,186 150,206 240,170 310,190 400,160 470,196 560,176 640,214 730,188 800,222 900,194 980,210 1070,180 1140,204 1200,200' fill='none' stroke='%23000' stroke-width='1.3' stroke-linejoin='round' stroke-dasharray='5 6'/%3E%3C/svg%3E")}
+@keyframes hxDrift{from{transform:translateX(0)}to{transform:translateX(-1200px)}}
+body.light .hero-v2 .hero-photo{opacity:.07}
+@media(max-width:900px){.hero-v2 .hero-grid{height:180px}}
+@media(prefers-reduced-motion:reduce){
+  .hero-v2 .hero-photo,.hero-v2::before,.hero-v2::after,.hero-v2 .hero-grid::before,.hero-v2 .hero-grid::after{animation:none}
+  .hero-v2 .hero-bg::after{display:none}
+}

@@ -1,6 +1,6 @@
 import GoTo from '@/components/nav/GoTo';
 import OpenAccount from '@/components/actions/OpenAccount';
-import HeroMarketCard from '@/components/market/HeroMarketCard';
+import HeroPanel from '@/components/home/HeroPanel';
 
 /** Home hero: headline, calls to action, trust row and the live market card. */
 export default function Hero() {
@@ -71,7 +71,7 @@ export default function Hero() {
         </div>
       </div>
       <div className="hero-r">
-        <HeroMarketCard />
+        <HeroPanel />
       </div>
     </section>
   );

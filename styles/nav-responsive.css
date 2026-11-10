@@ -1,0 +1,103 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Header at every width. Loaded after responsive.css, so these rules win.
+
+   The header holds eight menu items plus the status badge, theme toggle and two
+   buttons. Below about 1440px they didn't fit, so labels wrapped onto two lines
+   and the bar grew to 120px+ (covering the price strip). Now nothing wraps, and
+   the bar gives things up in steps as it narrows:
+     > 1480  everything
+     ≤ 1480  tighter side padding and gaps
+     ≤ 1380  smaller menu text, tagline under the name hidden
+     ≤ 1200  "PSX Closed" badge hidden
+     ≤ 1180  menu collapses into the ☰ drawer (buttons stay in the bar)
+     ≤ 900   "Log In" moves into the drawer
+     ≤ 560   "Open Account" moves into the drawer
+   --nav-h keeps the bar, the price strip under it, the drawer and the page
+   offset in step, so there are no gaps or overlaps at any size.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root{--nav-h:72px;--strip-h:30px}
+
+.nav-inner{height:var(--nav-h);padding-top:0;padding-bottom:0;gap:24px}
+.nav .logo{flex:none}
+.nav .lt-main,.nav .lt-sub,.nav-links a,.nav-right>*{white-space:nowrap}
+.nav-links{flex:none;align-items:center}
+.nav-right{flex:none}
+.nav-right .btn{line-height:1.2}
+
+/* the dropdown caret: luxury.css turns a::after into the hover underline, which
+   was also carrying the "▾" — so it showed as a stray dot under the label */
+.nav-links .ddt{padding-right:12px}
+.nav-links .ddt::after{content:''}
+.nav-links .ddt::before{content:'';position:absolute;right:1px;top:50%;width:4px;height:4px;border-right:1.3px solid currentColor;border-bottom:1.3px solid currentColor;transform:translateY(-75%) rotate(45deg);opacity:.65;transition:transform .2s}
+.nav-links>li:hover .ddt::before{transform:translateY(-25%) rotate(225deg)}
+
+/* keep the price strip, the drawer and page content tucked right under the bar */
+.ticker{top:var(--nav-h)}
+.mnav{top:var(--nav-h)}
+.page{padding-top:calc(var(--nav-h) + var(--strip-h))}
+.hero{min-height:calc(100svh - var(--nav-h) - var(--strip-h))}
+
+@media(max-width:1480px){
+  .nav-inner{padding-left:32px;padding-right:32px;gap:20px}
+  .nav-links{gap:18px}
+}
+@media(max-width:1380px){
+  .nav-inner{padding-left:24px;padding-right:24px;gap:16px}
+  .nav-links{gap:15px}
+  .nav-links a{font-size:10.5px;letter-spacing:.05em}
+  .nav .lt-sub{display:none}
+  .nav .lt-main{font-size:18px}
+  .nav-right{gap:8px}
+  .nav-right .btn{padding:8px 14px}
+}
+@media(max-width:1200px){
+  .live-badge{display:none}
+}
+/* tablet / small laptop: drawer menu, roomy bar */
+@media(max-width:1180px){
+  .nav-links{display:none}
+  .ham{display:flex}
+  .live-badge{display:flex}
+  .nav .lt-sub{display:block}
+  .nav-inner{padding-left:24px;padding-right:24px}
+}
+@media(max-width:900px){
+  :root{--nav-h:62px}
+  .nav-inner{padding-left:16px;padding-right:16px;gap:10px}
+  .nav .logo{flex:0 1 auto;min-width:0}
+  .nav .logo>div:last-child{min-width:0}
+  .nav .lt-main,.nav .lt-sub{overflow:hidden;text-overflow:ellipsis}
+  .live-badge,.nav-right .btn-ghost{display:none}
+}
+@media(max-width:560px){
+  :root{--nav-h:60px}
+  .nav-inner{padding-left:14px;padding-right:14px}
+  .nav .lt-sub,.nav-right .btn-primary{display:none}
+}
+@media(max-width:360px){
+  .nav-inner{padding-left:12px;padding-right:12px;gap:8px}
+  .nav .lt-main{font-size:15px}
+  .nav .logo{gap:8px}
+  .lm-img{width:34px;height:34px}
+  .theme-toggle,.ham{width:36px;height:36px}
+}
+
+/* account-opening sidebar sticks under the bar too */
+.ao-wrap{min-height:calc(100svh - var(--nav-h) - var(--strip-h))}
+.ao-side{top:calc(var(--nav-h) + var(--strip-h));height:calc(100svh - var(--nav-h) - var(--strip-h))}
+
+/* ── page content: two/three-column layouts written as inline styles never
+   collapsed, so on phones the second column was squeezed off the screen
+   (About, Mission, Governance, Financial, Awareness, support forms, account form). ── */
+@media(max-width:900px){
+  /* React writes these without a space after the colon; match both spellings */
+  .page [style*="grid-template-columns:1fr 1fr 1fr"],.page [style*="grid-template-columns: 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:760px){
+  .page [style*="grid-template-columns:1fr 1fr"],.page [style*="grid-template-columns: 1fr 1fr"],
+  .page [style*="grid-template-columns:1.4fr 1fr"],.page [style*="grid-template-columns: 1.4fr 1fr"],
+  .page [style*="grid-template-columns:repeat(2"],.page [style*="grid-template-columns: repeat(2"]{grid-template-columns:1fr!important}
+}
+
+/* the drawer only exists while the ☰ button does (opened on a tablet, then widened) */
+@media(min-width:1181px){.mnav{display:none!important}}
