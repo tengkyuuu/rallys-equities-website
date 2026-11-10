@@ -6,7 +6,7 @@
  * Nothing here uses market data: the path finder states facts about the firm, and the
  * estimator only does arithmetic on numbers the visitor chooses.
  */
-import { useEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from 'react';
 import GoTo from '@/components/nav/GoTo';
 import OpenAccount from '@/components/actions/OpenAccount';
 import HeroMarketCard from '@/components/market/HeroMarketCard';
@@ -14,12 +14,18 @@ import type { PageId } from '@/lib/site';
 
 type Variant = 'market' | 'path' | 'calc';
 
+// Read on the client only; the server (and first hydration pass) always renders the market card.
+const noSubscribe = () => () => {};
+function readVariant(): Variant {
+  const v = new URLSearchParams(location.search).get('hero');
+  return v === 'path' || v === 'calc' ? v : 'market';
+}
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export default function HeroPanel() {
-  const [variant, setVariant] = useState<Variant>('market');
+  const variant = useSyncExternalStore(noSubscribe, readVariant, () => 'market' as Variant);
   useEffect(() => {
-    const v = new URLSearchParams(location.search).get('hero');
-    if (v !== 'path' && v !== 'calc') return;
-    setVariant(v);
+    if (variant === 'market') return;
     const hero = document.querySelector<HTMLElement>('.hero');
     if (!hero) return;
     hero.classList.add('hero-v2');
@@ -44,7 +50,7 @@ export default function HeroPanel() {
       hero.removeEventListener('pointerleave', leave);
       hero.classList.remove('hero-v2');
     };
-  }, []);
+  }, [variant]);
   if (variant === 'path') return <PathFinder />;
   if (variant === 'calc') return <GrowthEstimator />;
   return <HeroMarketCard />;
@@ -120,12 +126,11 @@ const ROTATE_MS = 6000;
 
 function PathFinder() {
   const [active, setActive] = useState(0);
-  const [auto, setAuto] = useState(true); // rotates until the visitor takes over
+  const [picked, setPicked] = useState(false); // rotates until the visitor takes over
   const [paused, setPaused] = useState(false);
+  const reduce = useSyncExternalStore(noSubscribe, prefersReducedMotion, () => true);
+  const auto = !picked && !reduce;
 
-  useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) setAuto(false);
-  }, []);
   useEffect(() => {
     if (!auto || paused) return;
     const t = setTimeout(() => setActive((i) => (i + 1) % PATHS.length), ROTATE_MS);
@@ -133,7 +138,7 @@ function PathFinder() {
   }, [auto, paused, active]);
 
   const pick = (i: number) => {
-    setAuto(false);
+    setPicked(true);
     setActive(i);
   };
   const p = PATHS[active];
