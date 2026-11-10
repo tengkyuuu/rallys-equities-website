@@ -26,6 +26,18 @@ const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)'
 
 export default function HeroPanel() {
   const variant = useSyncExternalStore(noSubscribe, readVariant, () => 'calc' as Variant);
+  // While the card is on screen, the fixed "Need Help? Chat with us" pill (bottom-right of the
+  // window) folds down to just its round button, so it can't sit on top of the card's footer.
+  useEffect(() => {
+    const card = document.querySelector('.hero-r');
+    if (!card) return;
+    const io = new IntersectionObserver(([e]) => document.body.classList.toggle('hero-card-in-view', e.isIntersecting));
+    io.observe(card);
+    return () => {
+      io.disconnect();
+      document.body.classList.remove('hero-card-in-view');
+    };
+  }, []);
   if (variant === 'path') return <PathFinder />;
   if (variant === 'calc') return <GrowthEstimator />;
   return <HeroMarketCard />;

@@ -24,6 +24,28 @@ test('home hero shows the growth estimator, and the sliders recalculate it', asy
   await expect(page.locator('#k100')).toHaveCount(0);
 });
 
+test('"Full calculator" is not hidden under the WhatsApp pill, and opens the calculator', async ({ page }) => {
+  // 1440×780 is a common laptop window; the fixed WhatsApp pill used to sit right on the button
+  await page.setViewportSize({ width: 1440, height: 780 });
+  await page.goto('/');
+  await page.waitForFunction(() => document.getElementById('preloader')?.classList.contains('done'));
+  const btn = page.locator('.hx-calc-foot button');
+  await btn.scrollIntoViewIfNeeded();
+  const covered = await btn.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return [0.1, 0.5, 0.9].some((fx) => {
+      const hit = document.elementFromPoint(r.x + r.width * fx, r.y + r.height / 2);
+      return !(hit === el || el.contains(hit));
+    });
+  });
+  expect(covered).toBe(false);
+  // the "Need Help? Chat with us" pill folds away while the card is on screen
+  await expect(page.locator('.wa-label')).toHaveCSS('opacity', '0');
+  await btn.click();
+  await expect(page).toHaveURL(/\/tools\/investment-calculator$/);
+  await expect(page.locator('.page.active h1')).toContainText('Investment Calculator');
+});
+
 test('the estimator fits a phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
