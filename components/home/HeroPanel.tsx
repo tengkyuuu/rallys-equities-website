@@ -1,9 +1,11 @@
 'use client';
 
 /**
- * PROTOTYPE (branch hero-proposals) — interactive replacements for the hero's market card.
- * Preview with /?hero=path or /?hero=calc; without the parameter the current market card shows.
- * Nothing here uses market data: the path finder states facts about the firm, and the
+ * The right-hand card of the home hero. Every visitor gets the growth estimator (the client
+ * chose it in Nov 2026). Two alternatives stay reachable for review:
+ *   /?hero=market  the KSE-100 market card (real PSX data or "unavailable"; tests use it)
+ *   /?hero=path    the "Start here" path finder
+ * Nothing here invents market data: the path finder states facts about the firm, and the
  * estimator only does arithmetic on numbers the visitor chooses.
  */
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from 'react';
@@ -14,21 +16,19 @@ import type { PageId } from '@/lib/site';
 
 type Variant = 'market' | 'path' | 'calc';
 
-// Read on the client only; the server (and first hydration pass) always renders the market card.
+// The ?hero= override is read on the client only; the server renders the default (estimator).
 const noSubscribe = () => () => {};
 function readVariant(): Variant {
   const v = new URLSearchParams(location.search).get('hero');
-  return v === 'path' || v === 'calc' ? v : 'market';
+  return v === 'path' || v === 'market' ? v : 'calc';
 }
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function HeroPanel() {
-  const variant = useSyncExternalStore(noSubscribe, readVariant, () => 'market' as Variant);
+  const variant = useSyncExternalStore(noSubscribe, readVariant, () => 'calc' as Variant);
   useEffect(() => {
-    if (variant === 'market') return;
     const hero = document.querySelector<HTMLElement>('.hero');
     if (!hero) return;
-    hero.classList.add('hero-v2');
     // soft light that follows the pointer (mouse only; CSS reads --mx/--my/--glow)
     let raf = 0;
     const move = (e: globalThis.PointerEvent) => {
@@ -48,9 +48,8 @@ export default function HeroPanel() {
       cancelAnimationFrame(raf);
       hero.removeEventListener('pointermove', move);
       hero.removeEventListener('pointerleave', leave);
-      hero.classList.remove('hero-v2');
     };
-  }, [variant]);
+  }, []);
   if (variant === 'path') return <PathFinder />;
   if (variant === 'calc') return <GrowthEstimator />;
   return <HeroMarketCard />;

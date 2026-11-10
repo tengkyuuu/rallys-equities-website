@@ -1,5 +1,5 @@
-/* PROTOTYPE (branch hero-proposals): interactive hero card + hero copy fixes.
-   .hero-v2 is only set when a ?hero= variant is being previewed. */
+/* Home hero: interactive card (HeroPanel), copy fixes and background motion.
+   .hero-v2 is set on the home hero in components/home/Hero.tsx. */
 
 /* ── hero copy fixes ── */
 .hero-v2 .hero-urdu{text-align:left;font-size:15px;margin-bottom:4px}
@@ -117,3 +117,9 @@ body.light .hero-v2 .hero-photo{opacity:.07}
   .hero-v2 .hero-photo,.hero-v2::before,.hero-v2::after,.hero-v2 .hero-grid::before,.hero-v2 .hero-grid::after{animation:none}
   .hero-v2 .hero-bg::after{display:none}
 }
+
+/* light theme: the card stays a dark "screen" like the market card. luxury.css mixes in
+   --nv, which is ivory in light mode, so the lower half went grey and its light text
+   (labels, disclaimer, button) became unreadable. */
+body.light .pcard.hx{background:linear-gradient(160deg,#0C2240 0%,#081828 55%,#05101E 100%)!important}
+body.light .hx .hx-btn-o{color:#F6F2EA}

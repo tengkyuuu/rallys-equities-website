@@ -29,7 +29,8 @@ const LIVE = {
 
 const down = (r: Route) => r.fulfill({ status: 502, contentType: 'application/json', body: '{"error":"KSE100 unavailable upstream"}' });
 const live = (r: Route) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(LIVE) });
-async function open(page: Page, mock: (r: Route) => unknown, path = '/') {
+// The home hero shows the growth estimator by default; the market card is at ?hero=market.
+async function open(page: Page, mock: (r: Route) => unknown, path = '/?hero=market') {
   await page.route('**/api/market', mock);
   await page.goto(path);
 }

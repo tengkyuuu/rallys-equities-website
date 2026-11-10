@@ -5,7 +5,7 @@ import HeroPanel from '@/components/home/HeroPanel';
 /** Home hero: headline, calls to action, trust row and the live market card. */
 export default function Hero() {
   return (
-    <section className="hero">
+    <section className="hero hero-v2">
       <div className="hero-bg" />
       <div className="hero-photo" />
       <div className="hero-grid" /> <canvas id="heroFx" aria-hidden="true" />{' '}
