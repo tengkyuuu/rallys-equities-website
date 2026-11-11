@@ -32,14 +32,17 @@ What it does:
 - turns on the **Activity** history in the admin.
 
 ## 4. Turn on backups (3 min)
-From this folder, in Git Bash:
-```bash
-bash scripts/setup-backups.sh
+From this folder, in PowerShell:
+```powershell
+& "C:\Program Files\Gitinash.exe" scripts/setup-backups.sh
 ```
+(In Git Bash it's just `bash scripts/setup-backups.sh`.) When it asks for the connection string:
+Supabase → **Connect** → **Direct** tile → Method **Session pooler**.
 It asks for one thing (the database connection string), creates and shows the backup
 passphrase, saves the four GitHub secrets, and runs the first backup.
 - [ ] Passphrase saved in a password manager **and** offline
-- [ ] The script ended with "✓ Backups are set up"
+- [x] Secrets set and the first backup finished green (11 Nov, 56.4 MB)
+- [ ] Opened that backup once with the saved passphrase (proves the passphrase works)
 
 ## 5. Keep monitor emails on
 The **Live site monitor** action checks the site every 15 minutes and fails when something

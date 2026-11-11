@@ -30,8 +30,9 @@ SB_KEY=$(val SUPABASE_SERVICE_ROLE_KEY)
 REF=$(printf '%s' "$SB_URL" | sed -E 's#https://([^.]+)\..*#\1#')
 
 say "Step 1 of 2 — database connection string"
-echo "Open https://supabase.com/dashboard/project/$REF → Connect (top bar) → 'Session pooler',"
-echo "copy the URI, and put your database password where it says [YOUR-PASSWORD]."
+echo "Open https://supabase.com/dashboard/project/$REF → Connect (top bar) → the 'Direct' tile →"
+echo "Method: 'Session pooler' (NOT 'Direct connection'). Copy the URI — its host ends in pooler.supabase.com —"
+echo "and put your database password where it says [YOUR-PASSWORD]."
 echo "(If the password has symbols like @ # / ? %, reset it to letters and numbers only, or URL-encode them.)"
 printf 'Paste it here (it stays hidden): '
 read -rs DB_URL
