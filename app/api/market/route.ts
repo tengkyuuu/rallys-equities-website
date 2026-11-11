@@ -78,7 +78,13 @@ async function symbolsMeta() {
 
 const CACHE = { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' };
 
+/* Off unless the client has PSX's permission (or a licensed feed is wired in): until then
+   we don't send PSX any requests at all, and the widgets show "prices unavailable".
+   Set PSX_MARKET_DATA=enabled in Vercel to switch the PSX source back on. */
+const PSX_ENABLED = process.env.PSX_MARKET_DATA === 'enabled';
+
 export async function GET() {
+  if (!PSX_ENABLED) return NextResponse.json({ error: 'Market data is not available yet' }, { status: 502, headers: CACHE });
   try {
     const [raw, intr, stocks, secMap] = await Promise.all([
       Promise.all(SYMBOLS.map(async (sym) => [sym, await psx('eod/' + sym).catch(() => null)] as const)),

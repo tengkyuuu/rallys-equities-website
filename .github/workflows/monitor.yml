@@ -1,0 +1,35 @@
+name: Live site monitor
+
+# Every 15 minutes: check the live site and database (scripts/monitor.mjs).
+# A failed run makes GitHub email the person who last changed this schedule, so keep
+# GitHub's "Actions" notifications on for failed workflows.
+# Note: GitHub pauses scheduled workflows in public repos after 60 days without commits;
+# it emails a warning first — re-enable it from the Actions tab if that happens.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/monitor.mjs
+            lib/supabase-config.ts
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the live site
+        run: node scripts/monitor.mjs
