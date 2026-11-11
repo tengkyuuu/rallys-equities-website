@@ -49,6 +49,29 @@ test('inbox empty and zero-search states provide recovery actions', async ({ pag
   await expect(page.locator('.re-sub-list')).toContainText('Ayesha Khan');
 });
 
+test('a failed content load never shows "0 posts" and blocks saving over the real posts', async ({ page }) => {
+  let fail = true;
+  let writes = 0;
+  await page.route('**/rest/v1/site_content?*', (route) => {
+    const m = route.request().method();
+    if (m === 'POST' || m === 'PATCH') writes++;
+    if (fail && m === 'GET' && route.request().url().includes('scope=eq.draft'))
+      return route.fulfill({ status: 500, json: { message: 'canceling statement due to statement timeout' } });
+    return route.fallback();
+  });
+  await page.goto('/admin');
+  await login(page);
+  await page.locator('[data-nav="blog"]').click();
+  const list = page.locator('.re-sub-list');
+  await expect(list).toContainText('Could not load your posts', { timeout: 15_000 });
+  await expect(list).not.toContainText('No posts yet');
+  expect(writes).toBe(0);
+  fail = false;
+  await list.getByRole('button', { name: 'Try again' }).click();
+  await expect(list).not.toContainText('Could not load your posts', { timeout: 15_000 });
+  await expect(list).not.toContainText('Loading your posts');
+});
+
 test('expired editor session keeps an unsaved blog composition for the same account', async ({ page }) => {
   await page.goto('/admin');
   await login(page);

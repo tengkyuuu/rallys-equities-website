@@ -239,6 +239,7 @@ function pwWrap(inp){
 const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{},fonts:{},hidden:{},order:{},pricing:{},posts:[]});
 let WORK=blank();          // full working overrides (loaded from draft)
 let LIVE=blank();          // last known *published* snapshot — what visitors see right now
+let DRAFT_STATE='loading', DRAFT_ERR='';   // 'loading' | 'ready' | 'error' — WORK is only trustworthy when 'ready'
 /* Seed it from the cache the site itself keeps, so post statuses are right on the
    first paint; the fetch in onAuthed() then confirms it. */
 try{ const c=localStorage.getItem('re-content'); if(c)LIVE=normalize(JSON.parse(c)); }catch(e){}
@@ -318,14 +319,28 @@ function supabaseStore(){
     const kept=preserveEditorDraft();
     setTimeout(()=>{
       if(dashEl){dashEl.remove();dashEl=null;} subsData=[]; subsLoadedOnce=false;
-      WORK=blank(); capturePostDraft=null; dirty.clear();
+      WORK=blank(); DRAFT_STATE='loading'; capturePostDraft=null; dirty.clear();
       API.setOverrides(LIVE);
       if(!document.querySelector('.re-login'))showLogin();
       const note=document.querySelector('.re-login .re-err');
       if(note)note.textContent=kept?'Your session expired. Your draft is kept in this tab. Sign in with the same account to restore it.':'Your session expired. Sign in again. Keep this tab open to avoid losing your work.';
     },0);
   });
-  const rowData=async scope=>{const{data}=await sb.from('site_content').select('data').eq('scope',scope).maybeSingle();return (data&&data.data)||blank();};
+  /* A failed read must never look like an empty site: the editor would show "0 posts" and the
+     next Save/Publish would overwrite every post with nothing. So errors throw (after a couple
+     of retries for flaky connections); only a genuinely missing row falls back to blank. */
+  const rowData=async scope=>{
+    let last;
+    for(let attempt=0;attempt<3;attempt++){
+      if(attempt)await new Promise(r=>setTimeout(r,1500*attempt));
+      const{data,error}=await sb.from('site_content').select('data').eq('scope',scope).maybeSingle();
+      if(!error)return (data&&data.data)||blank();
+      last=error;
+    }
+    throw new Error((last&&last.message)||('Could not load the '+scope+' content'));
+  };
+  /* Writes are refused until the draft has really loaded (see DRAFT_STATE). */
+  const assertLoaded=()=>{ if(DRAFT_STATE!=='ready')throw new Error('Your website content has not finished loading, so nothing was saved (this protects your existing posts). Reload the page and try again.'); };
   return {
     mode:'supabase', _sb:sb,
     async init(){const{data}=await sb.auth.getSession();return !!(data&&data.session);},
@@ -377,8 +392,8 @@ function supabaseStore(){
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async getPublished(){return await rowData('published');},
-    async saveDraft(data){const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
-    async publish(data){const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);
+    async saveDraft(data){assertLoaded();const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
+    async publish(data){assertLoaded();const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);
       /* tell the site to drop its 60s content cache now (best effort: it expires anyway) */
       try{const{data:{session}}=await sb.auth.getSession(); if(session)fetch('/api/revalidate',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}}).catch(()=>{});}catch(e){}},
     async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
@@ -447,12 +462,23 @@ function onAuthed(){
      request stalls, the visitor would otherwise be left staring at the live site. */
   if(INVITE_FLOW)setTimeout(()=>openChangePassword(true),400); else openDashboard();
   /* Then load the saved draft in the background and refresh once it arrives. */
-  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); markSaved(); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); recoverEditorDraft(); })
-    .catch(e=>{ console.warn('[editor] could not load draft',e); });
+  loadDraft();
   /* …and the published snapshot, so every screen can say what is actually on the
      website right now vs. what is still only in the draft. */
   if(Store.getPublished)Promise.resolve(Store.getPublished()).then(d=>{ LIVE=normalize(d); softRefresh(); })
     .catch(e=>{ console.warn('[editor] could not load the published snapshot',e); });
+}
+function loadDraft(){
+  DRAFT_STATE='loading'; DRAFT_ERR=''; softRefresh();
+  Promise.resolve(Store.getDraft()).then(d=>{ WORK=normalize(d); DRAFT_STATE='ready'; markSaved(); API.setOverrides(WORK); API.refreshCalcInfo&&API.refreshCalcInfo(); softRefresh(); recoverEditorDraft(); })
+    .catch(e=>{ console.warn('[editor] could not load draft',e); DRAFT_STATE='error'; DRAFT_ERR=(e&&e.message)||'Network error'; softRefresh();
+      toast('Could not load your website content. Your posts are safe; nothing will be saved until it loads.','err'); });
+}
+/* Shown instead of "No posts yet" while the draft is loading or failed to load. */
+function draftNotReady(){
+  if(DRAFT_STATE==='loading')return emptyState('Loading your posts…','post');
+  return emptyState('Could not load your posts ('+DRAFT_ERR+'). They are safe on the website; saving is paused until they load.','alert',
+    h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>loadDraft()},'Try again'));
 }
 /* Legacy market-panel hide keys → new column keys (also hide the matching header cell) */
 const HIDDEN_MIGRATE={
@@ -583,7 +609,7 @@ function emptyState(msg,ic,cta){ return h('div',{class:'re-empty'},icon(ic||'pos
 /* Everything a view actually reads. Redrawing is cheap but *visible* — the page
    repaints — so a background fetch that changes nothing shouldn't cause one. */
 function viewSig(){
-  return JSON.stringify([dashView,dirty.size,
+  return JSON.stringify([dashView,dirty.size,DRAFT_STATE,
     (WORK.posts||[]).map(postSig),(LIVE.posts||[]).map(postSig),
     Object.keys(WORK.hidden||{}).length]);
 }
@@ -709,7 +735,8 @@ function renderOverview(){
     posts.length?h('button',{class:'re-linkbtn',onclick:()=>{ blogEditId=null; go('blog'); }},'View all'):''));
   const list=h('div',{class:'re-sub-list'});
   const recent=[...posts].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,3);
-  if(!recent.length)list.append(emptyState('No posts yet — write your first blog post.'));
+  if(DRAFT_STATE!=='ready')list.append(draftNotReady());
+  else if(!recent.length)list.append(emptyState('No posts yet — write your first blog post.'));
   else recent.forEach(p=>list.append(postRow(p)));
   dashMain.append(list);
 }
@@ -1014,6 +1041,7 @@ function renderPostList(){
     h('button',{class:'re-btn re-btn-gd re-btn-sm',onclick:()=>publishAll()},'Publish now')));
   dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},posts.length?'All posts':'Your posts')));
   const list=h('div',{class:'re-sub-list'}); dashMain.append(list);
+  if(DRAFT_STATE!=='ready'){ list.append(draftNotReady()); return; }
   if(!posts.length){ list.append(emptyState('No posts yet — write your first blog post.','post',
     h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ blogEditId='new'; renderMain(); }},'Write a new post'))); return; }
   posts.forEach((p,i)=>list.append(postRow(p,states[i])));
