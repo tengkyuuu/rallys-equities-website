@@ -34,7 +34,7 @@ What it does:
 ## 4. Turn on backups (3 min)
 From this folder, in PowerShell:
 ```powershell
-& "C:\Program Files\Gitinash.exe" scripts/setup-backups.sh
+& "C:\Program Files\Git\bin\bash.exe" scripts/setup-backups.sh
 ```
 (In Git Bash it's just `bash scripts/setup-backups.sh`.) When it asks for the connection string:
 Supabase → **Connect** → **Direct** tile → Method **Session pooler**.
