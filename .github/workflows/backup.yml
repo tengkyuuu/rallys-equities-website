@@ -1,0 +1,112 @@
+name: Nightly backup
+
+# Backs up the Supabase database every night and the Storage files every Sunday, because
+# the Free plan has no automatic backups. See docs/backups.md for setup and restore.
+#
+# The repository is PUBLIC, so every backup is encrypted (GPG, AES-256) with
+# BACKUP_PASSPHRASE before it is stored as a workflow artifact. Without the passphrase the
+# files are useless. Keep the passphrase somewhere safe outside GitHub as well — without it
+# the backups can't be restored either.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL            Postgres connection string (Supabase → Connect → Session pooler)
+#   SUPABASE_URL               https://<project>.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY  service_role key (for the Storage files)
+#   BACKUP_PASSPHRASE          long random passphrase used to encrypt the backups
+on:
+  schedule:
+    - cron: '30 19 * * *' # 19:30 UTC = 00:30 in Pakistan
+  workflow_dispatch:
+    inputs:
+      files:
+        description: 'Also back up the Storage files'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          missing=""
+          for v in SUPABASE_DB_URL SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY BACKUP_PASSPHRASE; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then echo "::error::Backup not configured. Missing secrets:$missing (see docs/backups.md)"; exit 1; fi
+          if [ ${#BACKUP_PASSPHRASE} -lt 20 ]; then echo "::error::BACKUP_PASSPHRASE must be at least 20 characters"; exit 1; fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dump the database (roles, schema, data)
+        run: |
+          set -euo pipefail
+          stamp=$(date -u +%Y-%m-%d)
+          echo "STAMP=$stamp" >> "$GITHUB_ENV"
+          mkdir -p "work/db-$stamp"
+          cd "work/db-$stamp"
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f data.sql --use-copy --data-only
+          # sanity: the dump must contain the content tables, with rows
+          for t in site_content blog_posts form_submissions; do
+            grep -q "COPY \"public\".\"$t\"\|COPY public.$t " data.sql || { echo "::error::$t missing from the data dump"; exit 1; }
+          done
+          ls -la
+
+      - name: Download the Storage files (Sundays, or when asked)
+        env:
+          WANT_FILES: ${{ github.event_name == 'workflow_dispatch' && inputs.files || 'auto' }}
+        run: |
+          set -euo pipefail
+          if [ "$WANT_FILES" = "auto" ]; then
+            [ "$(date -u +%u)" = "7" ] || { echo "Not Sunday — skipping files"; exit 0; }
+          elif [ "$WANT_FILES" != "true" ]; then
+            echo "Files not requested"; exit 0
+          fi
+          node scripts/backup-storage.mjs "work/files-$STAMP"
+
+      - name: Encrypt and verify
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          for d in work/*; do
+            name=$(basename "$d")
+            tar -C work -czf "out/$name.tar.gz" "$name"
+            printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+              --symmetric --cipher-algo AES256 -o "out/$name.tar.gz.gpg" "out/$name.tar.gz"
+            # prove it decrypts and the archive is intact before keeping it
+            printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 0 \
+              -d "out/$name.tar.gz.gpg" | tar -tzf - > /dev/null
+            rm "out/$name.tar.gz"
+          done
+          rm -rf work
+          ls -la out
+
+      - name: Store the encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ env.STAMP }}-${{ github.run_id }}
+          path: out/*.gpg
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0

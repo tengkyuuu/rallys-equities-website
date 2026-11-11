@@ -240,6 +240,7 @@ const blank=()=>({text:{},img:{},imgMeta:{},theme:{dark:{},light:{}},calcInfo:{}
 let WORK=blank();          // full working overrides (loaded from draft)
 let LIVE=blank();          // last known *published* snapshot — what visitors see right now
 let DRAFT_STATE='loading', DRAFT_ERR='';   // 'loading' | 'ready' | 'error' — WORK is only trustworthy when 'ready'
+let LIVE_STATE='loading';                  // same for LIVE (see loadLive)
 /* Seed it from the cache the site itself keeps, so post statuses are right on the
    first paint; the fetch in onAuthed() then confirms it. */
 try{ const c=localStorage.getItem('re-content'); if(c)LIVE=normalize(JSON.parse(c)); }catch(e){}
@@ -309,6 +310,7 @@ function localStore(){
     publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve({}); },
     uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); },
     listSubmissions(){ return Promise.resolve([]); },
+    listActivity(){ return Promise.resolve([]); },
     signedUrl(){ return Promise.resolve(null); },
     setHandled(){ return Promise.resolve(); },
     deleteSubmission(){ return Promise.resolve(); }
@@ -347,8 +349,13 @@ function supabaseStore(){
      and a post's body is fetched when it is opened. Any `posts` still inside the old
      site_content JSON are ignored — blog_posts is the only source. */
   const POST_COLS='id,slug,title,date,cover,excerpt,published,position,body_sig,words', PAGE=1000;
+  /* The draft row's version when this tab loaded it. A save only goes through if the row
+     still has that version — otherwise another editor (or another tab) saved in between,
+     and writing now would silently wipe their work. */
+  let draftVersion=null;
   const siteRow=async scope=>{
-    const data=await withRetry('the '+scope+' content',()=>sb.from('site_content').select('data').eq('scope',scope).maybeSingle());
+    const data=await withRetry('the '+scope+' content',()=>sb.from('site_content').select('data,version').eq('scope',scope).maybeSingle());
+    if(scope==='draft')draftVersion=data?data.version:null;
     const d=Object.assign({},(data&&data.data)||blank()); delete d.posts; return d;
   };
   const postList=async scope=>{
@@ -380,13 +387,25 @@ function supabaseStore(){
     for(const p of meta)await run(sb.from('blog_posts').update(postRecord(p,false)).eq('scope','draft').eq('id',p.id));
     return sigs;
   };
+  /* Every save claims the next draft version first (one conditional update), then writes
+     the changed posts. So two people saving at once can't overwrite each other: the second
+     one is told to reload instead. */
   const saveDraftRows=async(data,changes)=>{
     assertLoaded();
-    const sigs=await writePosts(changes);
     const rest=Object.assign({},data); delete rest.posts;
-    const{error}=await sb.from('site_content').upsert({scope:'draft',data:rest,version:(data.version||0)+1,updated_at:new Date().toISOString()});
-    if(error)throw new Error(error.message);
-    return sigs;
+    const now=new Date().toISOString();
+    if(draftVersion==null){   // brand-new project without a draft row yet
+      const{error}=await sb.from('site_content').upsert({scope:'draft',data:rest,version:1,updated_at:now});
+      if(error)throw new Error(error.message);
+      draftVersion=1;
+    } else {
+      const next=draftVersion+1;
+      const{data:claimed,error}=await sb.from('site_content').update({data:rest,version:next,updated_at:now}).eq('scope','draft').eq('version',draftVersion).select('version');
+      if(error)throw new Error(error.message);
+      if(!claimed||!claimed.length)throw new Error('Someone else saved changes after you opened the editor, so nothing was saved (this protects their work). Copy anything you need to keep, then reload the page to see their changes.');
+      draftVersion=next;
+    }
+    return await writePosts(changes);
   };
   /* Writes are refused until the draft has really loaded (see DRAFT_STATE). */
   const assertLoaded=()=>{ if(DRAFT_STATE!=='ready')throw new Error('Your website content has not finished loading, so nothing was saved (this protects your existing posts). Reload the page and try again.'); };
@@ -452,7 +471,25 @@ function supabaseStore(){
       try{const{data:{session}}=await sb.auth.getSession(); if(session)fetch('/api/revalidate',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}}).catch(()=>{});}catch(e){}
       return sigs;},
     async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
-    async listSubmissions(){const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).limit(300);if(error)throw new Error(error.message);return data||[];},
+    /* Every submission, newest first, read in pages (Supabase returns at most 1,000 rows per request). */
+    async listSubmissions(){
+      const out=[];
+      for(let from=0;;from+=PAGE){
+        const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE-1);
+        if(error)throw new Error(error.message);
+        out.push(...(data||[]));
+        if(!data||data.length<PAGE)break;
+      }
+      return out;
+    },
+    /* Activity history (audit_log, written by database triggers). 100 at a time, newest first. */
+    async listActivity(beforeId){
+      let q=sb.from('audit_log').select('*').order('id',{ascending:false}).limit(100);
+      if(beforeId)q=q.lt('id',beforeId);
+      const{data,error}=await q;
+      if(error){ const e=new Error(error.message); e.missing=/audit_log|PGRST205|42P01|does not exist|schema cache/i.test((error.code||'')+' '+error.message); throw e; }
+      return data||[];
+    },
     async signedUrl(path){const{data,error}=await sb.storage.from('form-uploads').createSignedUrl(path,3600);return error?null:data.signedUrl;},
     async setHandled(id,val){await sb.from('form_submissions').update({handled:val}).eq('id',id);},
     async deleteSubmission(id){const{error}=await sb.from('form_submissions').delete().eq('id',id);if(error)throw new Error(error.message);}
@@ -522,8 +559,24 @@ function onAuthed(){
   loadDraft();
   /* …and the published snapshot, so every screen can say what is actually on the
      website right now vs. what is still only in the draft. */
-  if(Store.getPublished)Promise.resolve(Store.getPublished()).then(d=>{ LIVE=normalize(d); softRefresh(); })
-    .catch(e=>{ console.warn('[editor] could not load the published snapshot',e); });
+  loadLive();
+}
+/* What visitors see right now. Until it has loaded, the admin can't tell a live post from a
+   draft — so deleting posts waits for it (a "never published" guess would leave a deleted
+   post on the website). */
+function loadLive(){
+  if(!Store.getPublished){ LIVE_STATE='ready'; return; }
+  LIVE_STATE='loading';
+  Promise.resolve(Store.getPublished()).then(d=>{ LIVE=normalize(d); LIVE_STATE='ready'; softRefresh(); })
+    .catch(e=>{ console.warn('[editor] could not load the published snapshot',e); LIVE_STATE='error'; softRefresh();
+      toast('Could not check what is on the website right now. Deleting posts is paused until it loads — reload the page to retry.','err'); });
+}
+/* Call before anything whose meaning depends on what is live. */
+function liveReady(){
+  if(LIVE_STATE==='ready')return true;
+  if(LIVE_STATE==='error'){ toast('Still can’t check what is on the website. Trying again — please retry in a moment.','err'); loadLive(); }
+  else toast('Still checking what is on the website — please try again in a moment.');
+  return false;
 }
 function loadDraft(){
   DRAFT_STATE='loading'; DRAFT_ERR=''; softRefresh();
@@ -636,6 +689,7 @@ function ensureDash(){
       navItem('submissions','inbox','Submissions',()=>go('submissions'),true),
       navItem('blog','post','Blog Posts',()=>{ blogEditId=null; go('blog'); }),
       navItem('editors','users','Editors',()=>go('editors')),
+      navItem('activity','clock','Activity',()=>go('activity')),
       h('div',{class:'re-side-cap'},'Website'),
       navItem('','edit','Edit website',()=>enterStudio({edit:true})),
       navItem('','tag','Prices & plans',()=>enterStudio({edit:true,panel:'pricing'})),
@@ -666,13 +720,13 @@ function emptyState(msg,ic,cta){ return h('div',{class:'re-empty'},icon(ic||'pos
 /* Everything a view actually reads. Redrawing is cheap but *visible* — the page
    repaints — so a background fetch that changes nothing shouldn't cause one. */
 function viewSig(){
-  return JSON.stringify([dashView,dirty.size,DRAFT_STATE,
+  return JSON.stringify([dashView,dirty.size,DRAFT_STATE,LIVE_STATE,
     (WORK.posts||[]).map(postSig),(LIVE.posts||[]).map(postSig),
     Object.keys(WORK.hidden||{}).length]);
 }
 let lastViewSig='';
 function renderMain(){ if(!dashMain||!dashVisible())return; capturePostDraft=null; teardownView(); dashMain.innerHTML=''; updateSideStatus(); lastViewSig=viewSig();
-  ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile,submissions:renderSubs}[dashView]||renderOverview)(); }
+  ({overview:renderOverview,editors:renderEditors,blog:renderBlogAdmin,settings:renderSettings,profile:renderProfile,submissions:renderSubs,activity:renderActivity}[dashView]||renderOverview)(); }
 /* Background refresh (a fetch landed, a save finished): never redraw over a half-written
    post — the post form is the one view with unsaved input in the DOM. */
 function softRefresh(){
@@ -930,6 +984,71 @@ function renderSubs(){
 
 /* ── Editors (invite by email via Resend; the shareable link stays as a fallback) ── */
 function inviteStatus(inv){ if(inv.accepted_at)return'Accepted'; if(inv.expires_at&&new Date(inv.expires_at)<=new Date())return'Expired'; return'Pending'; }
+/* ── Activity — who did what. The database writes these rows itself (triggers on posts,
+   site settings, submissions and invites), so they can't be edited or erased from here. ── */
+const ACT_FIELDS={title:'title',slug:'web address',date:'date',cover:'cover image',excerpt:'excerpt',body:'text',published:'publish setting'};
+const ACT_PARTS={text:'page text',img:'photos',imgMeta:'photo details',theme:'colours',fonts:'fonts',hidden:'hidden items',order:'layout order',pricing:'prices & plans',calcInfo:'calculator write-ups'};
+function describeActivity(a){
+  const d=a.details||{}, t=a.target||'Untitled', q=x=>'“'+(x||'Untitled')+'”';
+  switch(a.action){
+    case 'post.created': return 'Created the post '+q(t)+(d.published?'':' (as a draft)');
+    case 'post.edited': {
+      const f=Array.isArray(d.fields)?d.fields:[];
+      if(f.length===1&&f[0]==='published')return (d.published?'Set '+q(t)+' to be published':'Set '+q(t)+' back to draft');
+      return 'Edited '+q(t)+' — '+f.map(x=>ACT_FIELDS[x]||x).join(', ')+(d.old_title?' (was '+q(d.old_title)+')':'');
+    }
+    case 'post.deleted': return 'Deleted the post '+q(t);
+    case 'settings.saved': return 'Changed the website’s '+(Array.isArray(d.parts)?d.parts:[]).map(x=>ACT_PARTS[x]||x).join(', ');
+    case 'site.published': return 'Published the website'+(d.live_posts!=null?' · '+d.live_posts+' posts live':'');
+    case 'submission.handled': return 'Marked submission '+t+' as handled';
+    case 'submission.reopened': return 'Reopened submission '+t;
+    case 'submission.deleted': return 'Deleted submission '+t+(d.reference?' (ref '+d.reference+')':'');
+    case 'editor.invited': return 'Invited '+t+' as an editor';
+    case 'editor.joined': return t+' accepted the invite and signed in';
+    case 'editor.removed': return 'Removed '+t+' from the editors';
+    default: return a.action+(t?' · '+t:'');
+  }
+}
+const activityActor=a=>a.actor_email&&a.actor_email!=='system'?a.actor_email
+  :(/^editor\.(invited|removed)$/.test(a.action)?'An owner (Editors page)':'System');
+function renderActivity(){
+  dashMain.append(pageHead('Team','Activity','Who changed what in the admin, newest first. The database records this itself, so it can’t be edited or erased.'));
+  const filter=h('select',{class:'re-input','aria-label':'Show activity by',style:'max-width:280px'},h('option',{value:''},'Everyone'));
+  const list=h('div',{class:'re-inv-list'});
+  const more=h('button',{class:'re-btn re-btn-ghost re-btn-sm',style:'display:none;margin-top:12px'},'Show older activity');
+  dashMain.append(h('div',{class:'re-sec-head'},h('h2',{},'Recent activity'),filter),list,more);
+  let rows=[], done=false;
+  const people=()=>{ const cur=filter.value; const set=[...new Set(rows.map(activityActor))].sort();
+    filter.innerHTML=''; filter.append(h('option',{value:''},'Everyone'),...set.map(p=>h('option',{value:p},p))); filter.value=set.includes(cur)?cur:''; };
+  const draw=()=>{
+    list.innerHTML='';
+    const shown=rows.filter(a=>!filter.value||activityActor(a)===filter.value);
+    if(!shown.length)list.append(emptyState(rows.length?'Nothing from this person in the loaded activity.':'No activity recorded yet. Changes made in the admin will appear here.','clock'));
+    shown.forEach(a=>list.append(h('div',{class:'re-inv-row',style:'align-items:flex-start;gap:12px'},
+      h('div',{style:'flex:1;min-width:0'},
+        h('div',{style:'font-weight:600;overflow-wrap:anywhere'},describeActivity(a)),
+        h('div',{class:'re-set-note',style:'margin:2px 0 0;overflow-wrap:anywhere'},activityActor(a))),
+      h('span',{class:'re-set-note',style:'margin:0;white-space:nowrap',title:new Date(a.at).toLocaleString()},timeAgo(a.at)))));
+    more.style.display=done?'none':'';
+  };
+  const load=()=>{
+    more.disabled=true; more.textContent='Loading…';
+    if(!rows.length)list.append(emptyState('Loading activity…','clock'));
+    Promise.resolve(Store.listActivity(rows.length?rows[rows.length-1].id:null)).then(next=>{
+      rows=rows.concat(next); done=next.length<100; people(); draw();
+    }).catch(e=>{
+      list.innerHTML='';
+      list.append(emptyState(e&&e.missing
+        ?'Activity history isn’t switched on yet. Run supabase/migrations/20261112_hardening_and_activity.sql in the Supabase SQL editor.'
+        :'Could not load activity ('+((e&&e.message)||'network error')+').','alert',
+        h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>{ list.innerHTML=''; load(); }},'Try again')));
+      more.style.display='none';
+    }).then(()=>{ more.disabled=false; more.textContent='Show older activity'; });
+  };
+  filter.addEventListener('change',draw);
+  more.addEventListener('click',load);
+  load();
+}
 function renderEditors(){
   dashMain.append(pageHead('Team access','Editors','Invite a teammate by email, or remove someone who no longer needs access.'));
   const err=h('div',{class:'re-err',role:'alert'});
@@ -1123,6 +1242,7 @@ function postRow(p,st){
        with it, leaving the post live forever. So deleting a live post publishes the
        removal too. */
     h('button',{class:'re-sub-del','aria-label':'Delete post',onclick:async()=>{
+      if(!liveReady())return;
       const lv=livePost(p.id), onSite=!!lv&&lv.published!==false;
       if(!(await reConfirm('Delete “'+(p.title||'Untitled')+'”?'+
           (onSite?(' It comes off the website straight away.'+otherPending(p.id)):' It was never on the website.'),
@@ -1196,6 +1316,7 @@ function renderSettings(){
     h('div',{class:'re-set-h'},icon('alert',17),'Danger zone'),
     row('Delete all blog posts','Removes all '+(WORK.posts||[]).length+' posts.'+(nLive?(' '+nLive+' of them '+(nLive===1?'is':'are')+' on the website.'):''),
       h('button',{class:'re-btn re-btn-ghost re-btn-sm',onclick:()=>{
+        if(!liveReady())return;
         reConfirm('Delete all '+(WORK.posts||[]).length+' blog posts?'+(nLive?(' The '+nLive+' on the website come off straight away.'+pendingEditsNote()):''),{title:'Delete all posts?',okLabel:'Delete all',danger:true}).then(ok=>{ if(!ok)return;
           WORK.posts=[]; markDirty('posts:all'); API.setOverrides(WORK);
           if(nLive)doPublish('All posts deleted — and taken off the website')
@@ -1249,9 +1370,13 @@ function renderPostEditor(){
   const excerpt=h('textarea',{class:'re-input',rows:'2',placeholder:'One or two lines shown on the Blogs page…','aria-label':'Excerpt'},p.excerpt||'');
   const body=h('div',{class:'re-postbody',contenteditable:'true','aria-label':'Post body'});
   body.innerHTML=API.sanitizePost(p.body||'')||'<p><br></p>';
+  /* Untouched text is saved byte-for-byte as it was (the browser re-formats HTML, which
+     would otherwise count as an edit in the Activity history and mark the post "Edited"). */
+  const initialBody=API.sanitizePost(body.innerHTML);
+  const bodyOut=()=>{ const nb=API.sanitizePost(body.innerHTML); return nb===initialBody&&typeof p.body==='string'?p.body:nb; };
   capturePostDraft=()=>{
     if(!title.isConnected)return;
-    const rec={...p,title:title.value,slug:slugInp.value,date:date.value,cover:coverUrl,excerpt:excerpt.value,body:API.sanitizePost(body.innerHTML),body_sig:undefined};
+    const rec={...p,title:title.value,slug:slugInp.value,date:date.value,cover:coverUrl,excerpt:excerpt.value,body:bodyOut(),body_sig:undefined};
     const index=WORK.posts.findIndex(x=>x.id===p.id);
     if(index<0)WORK.posts.push(rec);else WORK.posts[index]=rec;
   };
@@ -1280,7 +1405,7 @@ function renderPostEditor(){
     const others=(WORK.posts||[]).filter(x=>x.id!==p.id);
     const base=slug; for(let n=2;others.some(x=>x.slug===slug);n++)slug=base+'-'+n;
     slugInp.value=slug;
-    const rec={id:p.id,slug,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:API.sanitizePost(body.innerHTML),published:pub};
+    const rec={id:p.id,slug,title:title.value.trim(),date:date.value||p.date,cover:coverUrl,excerpt:excerpt.value.trim(),body:bodyOut(),published:pub};
     const i=(WORK.posts||[]).findIndex(x=>x.id===p.id);
     if(i<0)WORK.posts.push(rec); else WORK.posts[i]=rec;
     markDirty('posts:'+p.id);
