@@ -42,6 +42,8 @@ case "$DB_URL" in
 esac
 case "$DB_URL" in *YOUR-PASSWORD*) fail "Replace [YOUR-PASSWORD] with your real database password." ;; esac
 case "$DB_URL" in *"$REF"*) ;; *) fail "That connection string is for a different project (expected $REF)." ;; esac
+# GitHub's runners have no IPv6, so the direct address (db.<ref>.supabase.co) is unreachable from there.
+case "$DB_URL" in *pooler.supabase.com*) ;; *) fail "That is the 'Direct connection' string. In the Connect panel pick Method: 'Session pooler' — its host ends in pooler.supabase.com." ;; esac
 
 PASS=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | cut -c1-40)
 [ ${#PASS} -ge 32 ] || fail "Could not generate a passphrase"

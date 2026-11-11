@@ -22,8 +22,10 @@ passphrase (save it when it's shown), sets the secrets, and runs the first backu
 
 1. **Create a passphrase** of at least 20 characters, for example 6 random words. Save it in
    your password manager *and* somewhere offline. If it is lost, the backups can't be opened.
-2. **Get the database connection string:** Supabase dashboard → **Connect** → *Session pooler*
-   → copy the URI and put the database password in it.
+2. **Get the database connection string:** Supabase dashboard → **Connect** → **Direct** tile →
+   Method **Session pooler** → copy the URI and put the database password in it. Its host must
+   end in `pooler.supabase.com`: the "Direct connection" address doesn't work from GitHub, which
+   has no IPv6.
 3. **Add four repository secrets** (GitHub → Settings → Secrets and variables → Actions →
    *New repository secret*), or from this folder:
    ```bash
