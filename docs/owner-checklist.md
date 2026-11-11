@@ -17,12 +17,13 @@ Supabase dashboard → **Database → Webhooks → Create a new hook**:
 - **HTTP headers:**
   - `Content-Type: application/json`
   - `Authorization: Bearer <service_role key>` (Settings → API)
-- [ ] Created
+- [x] Created (12 Nov)
 - [ ] Sent a test message through the website's contact form, and the email arrived
 
 ## 3. Apply the database update (5 min)
 Supabase → **SQL Editor** → New query → paste all of
 [`supabase/migrations/20261112_hardening_and_activity.sql`](../supabase/migrations/20261112_hardening_and_activity.sql) → **Run**.
+- [x] Applied 12 Nov; verified: direct anonymous writes blocked, bucket limits set, activity table live
 - [ ] The check at the end lists **no** `fs_public_insert` / `fu_public_insert`, and four `audit_…` triggers
 - [ ] Sent a test application with an attachment from the live website: it arrives in the admin
 
@@ -30,12 +31,15 @@ What it does:
 - closes the spam hole: visitors can no longer write to the database directly, and uploads are limited to 5 MB and the allowed file types;
 - turns on the **Activity** history in the admin.
 
-## 4. Turn on backups (5 min)
-Follow the "One-time setup" in [backups.md](backups.md): one passphrase and four GitHub
-secrets, then run the backup once by hand.
+## 4. Turn on backups (3 min)
+From this folder, in Git Bash:
+```bash
+bash scripts/setup-backups.sh
+```
+It asks for one thing (the database connection string), creates and shows the backup
+passphrase, saves the four GitHub secrets, and runs the first backup.
 - [ ] Passphrase saved in a password manager **and** offline
-- [ ] Secrets added
-- [ ] First manual run is green
+- [ ] The script ended with "✓ Backups are set up"
 
 ## 5. Keep monitor emails on
 The **Live site monitor** action checks the site every 15 minutes and fails when something

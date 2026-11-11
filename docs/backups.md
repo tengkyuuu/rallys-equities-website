@@ -12,7 +12,13 @@ The repository is **public**, so every backup is encrypted (GPG, AES-256) with a
 before GitHub stores it. Without the passphrase the files are useless, to strangers and to
 us alike.
 
-## One-time setup (5 minutes)
+## One-time setup (3 minutes)
+
+**Quick way:** in Git Bash, from this folder, run `bash scripts/setup-backups.sh`. It reads
+the URL and key from `.env.local`, asks you to paste the connection string, creates the
+passphrase (save it when it's shown), sets the secrets, and runs the first backup.
+
+**By hand:**
 
 1. **Create a passphrase** of at least 20 characters, for example 6 random words. Save it in
    your password manager *and* somewhere offline. If it is lost, the backups can't be opened.
