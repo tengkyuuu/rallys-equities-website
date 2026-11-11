@@ -17,7 +17,9 @@ const fmtDate = (d?: string) => {
   const t = Date.parse(d || '');
   return t ? new Date(t).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : d || '';
 };
-const readTime = (body?: string) =>
+const readTime = (p: Post) =>
+  p.body === undefined && p.words != null ? Math.max(1, Math.round(p.words / 200)) + ' min read' : readTimeOfBody(p.body);
+const readTimeOfBody = (body?: string) =>
   Math.max(
     1,
     Math.round(
@@ -31,7 +33,7 @@ const readTime = (body?: string) =>
 const ARROW =
   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>';
 const meta = (p: Post) =>
-  `<div class="blog-meta"><span>${esc(fmtDate(p.date))}</span><i></i><span class="rt">${esc(readTime(p.body))}</span></div>`;
+  `<div class="blog-meta"><span>${esc(fmtDate(p.date))}</span><i></i><span class="rt">${esc(readTime(p))}</span></div>`;
 
 export function slugify(s?: string) {
   return String(s || '')
@@ -99,15 +101,35 @@ export function renderBlog(posts?: Post[]) {
   POSTS.slice(feat ? 1 : 0).forEach((p, n) => list.appendChild(gridCard(p, n + (feat ? 1 : 0), true)));
 }
 
+/* Post lists arrive without bodies (they live in blog_posts and are fetched one at a time).
+   The editor registers how to fetch one; the fetched body is kept on the post object. */
+let bodyLoader: ((p: Post) => Promise<string>) | null = null;
+export function setPostBodyLoader(fn: ((p: Post) => Promise<string>) | null) {
+  bodyLoader = fn;
+}
+
 function openPost(i: number) {
   const p = POSTS[i],
     v = document.getElementById('postView');
   if (!p || !v) return;
+  if (p.body === undefined && bodyLoader) {
+    const load = bodyLoader(p).then(
+      (body) => {
+        p.body = body;
+        if (v.dataset.postId === p.id) openPost(POSTS.indexOf(p));
+      },
+      () => {
+        if (v.dataset.postId === p.id) toast('Could not load this post. Check your connection and try again.', 'err');
+      },
+    );
+    void load;
+  }
+  v.dataset.postId = p.id;
   v.innerHTML =
     `<a class="blog-back" data-page="insights" href="/blog">← All blogs</a>` +
     `<div class="post-head">${meta(p)}<h1 class="blog-title">${esc(p.title || 'Untitled')}</h1>${p.excerpt ? `<p class="sub" style="max-width:62ch;margin:0">${esc(p.excerpt)}</p>` : ''}<div class="post-rule"></div></div>` +
     (p.cover ? `<img class="blog-hero" src="${esc(p.cover)}" alt="">` : '') +
-    `<div class="blog-post">${sanitizePost(p.body || '')}</div>` +
+    (p.body === undefined ? `<div class="blog-post"><p>Loading…</p></div>` : `<div class="blog-post">${sanitizePost(p.body)}</div>`) +
     `<div class="post-share"><span class="post-share-l">Share</span><button class="post-sh" type="button" data-share="copy">Copy link</button><button class="post-sh" type="button" data-share="wa">WhatsApp</button><button class="post-sh" type="button" data-share="li">LinkedIn</button></div>`;
   v.querySelector('.blog-back')!.addEventListener('click', (e) => {
     e.preventDefault();

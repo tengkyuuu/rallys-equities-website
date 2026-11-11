@@ -274,7 +274,9 @@ function canon(v){
   if(v&&typeof v==='object'){ const o={}; Object.keys(v).sort().forEach(k=>{ const c=canon(v[k]); if(c&&typeof c==='object'&&!Array.isArray(c)&&!Object.keys(c).length)return; o[k]=c; }); return o; }
   return v;
 }
-const workSig=()=>JSON.stringify(canon(Object.assign({},WORK,{version:0})));
+/* A body fetched just to open a post (still matching its body_sig) is not a change. */
+const workSig=()=>JSON.stringify(canon(Object.assign({},WORK,{version:0,
+  posts:(WORK.posts||[]).map(p=>p.body_sig!=null?Object.assign({},p,{body:undefined}):p)})));
 function markSaved(){ SAVED_SIG=workSig(); }
 
 /* ════════ STORE ADAPTERS ════════ */
@@ -302,8 +304,9 @@ function localStore(){
     markInviteAccepted(){ return Promise.resolve(); },
     getDraft(){ return Promise.resolve(get('re-content-draft')||get('re-content')||blank()); },
     getPublished(){ return Promise.resolve(get('re-content')||blank()); },
-    saveDraft(data){ set('re-content-draft',data); return Promise.resolve(); },
-    publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve(); },
+    getPostBody(){ return Promise.resolve(''); },   // local preview keeps bodies inside the draft
+    saveDraft(data){ set('re-content-draft',data); return Promise.resolve({}); },
+    publish(data){ set('re-content-draft',data); set('re-content',data); return Promise.resolve({}); },
     uploadImage(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file);}); },
     listSubmissions(){ return Promise.resolve([]); },
     signedUrl(){ return Promise.resolve(null); },
@@ -329,15 +332,61 @@ function supabaseStore(){
   /* A failed read must never look like an empty site: the editor would show "0 posts" and the
      next Save/Publish would overwrite every post with nothing. So errors throw (after a couple
      of retries for flaky connections); only a genuinely missing row falls back to blank. */
-  const rowData=async scope=>{
+  const withRetry=async(what,query)=>{
     let last;
     for(let attempt=0;attempt<3;attempt++){
       if(attempt)await new Promise(r=>setTimeout(r,1500*attempt));
-      const{data,error}=await sb.from('site_content').select('data').eq('scope',scope).maybeSingle();
-      if(!error)return (data&&data.data)||blank();
+      const{data,error}=await query();
+      if(!error)return data;
       last=error;
     }
-    throw new Error((last&&last.message)||('Could not load the '+scope+' content'));
+    throw new Error((last&&last.message)||('Could not load '+what));
+  };
+  /* Site settings (text, images, theme…) are one small site_content row per scope. Blog
+     posts are rows in blog_posts; the list leaves bodies out (they are ~95% of the bytes)
+     and a post's body is fetched when it is opened. Any `posts` still inside the old
+     site_content JSON are ignored — blog_posts is the only source. */
+  const POST_COLS='id,slug,title,date,cover,excerpt,published,position,body_sig,words', PAGE=1000;
+  const siteRow=async scope=>{
+    const data=await withRetry('the '+scope+' content',()=>sb.from('site_content').select('data').eq('scope',scope).maybeSingle());
+    const d=Object.assign({},(data&&data.data)||blank()); delete d.posts; return d;
+  };
+  const postList=async scope=>{
+    const out=[];
+    for(let from=0;;from+=PAGE){   // Supabase returns at most 1,000 rows per request
+      const page=await withRetry('the '+scope+' posts',()=>sb.from('blog_posts').select(POST_COLS).eq('scope',scope).order('id').range(from,from+PAGE-1));
+      out.push(...(page||[]));
+      if(!page||page.length<PAGE)break;
+    }
+    // original order first (same-date posts keep it), posts written since after — as before
+    const pos=p=>p.position==null?Infinity:p.position;
+    return out.sort((a,b)=>pos(a)-pos(b)).map(r=>{ const p=Object.assign({},r); if(p.slug==null)delete p.slug; if(p.position==null)delete p.position; return p; });
+  };
+  const rowData=async scope=>{ const[d,posts]=await Promise.all([siteRow(scope),postList(scope)]); d.posts=posts; return d; };
+  /* Write only what changed: the posts the editor marked dirty, never the whole list. */
+  const postRecord=(p,withBody)=>{ const r={scope:'draft',id:p.id,slug:p.slug||null,title:p.title||'',date:p.date||'',cover:p.cover||'',excerpt:p.excerpt||'',published:p.published!==false}; if(withBody)r.body=p.body; return r; };
+  const writePosts=async c=>{
+    c=c||{}; const sigs={};
+    const run=async q=>{ const{data,error}=await q; if(error)throw new Error(error.message); return data; };
+    if(c.removeAll)await run(sb.from('blog_posts').delete().eq('scope','draft'));
+    const remove=c.remove||[];
+    for(let i=0;i<remove.length;i+=100)await run(sb.from('blog_posts').delete().eq('scope','draft').in('id',remove.slice(i,i+100)));
+    const up=c.upsert||[], full=up.filter(p=>typeof p.body==='string'), meta=up.filter(p=>typeof p.body!=='string');
+    for(let i=0;i<full.length;i+=50){
+      const rows=await run(sb.from('blog_posts').upsert(full.slice(i,i+50).map(p=>postRecord(p,true)),{onConflict:'scope,id'}).select('id,body_sig'));
+      (rows||[]).forEach(r=>{ sigs[r.id]=r.body_sig; });
+    }
+    // a post whose body was never opened: update its other fields and leave the stored body alone
+    for(const p of meta)await run(sb.from('blog_posts').update(postRecord(p,false)).eq('scope','draft').eq('id',p.id));
+    return sigs;
+  };
+  const saveDraftRows=async(data,changes)=>{
+    assertLoaded();
+    const sigs=await writePosts(changes);
+    const rest=Object.assign({},data); delete rest.posts;
+    const{error}=await sb.from('site_content').upsert({scope:'draft',data:rest,version:(data.version||0)+1,updated_at:new Date().toISOString()});
+    if(error)throw new Error(error.message);
+    return sigs;
   };
   /* Writes are refused until the draft has really loaded (see DRAFT_STATE). */
   const assertLoaded=()=>{ if(DRAFT_STATE!=='ready')throw new Error('Your website content has not finished loading, so nothing was saved (this protects your existing posts). Reload the page and try again.'); };
@@ -392,10 +441,16 @@ function supabaseStore(){
     async markInviteAccepted(){ const{data:{user}}=await sb.auth.getUser(); if(!user)return; await sb.from('invites').update({accepted_at:new Date().toISOString()}).eq('email',(user.email||'').toLowerCase()).is('accepted_at',null); },
     async getDraft(){return await rowData('draft');},
     async getPublished(){return await rowData('published');},
-    async saveDraft(data){assertLoaded();const{error}=await sb.from('site_content').upsert({scope:'draft',data,version:(data.version||0)+1,updated_at:new Date().toISOString()});if(error)throw new Error(error.message);},
-    async publish(data){assertLoaded();const rec={data,version:(data.version||0)+1,updated_at:new Date().toISOString()};const{error}=await sb.from('site_content').upsert([{scope:'draft',...rec},{scope:'published',...rec}]);if(error)throw new Error(error.message);
+    async getPostBody(id){ const d=await withRetry('this post',()=>sb.from('blog_posts').select('body').eq('scope','draft').eq('id',id).maybeSingle()); return (d&&d.body)||''; },
+    /* Resolve to {post id → new body_sig} for the posts written, so "Live"/"Edited" stays right. */
+    saveDraft:saveDraftRows,
+    /* Publish = save the draft, then one server-side transaction copies the draft settings
+       and every draft post to published (publish_site in supabase/migrations). */
+    async publish(data,changes){const sigs=await saveDraftRows(data,changes);
+      const{error}=await sb.rpc('publish_site');if(error)throw new Error(error.message);
       /* tell the site to drop its 60s content cache now (best effort: it expires anyway) */
-      try{const{data:{session}}=await sb.auth.getSession(); if(session)fetch('/api/revalidate',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}}).catch(()=>{});}catch(e){}},
+      try{const{data:{session}}=await sb.auth.getSession(); if(session)fetch('/api/revalidate',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}}).catch(()=>{});}catch(e){}
+      return sigs;},
     async uploadImage(file){const ext=(file.name.split('.').pop()||'png').toLowerCase();const name='content/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const{error}=await sb.storage.from('content-images').upload(name,file,{upsert:true,contentType:file.type});if(error)throw new Error(error.message);return sb.storage.from('content-images').getPublicUrl(name).data.publicUrl;},
     async listSubmissions(){const{data,error}=await sb.from('form_submissions').select('*').order('created_at',{ascending:false}).limit(300);if(error)throw new Error(error.message);return data||[];},
     async signedUrl(path){const{data,error}=await sb.storage.from('form-uploads').createSignedUrl(path,3600);return error?null:data.signedUrl;},
@@ -404,6 +459,8 @@ function supabaseStore(){
   };
 }
 const Store = (window.RE_SUPABASE_READY && window.supabase) ? supabaseStore() : localStore();
+/* The in-admin blog preview gets posts without bodies; let it fetch one when opened. */
+if(API.setPostBodyLoader)API.setPostBodyLoader(p=>Promise.resolve(Store.getPostBody(p.id)));
 
 /* ════════ LOGIN (fullscreen, branded) ════════ */
 function showLogin(){
@@ -997,7 +1054,10 @@ function renderEditors(){
      · what the website is actually serving (LIVE.posts — the published snapshot)
      · whether the two copies are identical (postSig) */
 function postDateFmt(d){ const t=Date.parse(d||''); return t?new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):(d||''); }
-const postSig=p=>p?JSON.stringify([p.title||'',p.date||'',p.cover||'',p.excerpt||'',p.body||'',p.published!==false]):'';
+/* body_sig is the database's md5 of the stored body, so posts compare without downloading
+   bodies. An edited post has no body_sig until it is saved, so it compares by its text
+   (and therefore differs from the live copy: "Edited"). The local preview has no sigs. */
+const postSig=p=>p?JSON.stringify([p.title||'',p.date||'',p.cover||'',p.excerpt||'',p.body_sig!=null?p.body_sig:(p.body||''),p.published!==false]):'';
 function livePost(id){ return (LIVE.posts||[]).find(x=>x.id===id); }
 function postState(p){
   const lv=livePost(p.id), onSite=!!(lv&&lv.published!==false), want=p.published!==false;
@@ -1115,7 +1175,7 @@ function renderSettings(){
       mut();
       /* The curtain stays up through the reload, so the reset never looks like a crash. */
       const busy=reBusy('Restoring',what.charAt(0).toUpperCase()+what.slice(1)+' — putting the original design back.');
-      Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ busy.update('Reloading the editor…'); setTimeout(reloadEditor,600); })
+      Promise.resolve(Store.saveDraft(cleanWork(),postChanges())).then(()=>{ busy.update('Reloading the editor…'); setTimeout(reloadEditor,600); })
         .catch(e=>{ busy.close(); toast('Could not save the reset: '+e.message,'err'); });
     });
   };
@@ -1153,6 +1213,17 @@ function renderPostEditor(){
     :(WORK.posts||[]).find(x=>x.id===blogEditId);
   if(!p){ blogEditId=null; renderPostList(); return; }
   dashMain.append(h('button',{class:'re-linkbtn',style:'margin-bottom:10px',onclick:()=>{ blogEditId=null; renderMain(); }},'← All posts'));
+  /* The post list arrives without bodies (each post is its own database row); fetch this
+     one before showing the form, so an edit can never start from an empty body. */
+  if(typeof p.body!=='string'){
+    const id=p.id, slot=h('div',{},emptyState('Loading the post…','post'));
+    dashMain.append(slot);
+    Promise.resolve(Store.getPostBody(id)).then(b=>{ if(typeof p.body!=='string')p.body=b; if(blogEditId===id)renderMain(); })
+      .catch(e=>{ if(blogEditId!==id||!slot.isConnected)return; slot.innerHTML='';
+        slot.append(emptyState('Could not load this post ('+((e&&e.message)||'network error')+'). Nothing was changed.','alert',
+          h('button',{class:'re-btn re-btn-pri re-btn-sm',onclick:()=>renderMain()},'Try again'))); });
+    return;
+  }
   dashMain.append(pageHead('Blogs',isNew?'New post':'Edit post',
     isNew?'Write it here — nothing is public until you publish.':'Changes stay in your draft until you publish.'));
   /* Where this post stands right now — stated, not toggled. The buttons at the
@@ -1180,7 +1251,7 @@ function renderPostEditor(){
   body.innerHTML=API.sanitizePost(p.body||'')||'<p><br></p>';
   capturePostDraft=()=>{
     if(!title.isConnected)return;
-    const rec={...p,title:title.value,slug:slugInp.value,date:date.value,cover:coverUrl,excerpt:excerpt.value,body:API.sanitizePost(body.innerHTML)};
+    const rec={...p,title:title.value,slug:slugInp.value,date:date.value,cover:coverUrl,excerpt:excerpt.value,body:API.sanitizePost(body.innerHTML),body_sig:undefined};
     const index=WORK.posts.findIndex(x=>x.id===p.id);
     if(index<0)WORK.posts.push(rec);else WORK.posts[index]=rec;
   };
@@ -2364,10 +2435,23 @@ function updateSaveBar(){
 }
 function cleanWork(){ return JSON.parse(JSON.stringify(WORK)); }
 function afterSaveRefresh(){ updateSaveBar(); softRefresh(); }
+/* Which posts a save must write, from the "posts:<id>" marks the editor already keeps:
+   a marked post still in the draft is written, a marked post that's gone is deleted.
+   A draft restored after a session expiry writes every post whose body it holds. */
+function postChanges(){
+  const keys=[...dirty], c={removeAll:keys.includes('posts:all'),upsert:[],remove:[]};
+  const byId=new Map((WORK.posts||[]).map(p=>[p.id,p]));
+  const ids=new Set(keys.filter(k=>k.startsWith('posts:')&&k!=='posts:all').map(k=>k.slice(6)));
+  if(keys.includes('recovered:draft'))(WORK.posts||[]).forEach(p=>{ if(typeof p.body==='string')ids.add(p.id); });
+  ids.forEach(id=>{ const p=byId.get(id); if(p)c.upsert.push(p); else if(!c.removeAll)c.remove.push(id); });
+  return c;
+}
+/* The database hands back each written post's new body_sig. */
+function applySigs(sigs){ if(!sigs)return; (WORK.posts||[]).forEach(p=>{ if(sigs[p.id]!=null)p.body_sig=sigs[p.id]; }); }
 /* Save the draft (private). Resolves true/false so callers can react. */
 function saveDraft(msg){
   if(typeof msg!=='string')msg=null;   // guard: also wired to a click handler
-  return Promise.resolve(Store.saveDraft(cleanWork())).then(()=>{ dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh(); toast(msg||'Draft saved (not yet public)'); return true; })
+  return Promise.resolve(Store.saveDraft(cleanWork(),postChanges())).then(sigs=>{ applySigs(sigs); dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh(); toast(msg||'Draft saved (not yet public)'); return true; })
     .catch(e=>{ toast('Save failed: '+e.message,'err'); return false; });
 }
 /* Push the whole draft live. LIVE tracks it so every screen can show what's on the
@@ -2377,9 +2461,12 @@ function doPublish(msg){
   /* The one action worth a curtain: it's the slowest, it's what visitors see, and a
      second click mid-write would push a half-formed draft. */
   const busy=reBusy('Publishing','Putting your changes on the website — this takes a moment.');
-  return Promise.resolve(Store.publish(snap)).then(()=>{
-    try{localStorage.setItem('re-content',JSON.stringify(snap));}catch(e){}
-    LIVE=normalize(snap); dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh();
+  return Promise.resolve(Store.publish(snap,postChanges())).then(sigs=>{
+    applySigs(sigs);
+    const live=cleanWork();   // after applySigs: the live copy now matches the draft exactly
+    if(Store.mode==='supabase')live.posts=live.posts.map(p=>{ const q=Object.assign({},p); delete q.body; return q; });   // keep the first-paint cache small
+    try{localStorage.setItem('re-content',JSON.stringify(live));}catch(e){}
+    LIVE=normalize(live); dirty.clear(); ORIG.clear(); markSaved(); afterSaveRefresh();
     busy.close();
     toast(msg||'Published! Your changes are now live.');
   },e=>{ busy.close(); throw e; });

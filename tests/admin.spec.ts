@@ -159,3 +159,86 @@ test('leaving with unsaved changes asks first', async ({ page }) => {
   await page.close({ runBeforeUnload: true });
   expect(await dialog).toBe('beforeunload');
 });
+
+/* Blog posts are rows in blog_posts: the admin lists them without bodies, fetches a body
+   when a post is opened, writes only the post that changed, and publishes server-side. */
+test('blog posts: list without bodies, body on open, save writes one post, publish goes live', async ({ page, context, request }) => {
+  const listSelects: string[] = [];
+  const writes: { method: string; body: string }[] = [];
+  page.on('request', (r) => {
+    const u = r.url();
+    if (u.includes('/rest/v1/blog_posts')) {
+      if (r.method() === 'GET') listSelects.push(decodeURIComponent(u));
+      else writes.push({ method: r.method(), body: r.postData() || '' });
+    }
+    if (u.includes('/rest/v1/site_content') && r.method() !== 'GET')
+      writes.push({ method: 'site_content ' + r.method(), body: r.postData() || '' });
+  });
+  await page.goto('/admin');
+  await page.fill('.re-login input[type="email"]', EDITOR.email);
+  await page.fill('.re-login input[type="password"]', EDITOR.password);
+  await page.click('.re-login .re-btn-pri');
+  await page.locator('[data-nav="blog"]').click();
+  const row = page.locator('.re-post-row', { hasText: 'KSE-100 Outlook for Q3' });
+  await expect(row).toContainText('Live');
+  await expect(page.locator('.re-post-row')).toHaveCount(4);
+  // the list requests never ask for the body column
+  const lists = listSelects.filter((u) => /select=[^&]*title/.test(u));
+  expect(lists.length).toBeGreaterThan(0);
+  for (const u of lists) expect(u).not.toMatch(/select=[^&]*\bbody\b(?!_sig)/);
+
+  await row.getByRole('button', { name: 'Edit' }).click();
+  await expect(page.locator('.re-postbody')).toContainText('Where we stand'); // fetched on open
+  expect(listSelects.some((u) => /select=body&/.test(u) && u.includes('id=eq.p1'))).toBe(true);
+
+  writes.length = 0;
+  await page.getByRole('textbox', { name: 'Post title' }).fill('KSE-100 Outlook for Q3 (revised)');
+  await page.getByRole('button', { name: 'Save without publishing' }).click();
+  await expect(page.locator('.re-post-row', { hasText: 'KSE-100 Outlook for Q3 (revised)' })).toContainText('Edited');
+  const postWrites = writes.filter((w) => w.method === 'POST');
+  expect(postWrites).toHaveLength(1);
+  const sent = JSON.parse(postWrites[0].body);
+  expect(sent.map((r: { id: string }) => r.id)).toEqual(['p1']); // only the post that changed
+  const contentWrite = writes.find((w) => w.method.startsWith('site_content'));
+  expect(contentWrite && JSON.parse(contentWrite.body).data.posts).toBeUndefined(); // posts never go back into site_content
+
+  // the visitor still sees the published title until Publish
+  const visitor = await context.newPage();
+  await marketDown(visitor);
+  await visitor.goto('/blog/kse-100-outlook-q3');
+  await expect(visitor.locator('#page-post .blog-title')).toHaveText('KSE-100 Outlook for Q3');
+
+  const rpc = page.waitForRequest((r) => r.url().includes('/rest/v1/rpc/publish_site'));
+  await page.locator('.re-post-row', { hasText: '(revised)' }).getByRole('button', { name: 'Publish' }).click();
+  await page.click('.re-overlay button:has-text("Publish")');
+  await rpc;
+  await expect(page.locator('.re-post-row', { hasText: '(revised)' })).toContainText('Live');
+  const state = await mockState(request);
+  expect(state.blog_posts.find((r: { scope: string; id: string }) => r.scope === 'published' && r.id === 'p1').title).toBe(
+    'KSE-100 Outlook for Q3 (revised)',
+  );
+  await expect(async () => {
+    await visitor.goto('/blog/kse-100-outlook-q3');
+    await expect(visitor.locator('#page-post .blog-title')).toHaveText('KSE-100 Outlook for Q3 (revised)', { timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
+  await expect(visitor.locator('#page-post .blog-post')).toContainText('Where we stand'); // body survived the edit
+});
+
+test('deleting a post removes only that row', async ({ page, request }) => {
+  await page.goto('/admin');
+  await page.fill('.re-login input[type="email"]', EDITOR.email);
+  await page.fill('.re-login input[type="password"]', EDITOR.password);
+  await page.click('.re-login .re-btn-pri');
+  await page.locator('[data-nav="blog"]').click();
+  await page.locator('.re-post-row', { hasText: 'Unpublished draft' }).getByRole('button', { name: 'Delete post' }).click();
+  await page.click('.re-overlay button:has-text("Delete")');
+  await expect(page.locator('.re-post-row')).toHaveCount(3);
+  const state = await mockState(request);
+  const ids = (s: string) =>
+    state.blog_posts
+      .filter((r: { scope: string }) => r.scope === s)
+      .map((r: { id: string }) => r.id)
+      .sort();
+  expect(ids('draft')).toEqual(['p1', 'p2', 'p4']);
+  expect(ids('published')).toEqual(['p1', 'p2', 'p3', 'p4']); // never on the website, so nothing published
+});

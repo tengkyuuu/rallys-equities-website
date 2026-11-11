@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { CONTENT_TAG, invalidatePosts } from '@/lib/content';
+import { CONTENT_TAG } from '@/lib/content';
 import { clientIp, rateLimit } from '@/lib/server/rate-limit';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/supabase-config';
 
@@ -19,7 +19,6 @@ export async function POST(req: Request) {
   });
   if (!user.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  revalidateTag(CONTENT_TAG, { expire: 0 });
-  invalidatePosts();
+  revalidateTag(CONTENT_TAG, { expire: 0 }); // site settings and blog posts
   return NextResponse.json({ revalidated: true });
 }

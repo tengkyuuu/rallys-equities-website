@@ -3,7 +3,7 @@
 import { useLayoutEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { showAdminPage } from '@/lib/admin/pages';
-import { renderBlog, renderCalcInfo, slugify } from '@/lib/admin/render-dom';
+import { renderBlog, renderCalcInfo, setPostBodyLoader, slugify } from '@/lib/admin/render-dom';
 import { CALC_INFO } from '@/lib/calculators/data';
 import type { SiteContent } from '@/lib/content-types';
 import {
@@ -132,6 +132,7 @@ export default function AdminBridge() {
       sigStampKids,
       reResolve,
       renderBlog,
+      setPostBodyLoader,
       showPage: showAdminPage,
       slugify,
       applyPricing,

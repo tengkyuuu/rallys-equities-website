@@ -22,8 +22,12 @@ export type Post = {
   date?: string;
   cover?: string;
   excerpt?: string;
+  /** Not sent in post lists (only when one post is opened) — see `words`/`body_sig`. */
   body?: string;
   published?: boolean;
+  /** blog_posts generated columns: tag-stripped word count of the body, and md5 of the body */
+  words?: number;
+  body_sig?: string;
 };
 
 export type SiteContent = Partial<{

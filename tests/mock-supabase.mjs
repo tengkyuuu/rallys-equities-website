@@ -1,5 +1,5 @@
 // In-memory stand-in for the parts of Supabase the site and editor use: PostgREST tables
-// (site_content, form_submissions, invites), password auth, storage signed uploads and
+// (site_content, blog_posts, form_submissions, invites, the publish_site RPC), password auth, storage signed uploads and
 // edge functions. Lets the e2e suite exercise real round trips (publish in the editor →
 // a visitor sees it) without touching the production project.
 //
@@ -8,6 +8,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import { derived, freezeSlugs, toRow } from '../scripts/lib/post-rows.mjs';
 
 const PORT = Number(process.env.MOCK_SUPABASE_PORT || 54321);
 const FIXTURE = new URL('./fixtures/content.json', import.meta.url);
@@ -17,12 +18,16 @@ let db, objects, tokens;
 const now = () => new Date().toISOString();
 const clone = (x) => JSON.parse(JSON.stringify(x));
 function reset() {
-  const content = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'));
+  // Seeded the way scripts/migrate-posts.mjs moves production: settings stay in
+  // site_content, the fixture's posts become blog_posts rows (slugs frozen the same way).
+  const { posts = [], ...content } = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'));
+  const { slugs } = freezeSlugs(posts);
   db = {
     site_content: [
       { scope: 'published', data: clone(content), version: 1, updated_at: now() },
       { scope: 'draft', data: clone(content), version: 1, updated_at: now() },
     ],
+    blog_posts: ['published', 'draft'].flatMap((scope) => posts.map((p, i) => postRow(toRow(scope, p, slugs.get(p.id), i)))),
     form_submissions: [],
     invites: [],
   };
@@ -31,7 +36,13 @@ function reset() {
 }
 reset();
 
-const KEYS = { site_content: 'scope' };
+const KEYS = { site_content: 'scope', blog_posts: 'scope,id' };
+/* blog_posts: defaults and the generated columns (body_sig, words) the real table computes */
+function postRow(r) {
+  const row = { title: '', date: '', cover: '', excerpt: '', body: '', published: true, ...r, updated_at: now() };
+  return Object.assign(row, derived(row.body));
+}
+const sameKey = (key, a, b) => key.split(',').every((k) => String(a[k]) === String(b[k]));
 const user = {
   id: '00000000-0000-4000-8000-000000000001',
   aud: 'authenticated',
@@ -58,6 +69,15 @@ function matches(row, params) {
     if (RESERVED.has(k)) continue;
     if (v.startsWith('eq.') && String(row[k]) !== v.slice(3)) return false;
     if (v === 'is.null' && row[k] != null) return false;
+    if (
+      v.startsWith('in.(') &&
+      !v
+        .slice(4, -1)
+        .split(',')
+        .map((x) => x.replace(/^"|"$/g, ''))
+        .includes(String(row[k]))
+    )
+      return false;
   }
   return true;
 }
@@ -86,6 +106,7 @@ function rest(req, res, table, url, body) {
       const [col, dir] = order.split('.');
       out = [...out].sort((a, b) => String(a[col]).localeCompare(String(b[col])) * (dir === 'desc' ? -1 : 1));
     }
+    if (p.get('offset')) out = out.slice(+p.get('offset'));
     if (p.get('limit')) out = out.slice(0, +p.get('limit'));
     return send(
       res,
@@ -97,9 +118,9 @@ function rest(req, res, table, url, body) {
     const items = Array.isArray(body) ? body : [body];
     const key = p.get('on_conflict') || KEYS[table] || 'id';
     const written = items.map((it) => {
-      const existing = /merge-duplicates/.test(prefer) && rows.find((r) => r[key] === it[key]);
-      if (existing) return Object.assign(existing, it);
-      const row = { id: crypto.randomUUID(), created_at: now(), ...it };
+      const existing = /merge-duplicates/.test(prefer) && rows.find((r) => sameKey(key, r, it));
+      if (existing) return table === 'blog_posts' ? Object.assign(existing, postRow({ ...existing, ...it })) : Object.assign(existing, it);
+      const row = table === 'blog_posts' ? postRow(it) : { id: crypto.randomUUID(), created_at: now(), ...it };
       rows.push(row);
       return row;
     });
@@ -107,7 +128,7 @@ function rest(req, res, table, url, body) {
   }
   if (req.method === 'PATCH') {
     const hit = rows.filter((r) => matches(r, p));
-    hit.forEach((r) => Object.assign(r, body));
+    hit.forEach((r) => Object.assign(r, table === 'blog_posts' ? postRow({ ...r, ...body }) : body));
     return send(res, representation ? 200 : 204, representation ? hit : '');
   }
   if (req.method === 'DELETE') {
@@ -150,6 +171,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   let m;
+  /* publish_site(): the draft settings and every draft post become the published ones */
+  if (path === '/rest/v1/rpc/publish_site' && req.method === 'POST') {
+    if (!bearerUser(req)) return send(res, 401, { message: 'permission denied for function publish_site' });
+    const draft = db.site_content.find((r) => r.scope === 'draft');
+    if (!draft) return send(res, 400, { message: 'No draft to publish' });
+    const pub = db.site_content.find((r) => r.scope === 'published');
+    Object.assign(pub, { data: clone(draft.data), version: draft.version, updated_at: now() });
+    db.blog_posts = [
+      ...db.blog_posts.filter((r) => r.scope === 'draft'),
+      ...db.blog_posts.filter((r) => r.scope === 'draft').map((r) => postRow({ ...clone(r), scope: 'published' })),
+    ];
+    return send(res, 204, '');
+  }
   if ((m = /^\/rest\/v1\/([a-z_]+)$/.exec(path))) return rest(req, res, m[1], url, json());
 
   if (path === '/auth/v1/token') {

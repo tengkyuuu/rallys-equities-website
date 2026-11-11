@@ -52,10 +52,12 @@ test('inbox empty and zero-search states provide recovery actions', async ({ pag
 test('a failed content load never shows "0 posts" and blocks saving over the real posts', async ({ page }) => {
   let fail = true;
   let writes = 0;
-  await page.route('**/rest/v1/site_content?*', (route) => {
+  // the draft's post list is the request that matters (and the one that used to be ~9.6 MB)
+  await page.route(/\/rest\/v1\/(site_content|blog_posts)\?/, (route) => {
     const m = route.request().method();
-    if (m === 'POST' || m === 'PATCH') writes++;
-    if (fail && m === 'GET' && route.request().url().includes('scope=eq.draft'))
+    if (m !== 'GET') writes++;
+    const u = route.request().url();
+    if (fail && m === 'GET' && u.includes('blog_posts') && u.includes('scope=eq.draft'))
       return route.fulfill({ status: 500, json: { message: 'canceling statement due to statement timeout' } });
     return route.fallback();
   });

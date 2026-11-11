@@ -1,19 +1,23 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
 import type { Post, SiteContent } from './content-types';
 import { SUPABASE_URL, supabaseHeaders } from './supabase-config';
 
 /* Published editor content, read on the server.
 
-   The record also holds every blog post (~8 MB today), which the old site made every
-   visitor download on every page. Here pages fetch only the small override fields, and
-   posts are fetched separately and only by the blog routes. */
+   Site settings are the small `published` row of site_content. Blog posts are rows in
+   blog_posts, fetched only by the blog routes. (Older records may still carry a `posts`
+   array inside site_content; it is never read.) */
 
 export const CONTENT_TAG = 'site-content';
 const REVALIDATE_S = 60;
 
 const FIELDS = ['text', 'img', 'imgMeta', 'theme', 'fonts', 'hidden', 'order', 'pricing', 'calcInfo', 'version'] as const;
 const OVERRIDES_URL = `${SUPABASE_URL}/rest/v1/site_content?scope=eq.published&select=${FIELDS.map((f) => `${f}:data->${f}`).join(',')}`;
-const POSTS_URL = `${SUPABASE_URL}/rest/v1/site_content?scope=eq.published&select=posts:data->posts`;
+const PAGE = 1000;
+const POST_LIST_COLS = 'id,slug,title,date,cover,excerpt,published,position,words';
+const POSTS_URL = `${SUPABASE_URL}/rest/v1/blog_posts?scope=eq.published&published=eq.true&select=${POST_LIST_COLS}`;
+const POST_BODY_URL = `${SUPABASE_URL}/rest/v1/blog_posts?scope=eq.published&published=eq.true&select=body`;
 
 /** Overrides minus posts. Never throws: if Supabase is unreachable the site shows its built-in defaults. */
 export async function getSiteContent(): Promise<SiteContent> {
@@ -28,13 +32,10 @@ export async function getSiteContent(): Promise<SiteContent> {
   }
 }
 
-/* Posts are too large for Next's data cache (2 MB per entry), so they are cached in
-   memory per server instance and refreshed every minute, or at once on publish. */
-let postsCache: { at: number; posts: Promise<PublishedPost[]> } | null = null;
-
-export function invalidatePosts() {
-  postsCache = null;
-}
+/* Lists fetch every column except the body (~350 KB for ~1,000 posts instead of ~9.5 MB);
+   a post page fetches its own body. Both sit in Next's data cache under CONTENT_TAG, so
+   they refresh every minute or at once when the editor publishes (/api/revalidate).
+   Loaders throw on failure, and a thrown result is never cached. */
 
 export type PublishedPost = Post & { slug: string; readTime: string };
 
@@ -49,49 +50,52 @@ export function slugify(s: string | undefined) {
     .slice(0, 80);
 }
 
-/** ~200 wpm over the stripped body, rounded, never below 1 minute. */
-export function readTime(body: string | undefined) {
-  const words = String(body || '')
-    .replace(/<[^>]*>/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200)) + ' min read';
-}
+/** ~200 wpm over the stripped body (counted by the database as `words`), never below 1 minute. */
+export const readTimeOf = (words: number | undefined) => Math.max(1, Math.round((words || 0) / 200)) + ' min read';
 
 async function loadPosts(): Promise<PublishedPost[]> {
+  // Supabase answers at most 1,000 rows per request, so read the list in pages
+  const rows: (Post & { position?: number | null })[] = [];
+  for (let offset = 0; ; offset += PAGE) {
+    const r = await fetch(`${POSTS_URL}&order=id&limit=${PAGE}&offset=${offset}`, { headers: supabaseHeaders, cache: 'no-store' });
+    if (!r.ok) throw new Error(`Could not load posts: ${r.status}`);
+    const page = (await r.json()) as typeof rows;
+    if (!Array.isArray(page)) throw new Error('Could not load posts: unexpected response');
+    rows.push(...page);
+    if (page.length < PAGE) break;
+  }
+  // newest first; same-date posts keep their original order (position), new ones after
+  const pos = (p: { position?: number | null }) => (p.position == null ? Infinity : p.position);
+  return rows
+    .filter((p) => p && p.published !== false)
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || pos(a) - pos(b))
+    .map((p, i) => ({ ...p, slug: p.slug || slugify(p.title) || `post-${i}`, readTime: readTimeOf(p.words) }));
+}
+
+async function loadBody(id: string): Promise<string> {
+  const r = await fetch(`${POST_BODY_URL}&id=eq.${encodeURIComponent(id)}`, { headers: supabaseHeaders, cache: 'no-store' });
+  if (!r.ok) throw new Error(`Could not load post ${id}: ${r.status}`);
+  const rows = (await r.json()) as { body?: string }[];
+  return rows[0]?.body ?? '';
+}
+
+const cachedPosts = unstable_cache(loadPosts, ['blog-posts-list'], { revalidate: REVALIDATE_S, tags: [CONTENT_TAG] });
+const cachedBody = unstable_cache(loadBody, ['blog-post-body'], { revalidate: REVALIDATE_S, tags: [CONTENT_TAG] });
+
+/** Published posts, newest first. Never throws: if Supabase is unreachable the list is empty. */
+export async function getPosts(): Promise<PublishedPost[]> {
   try {
-    const r = await fetch(POSTS_URL, { headers: supabaseHeaders, cache: 'no-store' });
-    if (!r.ok) return [];
-    const rows = (await r.json()) as { posts?: Post[] }[];
-    const all = Array.isArray(rows[0]?.posts) ? rows[0].posts : [];
-    return (
-      all
-        .filter((p) => p && p.published !== false)
-        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
-        // posts saved before the editor had slugs derive one from the title, so old links keep working
-        .map((p, i) => ({ ...p, slug: p.slug || slugify(p.title) || `post-${i}`, readTime: readTime(p.body) }))
-    );
+    return await cachedPosts();
   } catch {
     return [];
   }
 }
 
-/** Published posts, newest first. */
-export function getPosts(): Promise<PublishedPost[]> {
-  if (!postsCache || Date.now() - postsCache.at > REVALIDATE_S * 1000) {
-    const posts = loadPosts();
-    postsCache = { at: Date.now(), posts };
-    // a failed load must not be cached for a whole minute
-    posts.then((p) => {
-      if (!p.length && postsCache?.posts === posts) postsCache = null;
-    });
-  }
-  return postsCache.posts;
-}
-
+/** One published post with its body, or null if no live post has that slug. If the body
+    can't be loaded this throws, so a hiccup shows an error page instead of a 404. */
 export async function getPost(slug: string) {
   const posts = await getPosts();
   const i = posts.findIndex((p) => p.slug === slug);
-  return i < 0 ? null : { post: posts[i], index: i, posts };
+  if (i < 0) return null;
+  return { post: { ...posts[i], body: await cachedBody(posts[i].id) }, index: i, posts };
 }
