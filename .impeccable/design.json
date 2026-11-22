@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "DESIGN.md",
+  "extensions": {
+    "cssVariables": {
+      "dark": "styles/base.css :root",
+      "light": "styles/light-theme.css body.light",
+      "map": {
+        "--g": "emerald",
+        "--g2": "emerald-mid",
+        "--g3": "emerald-bright",
+        "--au": "gold",
+        "--au2": "gold-light",
+        "--nv": "navy-deep",
+        "--nv2": "navy",
+        "--nv3": "navy-raised",
+        "--tx": "ivory-text",
+        "--up": "market-up",
+        "--dn": "market-down"
+      }
+    },
+    "shadows": {
+      "popover": "0 14px 36px -12px rgba(var(--shadow-rgb), .45)",
+      "card-hover": "0 22px 50px -22px rgba(var(--shadow-rgb), .5)",
+      "button-primary": "0 4px 16px color-mix(in srgb, var(--g) 35%, transparent)",
+      "button-primary-hover": "0 8px 24px color-mix(in srgb, var(--g) 50%, transparent)",
+      "focus-halo": "0 0 0 3px color-mix(in srgb, var(--g3) 8%, transparent)"
+    },
+    "motion": {
+      "ease-lux": "cubic-bezier(.22,.61,.36,1)",
+      "fast": "140ms",
+      "base": "200ms",
+      "slow": "350ms",
+      "reducedMotion": "every animation has a prefers-reduced-motion: reduce fallback"
+    },
+    "breakpoints": { "phone": "640px", "tablet": "900px", "wide": "1180px" },
+    "components": {
+      "button-primary": {
+        "html": "<button class=\"bbig bbig-g\">Open an Account</button>",
+        "css": ".bbig{font:700 13px/1 var(--font-body);border-radius:9px;padding:12px 28px;letter-spacing:.04em;border:none}.bbig-g{background:linear-gradient(135deg,var(--g),var(--g3));color:#fff;box-shadow:0 6px 24px color-mix(in srgb,var(--g) 40%,transparent)}"
+      },
+      "button-outline": {
+        "html": "<button class=\"bbig bbig-o\">Talk to Us</button>",
+        "css": ".bbig-o{background:transparent;border:1px solid color-mix(in srgb,var(--tx) 22%,transparent);color:var(--tx)}"
+      },
+      "input": {
+        "html": "<input class=\"finput\" placeholder=\"Full name\">",
+        "css": ".finput{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 14px;color:var(--tx);font-size:13px}.finput:focus{border-color:color-mix(in srgb,var(--g3) 50%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g3) 8%,transparent)}"
+      },
+      "select": {
+        "html": "<select class=\"fselect\"><option value=\"\">Select city</option><option>Lahore</option></select>",
+        "css": "see styles/forms-dynamic.css (.fselect, ::picker(select), option, ::checkmark)"
+      },
+      "card": {
+        "html": "<div class=\"svc-card\">…</div>",
+        "css": ".svc-card{border:1px solid var(--gb);border-radius:18px;padding:30px 24px;background:var(--gl)}"
+      },
+      "section-title": {
+        "html": "<div class=\"stag\">Our Services</div><h2 class=\"sh\">Investing, explained</h2>",
+        "css": ".stag{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g3);padding:6px 15px;border:1px solid color-mix(in srgb,var(--g3) 25%,transparent);border-radius:4px}.sh{font:700 44px/1.08 var(--font-display)}"
+      }
+    }
+  },
+  "narrative": {
+    "northStar": "The Lahore Trading Floor at Night",
+    "overview": "A private-banking interior rendered on screen: deep navy rooms, emerald for action and growth, gold for craft and trust. Dark by default, with an ivory light theme in which live-data screens stay dark. The brief is to keep the incumbent design exactly as it is.",
+    "keyCharacteristics": [
+      "Dark navy surfaces in three steps, separated by tone and gold hairlines, not by heavy shadows.",
+      "Emerald means \"do this\"; gold means \"this is premium or important\".",
+      "Small, tracked, uppercase labels above big serif headings.",
+      "Gently rounded controls (9px) inside softly rounded cards (18px).",
+      "Real market data only; up/down colours are reserved for prices."
+    ],
+    "rules": [
+      { "section": "Colors", "name": "The Token-Only Rule" },
+      { "section": "Colors", "name": "The Two-Accent Rule" },
+      { "section": "Colors", "name": "The Market Colour Rule" },
+      { "section": "Colors", "name": "The Dark Screen Rule" },
+      { "section": "Typography", "name": "The Serif-for-Headings Rule" },
+      { "section": "Typography", "name": "The 16px Field Rule" },
+      { "section": "Elevation & Depth", "name": "The Retinting Shadow Rule" },
+      { "section": "Shapes", "name": "The Nested Radius Rule" },
+      { "section": "Components", "name": "The Native Select Rule" }
+    ]
+  }
+}
