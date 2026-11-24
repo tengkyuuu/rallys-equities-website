@@ -9,3 +9,6 @@
 *.woff  binary
 *.woff2 binary
 *.docx binary
+
+# Shell scripts must keep Unix line endings or bash fails on Windows checkouts
+*.sh text eol=lf
